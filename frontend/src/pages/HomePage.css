@@ -1,0 +1,136 @@
+.home-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+}
+
+.home-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 40px;
+}
+
+.home-header h1 {
+  font-size: 48px;
+  margin: 0 0 16px 0;
+  font-weight: 700;
+}
+
+.home-header p {
+  font-size: 20px;
+  opacity: 0.9;
+  margin: 0 0 24px 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.header-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.header-btn:hover {
+  background: white;
+  color: #667eea;
+  transform: translateY(-2px);
+}
+
+.header-btn.primary {
+  background: white;
+  color: #667eea;
+}
+
+.header-btn.primary:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.home-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.upload-section {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.review-dashboard {
+  margin-bottom: 30px;
+  animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.review-card {
+  background: #fffaf0;
+  border: 2px solid #ed8936;
+  border-radius: 16px;
+  padding: 24px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(237, 137, 54, 0.15);
+}
+
+.review-info h3 {
+  font-size: 20px;
+  color: #dd6b20;
+  margin: 0 0 8px 0;
+}
+
+.review-info p {
+  color: #718096;
+  margin: 0;
+  font-size: 16px;
+}
+
+.review-info strong {
+  color: #e53e3e;
+  font-size: 1.1em;
+}
+
+.start-review-btn {
+  background: #ed8936;
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(237, 137, 54, 0.3);
+}
+
+.start-review-btn:hover {
+  background: #dd6b20;
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(237, 137, 54, 0.4);
+}
+
+.files-section {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}

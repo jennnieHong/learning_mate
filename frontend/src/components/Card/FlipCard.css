@@ -1,0 +1,121 @@
+/* [FlipCard.css] 카드 뒤집기 애니메이션 및 스타일 */
+
+.flip-card-container {
+  /* 블록 레벨로 설정하고 가로폭을 고정한 뒤 margin: 0 auto로 정렬하면 가장 안정적입니다. */
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  perspective: 1500px; /* 3D 효과의 깊이감 */
+  position: relative;
+}
+
+.flip-card {
+  width: 100%;
+  aspect-ratio: 5/3; /* 5:3 비율 유지 */
+  min-height: 350px;
+  cursor: pointer;
+  position: relative;
+  transform-style: preserve-3d; /* 자식 요소들의 3D 상태 유지 */
+  transform-origin: center center; /* 정확히 중앙을 기점으로 회전 */
+  margin: 0 auto;
+}
+
+.card-face {
+  /* 앞면과 뒷면이 한 자리에 완벽히 겹치도록 absolute 설정 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* 뒤집혔을 때 반대면이 보이지 않도록 함 */
+  -webkit-backface-visibility: hidden;
+  
+  /* 내부 텍스트 정렬 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-sizing: border-box; /* 패딩이 너비에 영향을 주지 않도록 설정 */
+}
+
+.card-front {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: white;
+  z-index: 2; /* 기본 상태에서 앞면을 위로 */
+}
+
+.card-back {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  transform: rotateY(180deg); /* 뒷면은 기본적으로 180도 뒤집힌 상태 */
+}
+
+.card-label {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  opacity: 0.85;
+  padding: 6px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.card-content {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.35;
+  word-break: keep-all;
+  margin: 40px 0;
+}
+
+.card-content p {
+  margin: 0;
+  width: 100%;
+}
+
+.card-hint {
+  position: absolute;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0.9;
+  padding: 10px 24px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 30px;
+  color: white;
+  text-align: center;
+}
+
+/* 좁은 화면에서의 대응 */
+@media (max-width: 640px) {
+  .card-content {
+    font-size: 1.7rem;
+  }
+  .card-face {
+    padding: 30px 20px;
+  }
+}

@@ -1,0 +1,220 @@
+/* [StudyPage.css] 학습 화면의 전체 레이아웃 및 헤더 스타일 */
+
+.study-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: #2d3748;
+}
+
+/* 상단 헤더 */
+.study-header {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 15px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.back-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #4a5568;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateX(-2px);
+}
+
+.study-info {
+  flex: 1;
+  max-width: 600px;
+  margin: 0 40px;
+  text-align: center;
+}
+
+.study-info h3 {
+  font-size: 1.1rem;
+  margin: 0 0 10px 0;
+  color: #1a202c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 진행 상태 표시바 */
+.progress-indicator {
+  width: 100%;
+}
+
+.progress-text {
+  font-size: 0.85rem;
+  color: #718096;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.progress-bar-mini {
+  height: 6px;
+  background: #edf2f7;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  border-radius: 10px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-shortcut {
+  background: #f1f5f9;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-shortcut:hover {
+  background: #e2e8f0;
+  transform: rotate(30deg);
+}
+
+/* 메인 콘텐츠 영역 */
+.study-content {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* 상단부터 배치하여 잘림 방지 */
+  min-height: calc(100vh - 100px);
+  padding-top: 40px;
+}
+
+/* [설명 모드: 카드 뒤집기 뷰] */
+.explanation-view {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px; /* 카드와 버튼 사이 간격 확대 */
+  position: relative;
+  z-index: 1;
+}
+
+.card-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  z-index: 10; /* 카드 뒤집기 시 겹치지 않게 우선순위 부여 */
+}
+
+.nav-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #4a5568;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.status-actions {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.complete-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.complete-btn.active {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
+}
+
+.complete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.finish-btn {
+  margin-top: 20px;
+  padding: 16px 40px;
+  background: #1a202c;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.finish-btn:hover {
+  background: #2d3748;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* 로딩 및 에러 */
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  font-size: 1.2rem;
+  color: #718096;
+  text-align: center;
+}

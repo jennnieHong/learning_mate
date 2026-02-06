@@ -1,0 +1,149 @@
+.quiz-result-view {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.result-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 40px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.result-header h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.filename-display {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 30px;
+}
+
+.score-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.score-circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(99, 102, 241, 0.2);
+  border: 4px solid #f1f5f9;
+}
+
+.score-value {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #4f46e5;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 1rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  width: 100%;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.stat-item .label {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.stat-item .value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.stat-item.correct .value {
+  color: #10b981;
+}
+
+.stat-item.wrong .value {
+  color: #ef4444;
+}
+
+.result-message {
+  font-size: 1.1rem;
+  color: #334155;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.result-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.restart-btn {
+  padding: 16px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.restart-btn:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.home-btn {
+  padding: 16px;
+  background: white;
+  color: #4f46e5;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.home-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
