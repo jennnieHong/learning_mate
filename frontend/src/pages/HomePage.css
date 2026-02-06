@@ -1,136 +1,158 @@
+/* [HomePage.css] 메인 홈 페이지 스타일 */
+
 .home-page {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 40px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  transition: all 0.3s ease;
 }
 
 .home-header {
   text-align: center;
-  color: white;
-  margin-bottom: 40px;
+  margin-bottom: 50px;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .home-header h1 {
-  font-size: 48px;
-  margin: 0 0 16px 0;
-  font-weight: 700;
+  font-size: 3.5rem;
+  margin: 0 0 10px 0;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
 .home-header p {
-  font-size: 20px;
-  opacity: 0.9;
-  margin: 0 0 24px 0;
+  font-size: 1.25rem;
+  color: var(--text-sub);
+  margin: 0 0 30px 0;
 }
 
 .header-actions {
   display: flex;
-  gap: 12px;
   justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .header-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid white;
-  color: white;
   padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 14px;
+  border: 1px solid var(--border-main);
+  background-color: var(--bg-container);
+  color: var(--text-main);
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
-  backdrop-filter: blur(10px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
 }
 
 .header-btn:hover {
-  background: white;
-  color: #667eea;
-  transform: translateY(-2px);
+  border-color: var(--accent-primary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  color: var(--accent-primary);
 }
 
 .header-btn.primary {
-  background: white;
-  color: #667eea;
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
 }
 
 .header-btn.primary:hover {
-  background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background-color: var(--accent-hover);
+  color: white;
 }
 
 .home-content {
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
 }
 
-.upload-section {
-  background: white;
-  border-radius: 16px;
+/* 업로드 및 파일 섹션 */
+.upload-section, .files-section {
+  background-color: var(--bg-container);
+  border-radius: 24px;
   padding: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-light);
 }
 
+/* 오답 노드 대시보드 */
 .review-dashboard {
-  margin-bottom: 30px;
-  animation: slideDown 0.4s ease-out;
+  animation: slideUp 0.5s ease-out;
 }
 
-@keyframes slideDown {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 01; transform: translateY(0); }
 }
 
 .review-card {
-  background: #fffaf0;
+  background: linear-gradient(135deg, rgba(237, 137, 54, 0.1) 0%, rgba(246, 173, 85, 0.1) 100%);
   border: 2px solid #ed8936;
-  border-radius: 16px;
-  padding: 24px 30px;
+  border-radius: 20px;
+  padding: 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 15px rgba(237, 137, 54, 0.15);
+  gap: 30px;
 }
 
 .review-info h3 {
-  font-size: 20px;
+  font-size: 1.4rem;
   color: #dd6b20;
   margin: 0 0 8px 0;
 }
 
 .review-info p {
-  color: #718096;
+  color: var(--text-sub);
   margin: 0;
-  font-size: 16px;
+  font-size: 1.1rem;
 }
 
 .review-info strong {
-  color: #e53e3e;
-  font-size: 1.1em;
+  color: var(--danger);
+  font-size: 1.2rem;
 }
 
 .start-review-btn {
-  background: #ed8936;
+  background-color: #ed8936;
   color: white;
   border: none;
-  padding: 16px 32px;
-  border-radius: 12px;
-  font-size: 18px;
-  font-weight: 700;
+  padding: 18px 36px;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 800;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(237, 137, 54, 0.3);
+  box-shadow: 0 8px 20px rgba(237, 137, 54, 0.3);
+  white-space: nowrap;
 }
 
 .start-review-btn:hover {
-  background: #dd6b20;
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(237, 137, 54, 0.4);
+  background-color: #dd6b20;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 25px rgba(237, 137, 54, 0.4);
 }
 
-.files-section {
-  background: white;
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+@media (max-width: 768px) {
+  .review-card {
+    flex-direction: column;
+    text-align: center;
+  }
 }

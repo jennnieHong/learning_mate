@@ -14,20 +14,20 @@
 
 /* 문제 질문 영역 */
 .quiz-question {
-  background: white;
+  background-color: var(--bg-container);
   padding: 40px;
   border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-lg);
   margin-bottom: 30px;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--glass-border);
 }
 
 .problem-label {
   display: inline-block;
   padding: 4px 12px;
-  background: #f1f5f9;
-  color: #64748b;
+  background-color: var(--bg-sub);
+  color: var(--text-sub);
   border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 700;
@@ -39,7 +39,7 @@
 .quiz-question h2 {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-main);
   line-height: 1.4;
   word-break: keep-all;
 }
@@ -52,8 +52,8 @@
 }
 
 .choice-btn {
-  background: white;
-  border: 2px solid #e2e8f0;
+  background-color: var(--bg-container);
+  border: 2px solid var(--border-main);
   padding: 16px 24px;
   border-radius: 16px;
   display: flex;
@@ -64,30 +64,31 @@
   font-size: 1.1rem;
   text-align: left;
   width: 100%;
+  color: var(--text-main);
 }
 
 .choice-btn:hover:not(:disabled) {
-  border-color: #6366f1;
-  background: #f8faff;
+  border-color: var(--accent-primary);
+  background-color: var(--bg-sub);
   transform: translateX(5px);
 }
 
 .choice-btn.selected {
-  border-color: #6366f1;
-  background: #f5f3ff;
+  border-color: var(--accent-primary);
+  background-color: var(--bg-sub);
 }
 
 /* 정답/오답 상태 스타일 */
 .choice-btn.correct {
-  background: #ecfdf5;
-  border-color: #10b981;
-  color: #065f46;
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: var(--success);
+  color: var(--success);
 }
 
 .choice-btn.wrong {
-  background: #fef2f2;
-  border-color: #ef4444;
-  color: #991b1b;
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
 .choice-btn:disabled {
@@ -97,25 +98,25 @@
 .choice-number {
   width: 30px;
   height: 30px;
-  background: #f1f5f9;
+  background-color: var(--bg-sub);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.9rem;
   font-weight: 800;
-  color: #64748b;
+  color: var(--text-sub);
   flex-shrink: 0;
   transition: all 0.2s;
 }
 
 .choice-btn.correct .choice-number {
-  background: #10b981;
+  background-color: var(--success);
   color: white;
 }
 
 .choice-btn.wrong .choice-number {
-  background: #ef4444;
+  background-color: var(--danger);
   color: white;
 }
 
@@ -135,21 +136,22 @@
   flex: 1;
   padding: 18px 24px;
   border-radius: 16px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border-main);
   font-size: 1.2rem;
   transition: all 0.2s;
-  background: white;
+  background-color: var(--bg-container);
+  color: var(--text-main);
 }
 
 .subjective-input-area input:focus {
   outline: none;
-  border-color: #6366f1;
+  border-color: var(--accent-primary);
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
 .submit-btn {
   padding: 0 30px;
-  background: #6366f1;
+  background-color: var(--accent-primary);
   color: white;
   border: none;
   border-radius: 16px;
@@ -160,7 +162,7 @@
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: #4f46e5;
+  background-color: var(--accent-hover);
   transform: translateY(-2px);
 }
 
@@ -181,16 +183,11 @@
 }
 
 .answer-feedback.correct {
-  background: #ecfdf5;
-  color: #065f46;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success);
 }
 
 .answer-feedback.wrong {
-  background: #fef2f2;
-  color: #991b1b;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
 }

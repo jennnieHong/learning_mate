@@ -1,16 +1,21 @@
+/* [TrashPage.css] 휴지통 페이지 스타일 */
+
 .trash-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: var(--bg-page);
+  color: var(--text-main);
   padding: 40px 20px;
+  transition: all 0.3s ease;
 }
 
 .trash-container {
   max-width: 1000px;
   margin: 0 auto;
-  background: white;
-  border-radius: 16px;
+  background-color: var(--bg-container);
+  border-radius: 24px;
   padding: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-light);
 }
 
 .trash-header {
@@ -21,8 +26,9 @@
 }
 
 .trash-header h1 {
-  font-size: 32px;
-  color: #2d3748;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
   margin: 0;
 }
 
@@ -31,28 +37,30 @@
 }
 
 .back-btn {
-  background: transparent;
-  border: 2px solid #4299e1;
-  color: #4299e1;
+  background-color: var(--bg-sub);
+  border: 1px solid var(--border-main);
+  color: var(--text-main);
   padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .back-btn:hover {
-  background: #4299e1;
+  background-color: var(--accent-primary);
   color: white;
+  border-color: var(--accent-primary);
 }
 
 .loading,
 .empty-trash {
   text-align: center;
   padding: 80px 20px;
-  color: #718096;
-  font-size: 18px;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .trash-list {
@@ -64,21 +72,22 @@
 .trash-item {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
   padding: 24px;
-  background: #f7fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  transition: all 0.3s;
+  background-color: var(--bg-sub);
+  border: 1px solid var(--border-main);
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .trash-item:hover {
-  background: #edf2f7;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--text-muted);
 }
 
 .trash-icon {
-  font-size: 48px;
+  font-size: 2.5rem;
 }
 
 .trash-info {
@@ -86,21 +95,21 @@
 }
 
 .trash-info h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #2d3748;
-  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 6px 0;
 }
 
 .trash-stats {
-  font-size: 14px;
-  color: #718096;
+  font-size: 0.95rem;
+  color: var(--text-sub);
   margin: 4px 0;
 }
 
 .trash-date {
-  font-size: 12px;
-  color: #a0aec0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
   margin: 4px 0 0 0;
 }
 
@@ -110,31 +119,35 @@
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-restore {
-  background: #48bb78;
+  background-color: var(--success);
   color: white;
 }
 
 .btn-restore:hover {
-  background: #38a169;
-  transform: translateY(-2px);
+  background-color: #059669;
+  transform: scale(1.05);
 }
 
 .btn-delete {
-  background: #f56565;
-  color: white;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border: 1px solid var(--danger);
 }
 
 .btn-delete:hover {
-  background: #e53e3e;
-  transform: translateY(-2px);
+  background-color: var(--danger);
+  color: white;
 }

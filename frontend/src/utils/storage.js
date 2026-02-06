@@ -219,7 +219,9 @@ export const getSettings = async () => {
     orderMode: 'random',
     repeatMode: false,
     questionType: 'multiple',
-    cardFront: 'explanation'
+    cardFront: 'explanation',
+    theme: 'light',
+    fontSize: 5
   };
 };
 

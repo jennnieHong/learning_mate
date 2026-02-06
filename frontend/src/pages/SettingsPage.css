@@ -1,99 +1,159 @@
+/* [SettingsPage.css] 설정 페이지 스타일 */
+
 .settings-page {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 40px 20px;
+  min-height: 100vh;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  transition: all 0.3s ease;
 }
 
 .settings-container {
   max-width: 800px;
   margin: 0 auto;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
 }
 
 .settings-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 30px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 40px;
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-page);
+  padding: 10px 0;
+  z-index: 10;
 }
 
 .settings-header h1 {
-  font-size: 28px;
+  font-size: 2rem;
   margin: 0;
 }
 
-.back-btn,
-.save-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid white;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  backdrop-filter: blur(10px);
-}
-
-.back-btn:hover,
-.save-btn:hover {
-  background: white;
-  color: #667eea;
-}
-
-.settings-content {
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
-
+/* 설정 그룹 */
 .setting-group {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  background-color: var(--bg-container);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 30px;
+  border: 1px solid var(--border-main);
 }
 
 .setting-group h2 {
-  font-size: 20px;
-  color: #2d3748;
-  margin: 0;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .setting-description {
-  font-size: 14px;
-  color: #718096;
-  margin: 0;
+  color: var(--text-sub);
+  font-size: 0.95rem;
+  margin-bottom: 24px;
 }
 
-.setting-options {
+/* 그리드 레이아웃 */
+.grid-2 {
   display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 640px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 테마 토글 버튼 */
+.theme-toggle {
+  display: flex;
+  background-color: var(--bg-sub);
+  padding: 5px;
+  border-radius: 12px;
+  gap: 5px;
+}
+
+.theme-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.theme-btn.active {
+  background-color: var(--bg-container);
+  color: var(--accent-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 글자 크기 슬라이더 */
+.font-size-slider-container {
+  padding: 10px 0;
+}
+
+.font-size-slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  background: var(--bg-sub);
+  border-radius: 5px;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.font-size-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* 옵션 카드 */
+.setting-options {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
 .option-card {
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 16px;
+  border: 2px solid var(--border-main);
+  border-radius: 16px;
+  padding: 20px;
   cursor: pointer;
-  transition: all 0.3s;
-  display: block;
+  transition: all 0.2s;
+  background-color: var(--bg-container);
 }
 
 .option-card:hover {
-  border-color: #cbd5e0;
-  background: #f7fafc;
+  border-color: var(--accent-primary);
+  background-color: var(--bg-sub);
 }
 
 .option-card.selected {
-  border-color: #4299e1;
-  background: #ebf8ff;
+  border-color: var(--accent-primary);
+  background-color: var(--bg-sub);
+}
+
+.option-card.compact {
+  padding: 12px 20px;
 }
 
 .option-card input[type="radio"] {
@@ -103,42 +163,20 @@
 .option-content {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 15px;
 }
 
 .option-icon {
-  font-size: 32px;
-  flex-shrink: 0;
+  font-size: 1.5rem;
 }
 
-.option-text h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2d3748;
-  margin: 0 0 4px 0;
-}
-
-.option-text p {
-  font-size: 14px;
-  color: #718096;
-  margin: 0;
-}
-
+/* 토글 옵션 */
 .toggle-option {
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 16px;
-  cursor: pointer;
-  transition: all 0.3s;
   display: block;
+  cursor: pointer;
 }
 
-.toggle-option:hover {
-  border-color: #cbd5e0;
-  background: #f7fafc;
-}
-
-.toggle-option input[type="checkbox"] {
+.toggle-option input {
   display: none;
 }
 
@@ -146,48 +184,54 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-}
-
-.toggle-content h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2d3748;
-  margin: 0 0 4px 0;
-}
-
-.toggle-content p {
-  font-size: 14px;
-  color: #718096;
-  margin: 0;
 }
 
 .toggle-switch {
-  width: 60px;
-  height: 32px;
-  background: #cbd5e0;
-  border-radius: 16px;
+  width: 50px;
+  height: 26px;
+  background-color: var(--bg-sub);
+  border-radius: 13px;
   position: relative;
-  transition: background 0.3s;
-  flex-shrink: 0;
+  transition: background-color 0.3s;
 }
 
 .toggle-switch.on {
-  background: #48bb78;
+  background-color: var(--accent-primary);
 }
 
 .toggle-slider {
-  width: 26px;
-  height: 26px;
-  background: white;
+  width: 20px;
+  height: 20px;
+  background-color: white;
   border-radius: 50%;
   position: absolute;
   top: 3px;
   left: 3px;
   transition: transform 0.3s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-sm);
 }
 
 .toggle-switch.on .toggle-slider {
-  transform: translateX(28px);
+  transform: translateX(24px);
+}
+
+/* 버튼 스타일 */
+.back-btn {
+  background-color: var(--bg-sub);
+  color: var(--text-main);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-btn {
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
 }

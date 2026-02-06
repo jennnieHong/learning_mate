@@ -1,66 +1,87 @@
+/* [index.css] 전역 디자인 시스템 및 테마 정의 */
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* --- 폰트 초기값 --- */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* --- 테마 공통 변수 (중립 색상) --- */
+  --accent-primary: #6366f1;
+  --accent-hover: #4f46e5;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  
+  /* --- 시스템 기본값 (App.jsx에서 동적으로 주입됨) --- */
+  --font-scale-factor: 1; 
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+/* [라이트 모드 정의] */
+.theme-light {
+  --bg-page: #f8fafc;
+  --bg-container: #ffffff;
+  --bg-sub: #f1f5f9;
+  
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --text-muted: #94a3b8;
+  
+  --border-main: #e2e8f0;
+  --border-light: #f1f5f9;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.5);
 }
-a:hover {
-  color: #535bf2;
+
+/* [다크 모드 정의] */
+.theme-dark {
+  --bg-page: #0f172a;
+  --bg-container: #1e293b;
+  --bg-sub: #334155;
+  
+  --text-main: #f1f5f9;
+  --text-sub: #cbd5e1;
+  --text-muted: #64748b;
+  
+  --border-main: #334155;
+  --border-light: #1e293b;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  
+  --glass-bg: rgba(15, 23, 42, 0.8);
+  --glass-border: rgba(51, 65, 85, 0.5);
+}
+
+/* [글자 크기 스케일링 적용] */
+html {
+  /* 모든 폰트 사이즈의 기준이 되는 root 폰트 크기 조절 */
+  font-size: calc(16px * var(--font-scale-factor));
+  transition: font-size 0.2s ease;
 }
 
 body {
   margin: 0;
-  min-width: 320px;
+  background-color: var(--bg-page);
+  color: var(--text-main);
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
+/* 공통 버튼 스타일 리셋 */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  font-size: 1rem;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* 텍스트 줄바꿈 공통 설정 */
+* {
+  box-sizing: border-box;
+  word-break: keep-all;
 }

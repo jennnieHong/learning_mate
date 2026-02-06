@@ -1,7 +1,6 @@
 /**
  * @file SettingsPage.jsx
- * @description 애플리케이션의 전역 학습 설정을 관리하는 페이지입니다.
- * 학습 모드(설명/문제), 문제 유형(객관식/주관식), 카드 앞면 기준, 정렬 순서 등을 설정할 수 있습니다.
+ * @description 애플리케이션의 전역 학습 설정 및 개인화(테마, 글자 크기)를 관리하는 페이지입니다.
  */
 
 import { useEffect } from 'react';
@@ -13,7 +12,7 @@ import './SettingsPage.css';
 export default function SettingsPage() {
   const navigate = useNavigate();
   
-  // 스토어에서 설정 상태와 로드/업데이트 함수 추출
+  // 스토어에서 설정 상태와 업데이트 함수 추출
   const { settings, loadSettings, updateSetting } = useSettingsStore();
   
   /**
@@ -37,7 +36,6 @@ export default function SettingsPage() {
    * @param {any} value - 적용할 값
    */
   const handleUpdate = (key, value) => {
-    // updateSetting은 스토어 내부에서 DB 저장까지 함께 수행합니다.
     updateSetting(key, value);
   };
   
@@ -55,13 +53,60 @@ export default function SettingsPage() {
         </header>
         
         <main className="settings-content">
-          {/* [1. 학습 모드 설정] */}
+          {/* [1. 테마 및 디자인 설정] */}
+          <section className="setting-group">
+            <h2>🎨 테마 및 디자인</h2>
+            <p className="setting-description">애플리케이션의 분위기와 글자 크기를 설정하세요</p>
+            
+            <div className="setting-options grid-2">
+              {/* 테마 선택 */}
+              <div className="setting-sub-item">
+                <label>화면 테마</label>
+                <div className="theme-toggle">
+                  <button 
+                    className={`theme-btn ${settings.theme === 'light' ? 'active' : ''}`}
+                    onClick={() => handleUpdate('theme', 'light')}
+                  >
+                    ☀️ 라이트
+                  </button>
+                  <button 
+                    className={`theme-btn ${settings.theme === 'dark' ? 'active' : ''}`}
+                    onClick={() => handleUpdate('theme', 'dark')}
+                  >
+                    🌙 다크
+                  </button>
+                </div>
+              </div>
+
+              {/* 글자 크기 조절 (슬라이더) */}
+              <div className="setting-sub-item">
+                <label>기본 글자 크기 (현재 {settings.fontSize}단계)</label>
+                <div className="font-size-slider-container">
+                  <input 
+                    type="range" 
+                    min="1" 
+                    max="10" 
+                    step="1"
+                    value={settings.fontSize || 5}
+                    onChange={(e) => handleUpdate('fontSize', parseInt(e.target.value))}
+                    className="font-size-slider"
+                  />
+                  <div className="slider-labels">
+                    <span>작게</span>
+                    <span>보통</span>
+                    <span>크게</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* [2. 학습 모드 설정] */}
           <div className="setting-group">
             <h2>📚 학습 모드</h2>
             <p className="setting-description">지식을 습득할 기본 방식을 선택하세요</p>
             
             <div className="setting-options">
-              {/* 설명 모드 선택 카드 */}
               <label className={`option-card ${settings.mode === 'explanation' ? 'selected' : ''}`}>
                 <input
                   type="radio"
@@ -79,7 +124,6 @@ export default function SettingsPage() {
                 </div>
               </label>
               
-              {/* 문제 모드 선택 카드 */}
               <label className={`option-card ${settings.mode === 'problem' ? 'selected' : ''}`}>
                 <input
                   type="radio"
@@ -99,7 +143,7 @@ export default function SettingsPage() {
             </div>
           </div>
           
-          {/* [2. 문제 유형 설정] - 문제 모드일 때만 노출 */}
+          {/* [3. 문제 유형 설정] */}
           {settings.mode === 'problem' && (
             <div className="setting-group">
               <h2>📝 문제 유형</h2>
@@ -143,130 +187,58 @@ export default function SettingsPage() {
             </div>
           )}
           
-          {/* [3. 카드 앞면 설정] - 설명 모드일 때만 노출 */}
-          {settings.mode === 'explanation' && (
-            <div className="setting-group">
-              <h2>🎴 카드 앞면</h2>
-              <p className="setting-description">카드 뒤집기 시 처음에 보여줄 내용을 선택하세요</p>
-              
+          {/* [4. 문제 순서 및 반복] */}
+          <div className="setting-group grid-2">
+            <div>
+              <h2>🔀 문제 순서</h2>
               <div className="setting-options">
-                <label className={`option-card ${settings.cardFront === 'explanation' ? 'selected' : ''}`}>
+                <label className={`option-card compact ${settings.orderMode === 'sequential' ? 'selected' : ''}`}>
                   <input
                     type="radio"
-                    name="cardFront"
-                    value="explanation"
-                    checked={settings.cardFront === 'explanation'}
-                    onChange={(e) => handleUpdate('cardFront', e.target.value)}
+                    name="orderMode"
+                    value="sequential"
+                    checked={settings.orderMode === 'sequential'}
+                    onChange={(e) => handleUpdate('orderMode', e.target.value)}
                   />
                   <div className="option-content">
-                    <div className="option-icon">📖</div>
-                    <div className="option-text">
-                      <h3>설명 우선</h3>
-                      <p>질문을 먼저 보고 답을 유추</p>
-                    </div>
+                    <span>1️⃣2️⃣3️⃣ 순서대로</span>
                   </div>
                 </label>
                 
-                <label className={`option-card ${settings.cardFront === 'answer' ? 'selected' : ''}`}>
+                <label className={`option-card compact ${settings.orderMode === 'random' ? 'selected' : ''}`}>
                   <input
                     type="radio"
-                    name="cardFront"
-                    value="answer"
-                    checked={settings.cardFront === 'answer'}
-                    onChange={(e) => handleUpdate('cardFront', e.target.value)}
-                  />
-                  <div className="option-content">
-                    <div className="option-icon">💡</div>
-                    <div className="option-text">
-                      <h3>정답 우선</h3>
-                      <p>정답을 보고 설명을 떠올려보기</p>
-                    </div>
-                  </div>
-                </label>
-                
-                <label className={`option-card ${settings.cardFront === 'random' ? 'selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="cardFront"
+                    name="orderMode"
                     value="random"
-                    checked={settings.cardFront === 'random'}
-                    onChange={(e) => handleUpdate('cardFront', e.target.value)}
+                    checked={settings.orderMode === 'random'}
+                    onChange={(e) => handleUpdate('orderMode', e.target.value)}
                   />
                   <div className="option-content">
-                    <div className="option-icon">🎲</div>
-                    <div className="option-text">
-                      <h3>랜덤</h3>
-                      <p>매번 앞뒤를 섞어서 출제</p>
-                    </div>
+                    <span>🔀 무작위 섞기</span>
                   </div>
                 </label>
               </div>
             </div>
-          )}
-          
-          {/* [4. 문제 순서 설정] */}
-          <div className="setting-group">
-            <h2>🔀 문제 순서</h2>
-            <p className="setting-description">문제가 나열되는 순서를 변경합니다</p>
-            
-            <div className="setting-options">
-              <label className={`option-card ${settings.orderMode === 'sequential' ? 'selected' : ''}`}>
+
+            <div>
+              <h2>🔁 반복 설정</h2>
+              <label className="toggle-option">
                 <input
-                  type="radio"
-                  name="orderMode"
-                  value="sequential"
-                  checked={settings.orderMode === 'sequential'}
-                  onChange={(e) => handleUpdate('orderMode', e.target.value)}
+                  type="checkbox"
+                  checked={settings.repeatMode}
+                  onChange={(e) => handleUpdate('repeatMode', e.target.checked)}
                 />
-                <div className="option-content">
-                  <div className="option-icon">1️⃣2️⃣3️⃣</div>
-                  <div className="option-text">
-                    <h3>순서대로</h3>
-                    <p>파일에 저장된 원본 순서대로 진행</p>
+                <div className="toggle-content">
+                  <div>
+                    <h3>오답 반복 학습</h3>
+                    <p>틀린 문제만 다시 풀기</p>
                   </div>
-                </div>
-              </label>
-              
-              <label className={`option-card ${settings.orderMode === 'random' ? 'selected' : ''}`}>
-                <input
-                  type="radio"
-                  name="orderMode"
-                  value="random"
-                  checked={settings.orderMode === 'random'}
-                  onChange={(e) => handleUpdate('orderMode', e.target.value)}
-                />
-                <div className="option-content">
-                  <div className="option-icon">🔀</div>
-                  <div className="option-text">
-                    <h3>무작위</h3>
-                    <p>문제를 무작위로 섞어서 출제</p>
+                  <div className={`toggle-switch ${settings.repeatMode ? 'on' : ''}`}>
+                    <div className="toggle-slider"></div>
                   </div>
                 </div>
               </label>
             </div>
-          </div>
-          
-          {/* [5. 반복 학습 여부] */}
-          <div className="setting-group">
-            <h2>🔁 반복 모드</h2>
-            <p className="setting-description">효율적인 복습을 위한 설정입니다</p>
-            
-            <label className="toggle-option">
-              <input
-                type="checkbox"
-                checked={settings.repeatMode}
-                onChange={(e) => handleUpdate('repeatMode', e.target.checked)}
-              />
-              <div className="toggle-content">
-                <div>
-                  <h3>오답 반복 학습</h3>
-                  <p>한 세트가 끝나면 틀린 문제만 다시 풀기</p>
-                </div>
-                <div className={`toggle-switch ${settings.repeatMode ? 'on' : ''}`}>
-                  <div className="toggle-slider"></div>
-                </div>
-              </div>
-            </label>
           </div>
         </main>
       </div>

@@ -12,6 +12,7 @@ import { useProgressStore } from '../stores/useProgressStore';
 import { FlipCard } from '../components/Card/FlipCard';
 import { MultipleChoice } from '../components/Quiz/MultipleChoice';
 import { QuizResult } from '../components/Quiz/QuizResult';
+import { FontScaleWidget } from '../components/Common/FontScaleWidget';
 import toast, { Toaster } from 'react-hot-toast';
 import './StudyPage.css';
 
@@ -222,6 +223,7 @@ export default function StudyPage() {
           />
         )}
       </main>
+      <FontScaleWidget />
     </div>
   );
 }

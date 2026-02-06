@@ -1,26 +1,31 @@
+/* [FileDropzone.css] 파일 업로드 드롭존 스타일 */
+
 .dropzone {
-  border: 2px dashed #cbd5e0;
-  border-radius: 12px;
+  border: 2px dashed var(--border-main);
+  border-radius: 20px;
   padding: 60px 40px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  background: #f7fafc;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--bg-sub);
 }
 
 .dropzone:hover {
-  border-color: #4299e1;
-  background: #ebf8ff;
+  border-color: var(--accent-primary);
+  background-color: var(--bg-container);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .dropzone.active {
-  border-color: #3182ce;
-  background: #bee3f8;
+  border-color: var(--accent-primary);
+  background-color: var(--bg-container);
   transform: scale(1.02);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
 .dropzone.disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -28,24 +33,25 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
 .upload-icon {
   width: 64px;
   height: 64px;
-  color: #4299e1;
+  color: var(--accent-primary);
+  opacity: 0.8;
 }
 
 .dropzone-text {
-  font-size: 18px;
-  font-weight: 600;
-  color: #2d3748;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
   margin: 0;
 }
 
 .dropzone-hint {
-  font-size: 14px;
-  color: #718096;
+  font-size: 0.95rem;
+  color: var(--text-sub);
   margin: 0;
 }

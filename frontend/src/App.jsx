@@ -1,10 +1,11 @@
 /**
  * @file App.jsx
- * @description 애플리케이션의 메인 레이아웃 및 라우팅 설정을 담당하는 컴포넌트입니다.
- * React Router를 사용하여 각 페이지(Home, Study, Editor, Trash, Settings) 간의 전환을 관리합니다.
+ * @description 애플리케이션의 메인 레이아웃, 라우팅, 그리고 전역 테마 및 폰트 크기 조절을 관리합니다.
  */
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useSettingsStore } from './stores/useSettingsStore';
 import HomePage from './pages/HomePage';
 import StudyPage from './pages/StudyPage';
 import EditorPage from './pages/EditorPage';
@@ -12,27 +13,58 @@ import TrashPage from './pages/TrashPage';
 import SettingsPage from './pages/SettingsPage';
 import './App.css';
 
+/**
+ * 전역 설정을 실제 DOM 요소에 반영하고 페이지 이동을 감지하는 컴포넌트입니다.
+ * BrowserRouter 내부에서 실행되어야 하므로 App 컴포넌트의 하위로 배치합니다.
+ */
+function AppContent() {
+  const location = useLocation();
+  const { settings, loadSettings, temporaryFontSize, resetTemporaryFontSize } = useSettingsStore();
+
+  // 1. 초기 설정 로드
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
+
+  // 2. 페이지 이동 시 임시 글자 크기 초기화
+  useEffect(() => {
+    resetTemporaryFontSize();
+  }, [location.pathname, resetTemporaryFontSize]);
+
+  /**
+   * 글자 크기 단계(1~10)를 CSS 변수 스케일 비율로 변환합니다.
+   * 1단계: 0.8배 ~ 10단계: 1.7배 (0.1씩 증가)
+   * 기본값(5단계): 1.2배 -> 기존 디자인이 작게 보였으므로 약간 보정
+   */
+  const getScaleFactor = (step) => {
+    return 0.7 + (step * 0.1);
+  };
+
+  const currentScale = temporaryFontSize || settings.fontSize || 5;
+  const scaleFactor = getScaleFactor(currentScale);
+
+  // 3. 실제 DOM의 root(html) 요소에 폰트 스케일 변수 반영
+  useEffect(() => {
+    document.documentElement.style.setProperty('--font-scale-factor', scaleFactor);
+  }, [scaleFactor]);
+
+  return (
+    <div className={`app-container theme-${settings.theme || 'light'}`}>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/study/:fileId" element={<StudyPage />} />
+        <Route path="/editor/:fileId" element={<EditorPage />} />
+        <Route path="/trash" element={<TrashPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+      </Routes>
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <Routes>
-          {/* 메인 화면: 파일 목록 및 업로드 */}
-          <Route path="/" element={<HomePage />} />
-          
-          {/* 학습 화면: 선택된 파일의 문제를 풀거나 설명을 확인 */}
-          <Route path="/study/:fileId" element={<StudyPage />} />
-          
-          {/* 편집 화면: 문제집 내용을 수정하거나 새로 생성 */}
-          <Route path="/editor/:fileId" element={<EditorPage />} />
-          
-          {/* 휴지통: 삭제된 파일 복원 및 영구 삭제 */}
-          <Route path="/trash" element={<TrashPage />} />
-          
-          {/* 설정: 학습 모드 및 사용자 환경 설정 */}
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
-      </div>
+      <AppContent />
     </Router>
   );
 }
