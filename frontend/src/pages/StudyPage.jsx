@@ -176,6 +176,7 @@ export default function StudyPage() {
           /* [설명 모드: 카드 뒤집기] */
           <div className="explanation-view">
             <FlipCard 
+              key={currentProblem.id}
               problem={currentProblem} 
               cardFront={settings.cardFront}
             />
