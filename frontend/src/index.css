@@ -15,6 +15,11 @@
   
   /* --- 시스템 기본값 (App.jsx에서 동적으로 주입됨) --- */
   --font-scale-factor: 1; 
+  
+  /* --- 카드 조절 기본값 --- */
+  --card-hue: 239;
+  --card-saturation: 70%;
+  --card-lightness: 60%;
 }
 
 /* [라이트 모드 정의] */
@@ -58,6 +63,26 @@
   --glass-bg: rgba(15, 23, 42, 0.8);
   --glass-border: rgba(51, 65, 85, 0.5);
 }
+
+/* [카드 색상 테마 정의] */
+/* HSL 변수를 사용하여 채도와 명도를 실시간으로 조정할 수 있도록 구성합니다. */
+.app-container {
+  --card-front-gradient: linear-gradient(135deg, 
+    hsl(var(--card-hue), var(--card-saturation), var(--card-lightness)) 0%, 
+    hsl(calc(var(--card-hue) + 20), var(--card-saturation), calc(var(--card-lightness) - 10%)) 100%
+  );
+  --card-back-gradient: linear-gradient(135deg, 
+    hsl(calc(var(--card-hue) - 30), var(--card-saturation), calc(var(--card-lightness) + 15%)) 0%, 
+    hsl(calc(var(--card-hue) - 5), var(--card-saturation), calc(var(--card-lightness) - 5%)) 100%
+  );
+}
+
+.card-theme-indigo { --card-hue: 239; }
+.card-theme-ocean  { --card-hue: 199; }
+.card-theme-forest { --card-hue: 160; }
+.card-theme-sunset { --card-hue: 25;  }
+.card-theme-rose   { --card-hue: 350; }
+.card-theme-slate  { --card-hue: 215; }
 
 /* [글자 크기 스케일링 적용] */
 html {

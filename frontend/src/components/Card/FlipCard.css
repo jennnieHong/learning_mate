@@ -42,13 +42,13 @@
 }
 
 .card-front {
-  background: linear-gradient(135deg, var(--accent-primary) 0%, #a855f7 100%);
+  background: var(--card-front-gradient);
   color: white;
   z-index: 2;
 }
 
 .card-back {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: var(--card-back-gradient);
   color: white;
   transform: rotateY(180deg);
 }

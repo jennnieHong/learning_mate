@@ -16,7 +16,10 @@ export const useSettingsStore = create((set, get) => ({
     questionType: 'multiple',  // 'multiple' | 'subjective'
     cardFront: 'explanation',   // 'explanation' | 'answer' | 'random'
     theme: 'light',            // 'light' | 'dark'
-    fontSize: 5                // 1 ~ 10 단계 (기본값 5)
+    fontSize: 5,               // 1 ~ 10 단계 (기본값 5)
+    cardColor: 'indigo',       // indigo, ocean, forest, sunset, rose, slate
+    cardSaturation: 70,        // 0 ~ 100
+    cardLightness: 60          // 0 ~ 100
   },
   
   // 현재 페이지에만 적용되는 임시 글자 크기 (null이면 settings.fontSize 사용)

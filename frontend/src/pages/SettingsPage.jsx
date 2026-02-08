@@ -99,6 +99,77 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+
+            {/* 카드 색상 테마 선택 */}
+            <div className="setting-sub-item full-width">
+              <label>학습 카드 색상 테마</label>
+              <div className="card-color-picker">
+                {[
+                  { id: 'indigo', name: 'Indigo', start: '#6366f1', end: '#a855f7' },
+                  { id: 'ocean', name: 'Ocean', start: '#0ea5e9', end: '#2563eb' },
+                  { id: 'forest', name: 'Forest', start: '#10b981', end: '#059669' },
+                  { id: 'sunset', name: 'Sunset', start: '#f59e0b', end: '#ea580c' },
+                  { id: 'rose', name: 'Rose', start: '#f43f5e', end: '#e11d48' },
+                  { id: 'slate', name: 'Slate', start: '#475569', end: '#1e293b' }
+                ].map((color) => (
+                  <button
+                    key={color.id}
+                    className={`color-preset-btn ${settings.cardColor === color.id ? 'active' : ''}`}
+                    onClick={() => handleUpdate('cardColor', color.id)}
+                    title={color.name}
+                  >
+                    <div 
+                      className="color-preview" 
+                      style={{ background: `linear-gradient(135deg, ${color.start} 0%, ${color.end} 100%)` }}
+                    >
+                      {settings.cardColor === color.id && <span className="check-icon">✓</span>}
+                    </div>
+                    <span>{color.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 카드 색상 상세 조절 (채도, 명도) */}
+            <div className="setting-sub-item full-width">
+              <div className="color-detail-adjust">
+                <div className="adjust-group">
+                  <div className="adjust-header">
+                    <label>카드 채도 (Saturation)</label>
+                    <span className="value-badge">{settings.cardSaturation}%</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="0" max="100" 
+                    value={settings.cardSaturation ?? 70} 
+                    onChange={(e) => handleUpdate('cardSaturation', parseInt(e.target.value))}
+                    className="color-slider"
+                  />
+                </div>
+                
+                <div className="adjust-group">
+                  <div className="adjust-header">
+                    <label>카드 명도 (Lightness)</label>
+                    <span className="value-badge">{settings.cardLightness}%</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="0" max="100" 
+                    value={settings.cardLightness ?? 60} 
+                    onChange={(e) => handleUpdate('cardLightness', parseInt(e.target.value))}
+                    className="color-slider"
+                  />
+                </div>
+              </div>
+              
+              {/* 시각적 확인을 위한 실시간 프리뷰 카드 (미니 버전) */}
+              <div className="card-mini-preview-container">
+                <div className="preview-label">실시간 미리보기</div>
+                <div className={`mini-card-preview card-theme-${settings.cardColor}`}>
+                  <div className="mini-card-face">샘플 카드</div>
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* [2. 학습 모드 설정] */}

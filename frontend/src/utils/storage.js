@@ -221,7 +221,10 @@ export const getSettings = async () => {
     questionType: 'multiple',
     cardFront: 'explanation',
     theme: 'light',
-    fontSize: 5
+    fontSize: 5,
+    cardColor: 'indigo',
+    cardSaturation: 70,
+    cardLightness: 60
   };
 };
 
