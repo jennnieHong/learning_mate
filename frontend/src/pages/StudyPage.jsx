@@ -22,7 +22,13 @@ export default function StudyPage() {
   const navigate = useNavigate();
   
   // 스토어로부터 학습에 필요한 상태/함수 추출
-  const { currentFile, selectFile, isLoading: isFileLoading } = useFileStore();
+  const { 
+    currentFile, 
+    selectFile, 
+    loadAggregatedReview, 
+    loadAggregatedAll, 
+    isLoading: isFileLoading 
+  } = useFileStore();
   const { settings, loadSettings, isLoading: isSettingsLoading } = useSettingsStore();
   const { saveResult, toggleComplete, progressMap, loadProgress, loadAllProgress, isLoading: isProgressLoading } = useProgressStore();
 
@@ -31,7 +37,16 @@ export default function StudyPage() {
   const [quizResults, setQuizResults] = useState([]);        // 이번 세션의 정답/오답 기록
   const [isFinished, setIsFinished] = useState(false);       // 학습 종료 여부
   const [shuffledProblems, setShuffledProblems] = useState([]); // (랜덤 모드일 경우) 섞인 문제 목록
-  const [activeFilters, setActiveFilters] = useState([]); // 'wrong' | 'correct' | 'incomplete' | 'complete'
+  
+  // 새로고침 시에도 필터 상태 유지 (sessionStorage 활용)
+  const [activeFilters, setActiveFilters] = useState(() => {
+    const saved = sessionStorage.getItem('study_active_filters');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('study_active_filters', JSON.stringify(activeFilters));
+  }, [activeFilters]);
   
   // 주관식 퀴즈용 상태
   const [isRevealed, setIsRevealed] = useState(false);
@@ -42,9 +57,12 @@ export default function StudyPage() {
    */
   useEffect(() => {
     loadSettings();
-    if (fileId === 'aggregated-review' || fileId === 'aggregated-all') {
-      // 오답 모드 또는 전체 학습 모드인 경우 모든 진행 상황을 로드해야 함
+    if (fileId === 'aggregated-review') {
       loadAllProgress();
+      loadAggregatedReview();
+    } else if (fileId === 'aggregated-all') {
+      loadAllProgress();
+      loadAggregatedAll();
     } else if (fileId) {
       selectFile(fileId);
       loadProgress(fileId);
@@ -52,58 +70,53 @@ export default function StudyPage() {
   }, [fileId]);
 
   /**
-   * 문제가 로드되면 설정된 순서 모드(순차/랜덤)에 따라 문제 배열을 준비합니다.
+   * 문제가 로드되거나 필터/순서 설정이 변경되면 문제 배열을 준비합니다.
+   * 모든 데이터(파일, 설정, 진행 상황)가 준비된 시점에 실행되도록 종속성을 강화했습니다.
    */
   useEffect(() => {
-    if (currentFile?.problems) {
-      let filtered = [...currentFile.problems];
-      
-      // 1. 진행 상태 기반 다중 필터링 적용 (그룹화된 논리 적용)
-      if (activeFilters.length > 0) {
-        const resultFilters = activeFilters.filter(f => ['wrong', 'correct'].includes(f));
-        const completionFilters = activeFilters.filter(f => ['incomplete', 'complete'].includes(f));
-
-        filtered = filtered.filter(p => {
-          const prog = progressMap[p.id];
-          
-          // 결과 그룹 (오답/정답): 선택된 것이 있다면 그중 하나라도 만족해야 함 (OR)
-          let matchesResult = true;
-          if (resultFilters.length > 0) {
-            matchesResult = resultFilters.some(filter => {
-              if (filter === 'wrong') return (prog?.wrongCount || 0) > 0;
-              if (filter === 'correct') return prog?.isCorrect === true;
-              return false;
-            });
-          }
-
-          // 완료 그룹 (미완료/완료): 선택된 것이 있다면 그중 하나라도 만족해야 함 (OR)
-          let matchesCompletion = true;
-          if (completionFilters.length > 0) {
-            matchesCompletion = completionFilters.some(filter => {
-              if (filter === 'incomplete') return !prog?.isCompleted;
-              if (filter === 'complete') return prog?.isCompleted;
-              return false;
-            });
-          }
-
-          // 그룹 간에는 AND 조건으로 결합
-          return matchesResult && matchesCompletion;
-        });
-      }
-
-      // 2. 순서 모드(순차/랜덤) 적용
-      if (!currentFile.isReviewMode && settings.orderMode === 'random') {
-        filtered = filtered.sort(() => Math.random() - 0.5);
-      }
-      
-      setShuffledProblems(filtered);
-      setCurrentIndex(0);
-      setQuizResults([]);
-      setIsFinished(false);
-      setIsRevealed(false);
-      setLocalIsAnswered(false);
+    // 필수 데이터가 로드 중이거나 없는 경우 건너뜁니다.
+    if (!currentFile?.problems || isFileLoading || isProgressLoading || isSettingsLoading) {
+      return;
     }
-  }, [currentFile?.id, settings.orderMode, activeFilters]);
+
+    let filtered = [...currentFile.problems];
+    
+    // 1. 진행 상태 기반 다중 필터링 적용 (단순 OR 논리: 선택된 필터 중 하나라도 해당되면 표시)
+    if (activeFilters.length > 0) {
+      filtered = filtered.filter(p => {
+        const prog = progressMap[p.id];
+        
+        return activeFilters.some(filter => {
+          if (filter === 'wrong') return (prog?.wrongCount || 0) > 0;
+          if (filter === 'correct') return prog?.isCorrect === true;
+          if (filter === 'incomplete') return !prog?.isCompleted;
+          if (filter === 'complete') return prog?.isCompleted;
+          return false;
+        });
+      });
+    }
+
+    // 2. 순서 모드(순차/랜덤) 적용
+    if (!currentFile.isReviewMode && settings.orderMode === 'random') {
+      filtered = filtered.sort(() => Math.random() - 0.5);
+    }
+    
+    setShuffledProblems(filtered);
+    setCurrentIndex(0);
+    setQuizResults([]);
+    setIsFinished(false);
+    setIsRevealed(false);
+    setLocalIsAnswered(false);
+  }, [
+    currentFile?.id, 
+    currentFile?.problems, 
+    settings.orderMode, 
+    activeFilters, 
+    isProgressLoading, 
+    isFileLoading, 
+    isSettingsLoading,
+    progressMap
+  ]);
 
   // 현재 활성화된 문제 객체
   const currentProblem = shuffledProblems[currentIndex];
@@ -117,7 +130,10 @@ export default function StudyPage() {
    */
   const answerPool = useMemo(() => {
     if (!currentFile?.problems) return [];
-    return currentFile.problems.map(p => p.answer);
+    return currentFile.problems.map(p => ({
+      answer: p.answer,
+      isCalculation: p.description?.includes('[계산]')
+    }));
   }, [currentFile]);
 
   /**
@@ -177,8 +193,8 @@ export default function StudyPage() {
   };
 
   // 데이터가 없거나 필터 결과가 없는 경우 처리
-  if (isFileLoading || isSettingsLoading) return <div className="loading">준비 중...</div>;
-  if (!currentFile) return <div className="error">파일을 찾을 수 없습니다.</div>;
+  if (isFileLoading || isSettingsLoading || isProgressLoading) return <div className="loading">준비 중...</div>;
+  if (!currentFile) return <div className="error">파일 정보를 찾을 수 없습니다. 혹시 삭제되었거나 정보를 불러오는 데 실패했을 수 있습니다.</div>;
   
   if (shuffledProblems.length === 0) {
     return (

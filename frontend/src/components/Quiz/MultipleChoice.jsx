@@ -42,13 +42,15 @@ export const MultipleChoice = ({
       } 
       // 2. 선택지가 아예 없는 경우 (자동 생성 로직)
       else if (answerPool.length > 0) {
-        // 현재 정답과 다른 내용의 정답들만 추출 (대소문자 및 공백 무시 비교)
+        // 현재 문제의 카테고리 (계산 문제 여부) 확인
+        const isCurrentCalculation = problem.description?.includes('[계산]');
         const currentAnswerRef = problem.answer.trim().toLowerCase();
         
-        // 1) 전체 중 유니크한 정답들만 추림
-        const uniqueAnswers = [...new Set(answerPool.map(a => a.trim()))];
+        // 1) 전체 중 유니크한 정답들만 추리되, 같은 카테고리인 것만 필터링
+        const filteredPool = answerPool.filter(p => p.isCalculation === isCurrentCalculation);
         
-        // 2) 현재 정답과 텍스트가 겹치는 오답들 제외
+        // 2) 현재 정답과 다른 내용의 정답들만 추출
+        const uniqueAnswers = [...new Set(filteredPool.map(p => p.answer.trim()))];
         const otherAnswers = uniqueAnswers.filter(ans => 
           ans.toLowerCase() !== currentAnswerRef
         );

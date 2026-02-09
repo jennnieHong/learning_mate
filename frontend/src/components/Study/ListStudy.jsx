@@ -88,16 +88,25 @@ export default function ListStudy({ problems, fileId }) {
    * 자동 선택지 생성 (선택지가 없는 객관식 문제용)
    */
   const generateAutoChoices = (currentProblem, allProblems) => {
+    // 현재 문제의 카테고리 (계산 문제 여부) 확인
+    const isCurrentCalculation = currentProblem.description?.includes('[계산]');
+
     const otherAnswers = allProblems
-      .filter(p => p.id !== currentProblem.id && p.answer && p.answer.trim())
+      .filter(p => {
+        const isThisCalculation = p.description?.includes('[계산]');
+        return p.id !== currentProblem.id && 
+               p.answer && p.answer.trim() && 
+               isThisCalculation === isCurrentCalculation;
+      })
       .map(p => p.answer.trim());
     
     const uniqueAnswers = [...new Set(otherAnswers)];
     const shuffled = shuffleArray(uniqueAnswers);
     const selected = shuffled.slice(0, 3);
     
-    // 정답이 포함되지 않도록 확인
-    const filtered = selected.filter(ans => ans !== currentProblem.answer);
+    // 정답이 포함되지 않도록 확인 (대소문자 무시)
+    const currentAnswerRef = currentProblem.answer.trim().toLowerCase();
+    const filtered = selected.filter(ans => ans.toLowerCase() !== currentAnswerRef);
     
     return filtered.slice(0, 3);
   };
