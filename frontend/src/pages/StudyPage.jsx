@@ -23,20 +23,24 @@ export default function StudyPage() {
   // 스토어로부터 학습에 필요한 상태/함수 추출
   const { currentFile, selectFile, isLoading: isFileLoading } = useFileStore();
   const { settings, loadSettings, isLoading: isSettingsLoading } = useSettingsStore();
-  const { saveResult, toggleComplete, progressMap, loadProgress, isLoading: isProgressLoading } = useProgressStore();
+  const { saveResult, toggleComplete, progressMap, loadProgress, loadAllProgress, isLoading: isProgressLoading } = useProgressStore();
 
   // --- 내부 상태 (Local State) ---
   const [currentIndex, setCurrentIndex] = useState(0);       // 현재 풀고 있는 문제의 인덱스
   const [quizResults, setQuizResults] = useState([]);        // 이번 세션의 정답/오답 기록
   const [isFinished, setIsFinished] = useState(false);       // 학습 종료 여부
   const [shuffledProblems, setShuffledProblems] = useState([]); // (랜덤 모드일 경우) 섞인 문제 목록
+  const [filterMode, setFilterMode] = useState('all');       // 'all' | 'wrong' | 'incomplete'
 
   /**
    * 초기 설정 및 데이터 로딩
    */
   useEffect(() => {
     loadSettings();
-    if (fileId !== 'aggregated-review') {
+    if (fileId === 'aggregated-review') {
+      // 오답 모드인 경우 모든 진행 상황을 로드해야 함
+      loadAllProgress();
+    } else if (fileId) {
       selectFile(fileId);
       loadProgress(fileId);
     }
@@ -49,7 +53,14 @@ export default function StudyPage() {
     if (currentFile?.problems) {
       let filtered = [...currentFile.problems];
       
-      // 오답 모드가 아니고 랜덤 모드라면 셔플
+      // 1. 진행 상태 기반 필터링 (Wrong / Incomplete)
+      if (filterMode === 'wrong') {
+        filtered = filtered.filter(p => (progressMap[p.id]?.wrongCount || 0) > 0);
+      } else if (filterMode === 'incomplete') {
+        filtered = filtered.filter(p => !progressMap[p.id]?.isCompleted);
+      }
+
+      // 2. 순서 모드(순차/랜덤) 적용
       if (!currentFile.isReviewMode && settings.orderMode === 'random') {
         filtered = filtered.sort(() => Math.random() - 0.5);
       }
@@ -59,7 +70,9 @@ export default function StudyPage() {
       setQuizResults([]);
       setIsFinished(false);
     }
-  }, [currentFile, settings.orderMode]);
+    // progressMap을 의존성에서 제외하여 학습 도중 데이터 저장 시 세션이 리셋되는 것을 방지합니다.
+    // 필터나 순서가 바뀔 때만 리셋되도록 합니다.
+  }, [currentFile?.id, settings.orderMode, filterMode]);
 
   // 현재 활성화된 문제 객체
   const currentProblem = shuffledProblems[currentIndex];
@@ -128,9 +141,32 @@ export default function StudyPage() {
     setIsFinished(false);
   };
 
-  // 로딩 상태 처리
+  // 데이터가 없거나 필터 결과가 없는 경우 처리
   if (isFileLoading || isSettingsLoading) return <div className="loading">준비 중...</div>;
-  if (!currentFile || !currentProblem) return <div className="error">문제를 찾을 수 없습니다.</div>;
+  if (!currentFile) return <div className="error">파일을 찾을 수 없습니다.</div>;
+  
+  if (shuffledProblems.length === 0) {
+    return (
+      <div className="study-page">
+        <header className="study-header">
+          <button className="back-btn" onClick={() => navigate('/')} title="홈으로">🏠 홈</button>
+          <div className="study-info"><h3>{currentFile.originalFilename}</h3></div>
+          <div className="study-filters">
+            <select className="filter-select" value={filterMode} onChange={(e) => setFilterMode(e.target.value)}>
+              <option value="all">전체 문제</option>
+              <option value="wrong">오답만</option>
+              <option value="incomplete">미완료만</option>
+            </select>
+          </div>
+        </header>
+        <div className="empty-filter-result">
+          <div className="empty-icon">✨</div>
+          <p>{filterMode === 'wrong' ? '기록된 오답이 없습니다!' : '모든 학습을 완료했습니다!'}</p>
+          <button className="header-btn primary" onClick={() => setFilterMode('all')}>전체 문제 보기</button>
+        </div>
+      </div>
+    );
+  }
 
   // 결과 화면 렌더링
   if (isFinished) {
@@ -156,7 +192,7 @@ export default function StudyPage() {
           <div className="progress-indicator">
             <div className="progress-text">
               진행: {currentIndex + 1} / {totalCount} 
-              (완료: {Object.values(progressMap).filter(p => p.fileSetId === currentFile.id && p.isCompleted).length}개)
+              (완료: {currentFile.problems?.filter(p => progressMap[p.id]?.isCompleted).length || 0}개)
             </div>
             <div className="progress-bar-mini">
               <div 
@@ -166,6 +202,19 @@ export default function StudyPage() {
             </div>
           </div>
         </div>
+        
+        <div className="study-filters">
+          <select 
+            className="filter-select" 
+            value={filterMode} 
+            onChange={(e) => setFilterMode(e.target.value)}
+          >
+            <option value="all">전체 문제 ({currentFile.problems?.length})</option>
+            <option value="wrong">오답만 ({currentFile.problems?.filter(p => (progressMap[p.id]?.wrongCount || 0) > 0).length})</option>
+            <option value="incomplete">미완료만 ({currentFile.problems?.filter(p => !progressMap[p.id]?.isCompleted).length})</option>
+          </select>
+        </div>
+
         <button className="settings-shortcut" onClick={() => navigate('/settings')} title="학습 설정">
           ⚙️
         </button>
