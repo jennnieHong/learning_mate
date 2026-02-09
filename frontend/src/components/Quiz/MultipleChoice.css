@@ -191,3 +191,118 @@
   background-color: rgba(239, 68, 68, 0.1);
   color: var(--danger);
 }
+
+.answer-feedback.processing {
+  background-color: var(--bg-sub);
+  color: var(--text-sub);
+}
+
+/* 주관식 - 정답 공개 버튼 */
+.reveal-answer-area {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.reveal-btn {
+  padding: 20px 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.reveal-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.4);
+}
+
+/* 주관식 - 정답 표시 영역 */
+.answer-display {
+  background-color: var(--bg-container);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 24px;
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  text-align: center;
+}
+
+.answer-label {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #16a34a;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+
+.answer-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+/* 주관식 - 자가 체크 버튼 */
+.self-check-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.check-btn {
+  padding: 20px;
+  border: 2px solid;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.check-btn .btn-icon {
+  font-size: 2rem;
+}
+
+.check-btn .btn-text {
+  font-size: 1rem;
+}
+
+.correct-btn {
+  background-color: rgba(34, 197, 94, 0.1);
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+.correct-btn:hover {
+  background-color: rgba(34, 197, 94, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+}
+
+.wrong-btn {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.wrong-btn:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+}

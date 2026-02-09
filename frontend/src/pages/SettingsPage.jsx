@@ -232,7 +232,7 @@ export default function SettingsPage() {
           </div>
           
           {/* [3. 문제 유형 설정] */}
-          {settings.mode === 'problem' && (
+          {(settings.mode === 'problem' || settings.mode === 'list') && (
             <div className="setting-group">
               <h2>📝 문제 유형</h2>
               <p className="setting-description">문제를 풀 때의 정답 입력 방식을 결정합니다</p>
@@ -261,7 +261,7 @@ export default function SettingsPage() {
                     name="questionType"
                     value="subjective"
                     checked={settings.questionType === 'subjective'}
-                    onChange={(e) => handleUpdate('subjective', e.target.value)}
+                    onChange={(e) => handleUpdate('questionType', e.target.value)}
                   />
                   <div className="option-content">
                     <div className="option-icon">✍️</div>
