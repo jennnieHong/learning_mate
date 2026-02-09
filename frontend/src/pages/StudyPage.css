@@ -52,23 +52,74 @@
 
 .study-filters {
   margin-right: 15px;
+  overflow: hidden;
 }
 
-.filter-select {
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border-main);
+.filter-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  /* 모바일에서 길어질 경우 넘침 방지 */
+  max-width: 100%;
+}
+
+.filter-btn {
+  padding: 6px 12px;
   background-color: var(--bg-sub);
-  color: var(--text-main);
-  font-size: 0.9rem;
+  color: var(--text-sub);
+  border: 1px solid var(--border-main);
+  border-radius: 20px;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
-  outline: none;
+  white-space: nowrap;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.filter-select:hover {
+.filter-btn:hover {
   border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.filter-btn.active {
+  background-color: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+}
+
+@media (max-width: 1024px) {
+  .study-filters {
+    margin-right: 0;
+    width: 100%;
+    order: 3; /* 헤더 2행으로 내림 */
+    margin-top: 10px;
+  }
+  
+  .study-header {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .filter-group {
+    overflow-x: auto;
+    padding-bottom: 5px;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  /* 스크롤바 숨기기 */
+  .filter-group::-webkit-scrollbar {
+    display: none;
+  }
+  .filter-group {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 .study-info h3 {

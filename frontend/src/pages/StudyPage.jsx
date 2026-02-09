@@ -31,7 +31,7 @@ export default function StudyPage() {
   const [quizResults, setQuizResults] = useState([]);        // 이번 세션의 정답/오답 기록
   const [isFinished, setIsFinished] = useState(false);       // 학습 종료 여부
   const [shuffledProblems, setShuffledProblems] = useState([]); // (랜덤 모드일 경우) 섞인 문제 목록
-  const [filterMode, setFilterMode] = useState('incomplete');       // 'all' | 'wrong' | 'incomplete' (기본값: 미완료만)
+  const [activeFilters, setActiveFilters] = useState([]); // 'wrong' | 'correct' | 'incomplete' | 'complete'
   
   // 주관식 퀴즈용 상태
   const [isRevealed, setIsRevealed] = useState(false);
@@ -58,11 +58,37 @@ export default function StudyPage() {
     if (currentFile?.problems) {
       let filtered = [...currentFile.problems];
       
-      // 1. 진행 상태 기반 필터링 (Wrong / Incomplete)
-      if (filterMode === 'wrong') {
-        filtered = filtered.filter(p => (progressMap[p.id]?.wrongCount || 0) > 0);
-      } else if (filterMode === 'incomplete') {
-        filtered = filtered.filter(p => !progressMap[p.id]?.isCompleted);
+      // 1. 진행 상태 기반 다중 필터링 적용 (그룹화된 논리 적용)
+      if (activeFilters.length > 0) {
+        const resultFilters = activeFilters.filter(f => ['wrong', 'correct'].includes(f));
+        const completionFilters = activeFilters.filter(f => ['incomplete', 'complete'].includes(f));
+
+        filtered = filtered.filter(p => {
+          const prog = progressMap[p.id];
+          
+          // 결과 그룹 (오답/정답): 선택된 것이 있다면 그중 하나라도 만족해야 함 (OR)
+          let matchesResult = true;
+          if (resultFilters.length > 0) {
+            matchesResult = resultFilters.some(filter => {
+              if (filter === 'wrong') return (prog?.wrongCount || 0) > 0;
+              if (filter === 'correct') return prog?.isCorrect === true;
+              return false;
+            });
+          }
+
+          // 완료 그룹 (미완료/완료): 선택된 것이 있다면 그중 하나라도 만족해야 함 (OR)
+          let matchesCompletion = true;
+          if (completionFilters.length > 0) {
+            matchesCompletion = completionFilters.some(filter => {
+              if (filter === 'incomplete') return !prog?.isCompleted;
+              if (filter === 'complete') return prog?.isCompleted;
+              return false;
+            });
+          }
+
+          // 그룹 간에는 AND 조건으로 결합
+          return matchesResult && matchesCompletion;
+        });
       }
 
       // 2. 순서 모드(순차/랜덤) 적용
@@ -77,9 +103,7 @@ export default function StudyPage() {
       setIsRevealed(false);
       setLocalIsAnswered(false);
     }
-    // progressMap을 의존성에서 제외하여 학습 도중 데이터 저장 시 세션이 리셋되는 것을 방지합니다.
-    // 필터나 순서가 바뀔 때만 리셋되도록 합니다.
-  }, [currentFile?.id, settings.orderMode, filterMode]);
+  }, [currentFile?.id, settings.orderMode, activeFilters]);
 
   // 현재 활성화된 문제 객체
   const currentProblem = shuffledProblems[currentIndex];
@@ -128,21 +152,14 @@ export default function StudyPage() {
   };
 
   /**
-   * 설명(카드 뒤집기) 모드에서 '완료/미완료' 상태를 토글합니다.
-   * @param {boolean} completed - 완료 상태값
+   * 필터 토글 핸들러
    */
-  const handleToggleComplete = async (completed) => {
-    await toggleComplete(currentProblem.fileSetId, currentProblem.id, completed);
-    
-    // 설명 모드에서는 상태 표시를 위해 세션 기록에도 남김
-    const newResults = [...quizResults];
-    const existingIdx = newResults.findIndex(r => r.problemId === currentProblem.id);
-    if (existingIdx > -1) {
-      newResults[existingIdx] = { ...newResults[existingIdx], isCompleted: completed };
-    } else {
-      newResults.push({ problemId: currentProblem.id, isCompleted: completed });
-    }
-    setQuizResults(newResults);
+  const toggleFilter = (filter) => {
+    setActiveFilters(prev => {
+      if (filter === 'all') return [];
+      if (prev.includes(filter)) return prev.filter(f => f !== filter);
+      return [...prev, filter];
+    });
   };
 
   /**
@@ -170,17 +187,47 @@ export default function StudyPage() {
           <button className="back-btn" onClick={() => navigate('/')} title="홈으로">🏠 홈</button>
           <div className="study-info"><h3>{currentFile.originalFilename}</h3></div>
           <div className="study-filters">
-            <select className="filter-select" value={filterMode} onChange={(e) => setFilterMode(e.target.value)}>
-              <option value="all">전체 문제</option>
-              <option value="wrong">오답만</option>
-              <option value="incomplete">미완료만</option>
-            </select>
+            <div className="filter-group">
+              <button 
+                className={`filter-btn ${activeFilters.length === 0 ? 'active' : ''}`}
+                onClick={() => toggleFilter('all')}
+              >
+                전체 ({currentFile.problems?.length})
+              </button>
+              <button 
+                className={`filter-btn ${activeFilters.includes('wrong') ? 'active' : ''}`}
+                onClick={() => toggleFilter('wrong')}
+              >
+                ❌ 오답 ({currentFile.problems?.filter(p => (progressMap[p.id]?.wrongCount || 0) > 0).length})
+              </button>
+              <button 
+                className={`filter-btn ${activeFilters.includes('correct') ? 'active' : ''}`}
+                onClick={() => toggleFilter('correct')}
+              >
+                ✅ 정답 ({currentFile.problems?.filter(p => progressMap[p.id]?.isCorrect === true).length})
+              </button>
+              <button 
+                className={`filter-btn ${activeFilters.includes('incomplete') ? 'active' : ''}`}
+                onClick={() => toggleFilter('incomplete')}
+              >
+                📖 미완료 ({currentFile.problems?.filter(p => !progressMap[p.id]?.isCompleted).length})
+              </button>
+              <button 
+                className={`filter-btn ${activeFilters.includes('complete') ? 'active' : ''}`}
+                onClick={() => toggleFilter('complete')}
+              >
+                🏁 완료 ({currentFile.problems?.filter(p => progressMap[p.id]?.isCompleted).length})
+              </button>
+            </div>
           </div>
+          <button className="settings-shortcut" onClick={() => navigate('/settings')} title="학습 설정">
+            ⚙️
+          </button>
         </header>
         <div className="empty-filter-result">
           <div className="empty-icon">✨</div>
-          <p>{filterMode === 'wrong' ? '기록된 오답이 없습니다!' : '모든 학습을 완료했습니다!'}</p>
-          <button className="header-btn primary" onClick={() => setFilterMode('all')}>전체 문제 보기</button>
+          <p>조건에 맞는 문제가 없습니다.</p>
+          <button className="header-btn primary" onClick={() => setActiveFilters([])}>필터 초기화 (전체 보기)</button>
         </div>
       </div>
     );
@@ -199,13 +246,43 @@ export default function StudyPage() {
             <h3>{currentFile.originalFilename}</h3>
           </div>
           <div className="study-filters">
-            <select className="filter-select" value={filterMode} onChange={(e) => setFilterMode(e.target.value)}>
-              <option value="all">전체 문제</option>
-              <option value="wrong">오답만</option>
-              <option value="incomplete">미완료만</option>
-            </select>
+            <div className="filter-group">
+              <button 
+                className={`filter-btn ${activeFilters.length === 0 ? 'active' : ''}`}
+                onClick={() => toggleFilter('all')}
+              >
+                전체 ({currentFile.problems?.length})
+              </button>
+              <button 
+                className={`filter-btn ${activeFilters.includes('wrong') ? 'active' : ''}`}
+                onClick={() => toggleFilter('wrong')}
+              >
+                ❌ 오답 ({currentFile.problems?.filter(p => (progressMap[p.id]?.wrongCount || 0) > 0).length})
+              </button>
+              <button 
+                className={`filter-btn ${activeFilters.includes('correct') ? 'active' : ''}`}
+                onClick={() => toggleFilter('correct')}
+              >
+                ✅ 정답 ({currentFile.problems?.filter(p => progressMap[p.id]?.isCorrect === true).length})
+              </button>
+              <button 
+                className={`filter-btn ${activeFilters.includes('incomplete') ? 'active' : ''}`}
+                onClick={() => toggleFilter('incomplete')}
+              >
+                📖 미완료 ({currentFile.problems?.filter(p => !progressMap[p.id]?.isCompleted).length})
+              </button>
+              <button 
+                className={`filter-btn ${activeFilters.includes('complete') ? 'active' : ''}`}
+                onClick={() => toggleFilter('complete')}
+              >
+                🏁 완료 ({currentFile.problems?.filter(p => progressMap[p.id]?.isCompleted).length})
+              </button>
+            </div>
           </div>
           <FontScaleWidget />
+          <button className="settings-shortcut" onClick={() => navigate('/settings')} title="학습 설정">
+            ⚙️
+          </button>
         </header>
         <main className="study-content">
           <ListStudy problems={shuffledProblems} fileId={fileId} />
@@ -250,15 +327,38 @@ export default function StudyPage() {
         </div>
         
         <div className="study-filters">
-          <select 
-            className="filter-select" 
-            value={filterMode} 
-            onChange={(e) => setFilterMode(e.target.value)}
-          >
-            <option value="all">전체 문제 ({currentFile.problems?.length})</option>
-            <option value="wrong">오답만 ({currentFile.problems?.filter(p => (progressMap[p.id]?.wrongCount || 0) > 0).length})</option>
-            <option value="incomplete">미완료만 ({currentFile.problems?.filter(p => !progressMap[p.id]?.isCompleted).length})</option>
-          </select>
+          <div className="filter-group">
+            <button 
+              className={`filter-btn ${activeFilters.length === 0 ? 'active' : ''}`}
+              onClick={() => toggleFilter('all')}
+            >
+              전체 ({currentFile.problems?.length})
+            </button>
+            <button 
+              className={`filter-btn ${activeFilters.includes('wrong') ? 'active' : ''}`}
+              onClick={() => toggleFilter('wrong')}
+            >
+              ❌ 오답 ({currentFile.problems?.filter(p => (progressMap[p.id]?.wrongCount || 0) > 0).length})
+            </button>
+            <button 
+              className={`filter-btn ${activeFilters.includes('correct') ? 'active' : ''}`}
+              onClick={() => toggleFilter('correct')}
+            >
+              ✅ 정답 ({currentFile.problems?.filter(p => progressMap[p.id]?.isCorrect === true).length})
+            </button>
+            <button 
+              className={`filter-btn ${activeFilters.includes('incomplete') ? 'active' : ''}`}
+              onClick={() => toggleFilter('incomplete')}
+            >
+              📖 미완료 ({currentFile.problems?.filter(p => !progressMap[p.id]?.isCompleted).length})
+            </button>
+            <button 
+              className={`filter-btn ${activeFilters.includes('complete') ? 'active' : ''}`}
+              onClick={() => toggleFilter('complete')}
+            >
+              🏁 완료 ({currentFile.problems?.filter(p => progressMap[p.id]?.isCompleted).length})
+            </button>
+          </div>
         </div>
 
         <button className="settings-shortcut" onClick={() => navigate('/settings')} title="학습 설정">
