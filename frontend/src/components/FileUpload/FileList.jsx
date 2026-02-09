@@ -8,6 +8,7 @@ import { useFileStore } from '../../stores/useFileStore';
 import { useProgressStore } from '../../stores/useProgressStore';
 import { VirtuosoGrid } from 'react-virtuoso';
 import { useNavigate } from 'react-router-dom';
+import { searchProblemsByKeyword } from '../../utils/storage';
 import toast from 'react-hot-toast';
 import './FileList.css';
 
@@ -26,11 +27,17 @@ export const FileList = () => {
   const { progressMap, loadAllProgress } = useProgressStore();
   
   // --- 필터 및 검색 상태 ---
-  const [searchQuery, setSearchQuery] = useState('');
+  const [inputValue, setInputValue] = useState(''); // 입력창 값
+  const [searchQuery, setSearchQuery] = useState(''); // 실제 검색에 사용되는 값 (Enter 시 업데이트)
   const [filterType, setFilterType] = useState('all');
   const [filterCount, setFilterCount] = useState('all');
   const [filterDate, setFilterDate] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+
+  // --- 딥 서치 (Deep Search) 상태 ---
+  const [searchTarget, setSearchTarget] = useState('total'); // 'title' | 'content' | 'total'
+  const [matchingContentIds, setMatchingContentIds] = useState(new Set());
+  const [isSearchingContent, setIsSearchingContent] = useState(false);
 
   // --- 추가 상태: 전체 선택 배너 노출 여부 ---
   const [showSelectAllBanner, setShowSelectAllBanner] = useState(false);
@@ -42,6 +49,45 @@ export const FileList = () => {
     loadFiles();
     loadAllProgress();
   }, [loadFiles, loadAllProgress]);
+
+  /**
+   * 딥 서치: 검색어 변경 시 내용 검색 수행 (디바운스 적용)
+   */
+  useEffect(() => {
+    if ((searchTarget === 'content' || searchTarget === 'total') && searchQuery.trim()) {
+      setIsSearchingContent(true);
+      const timer = setTimeout(async () => {
+        try {
+          const ids = await searchProblemsByKeyword(searchQuery);
+          setMatchingContentIds(ids);
+        } catch (error) {
+          console.error('내용 검색 실패:', error);
+        } finally {
+          setIsSearchingContent(false);
+        }
+      }, 300); // Enter 후 즉시 검색하도록 디바운스 시간 단축
+      return () => clearTimeout(timer);
+    } else {
+      setMatchingContentIds(new Set());
+      setIsSearchingContent(false);
+    }
+  }, [searchQuery, searchTarget]);
+
+  /**
+   * Enter 키 입력 시 검색 실행
+   */
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      setSearchQuery(inputValue);
+    }
+  };
+
+  /**
+   * 검색 입력값 변경 핸들러
+   */
+  const handleSearchInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
 
   /**
    * 특정 파일의 학습(Study) 화면으로 이동합니다.
@@ -97,10 +143,17 @@ export const FileList = () => {
   const filteredFiles = useMemo(() => {
     let result = [...files];
 
-    // 1. 검색어 필터 (파일명)
+    // 1. 검색어 필터 (제목 + 딥 서치 결과 반영)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      result = result.filter(f => f.originalFilename.toLowerCase().includes(query));
+      result = result.filter(f => {
+        const matchTitle = f.originalFilename.toLowerCase().includes(query);
+        const matchContent = matchingContentIds.has(f.id);
+
+        if (searchTarget === 'title') return matchTitle;
+        if (searchTarget === 'content') return matchContent;
+        return matchTitle || matchContent; // 'total'
+      });
     }
 
     // 2. 파일 형식 필터
@@ -148,7 +201,7 @@ export const FileList = () => {
     });
 
     return result;
-  }, [files, searchQuery, filterType, filterCount, filterDate, sortBy]);
+  }, [files, searchQuery, searchTarget, matchingContentIds, filterType, filterCount, filterDate, sortBy]);
 
   /**
    * 전체 선택 체크박스 변경 핸들러
@@ -175,9 +228,21 @@ export const FileList = () => {
    */
   const handleConfirmFullSelect = () => {
     // 이미 filteredFiles는 다 선택된 상태이므로 배너만 내립니다. 
-    // (서버 페이징이 도입되면 여기서 서버측 전체 ID를 가져오는 로직이 들어갑니다.)
     toast.success(`필터링된 ${filteredFiles.length}개 항목이 모두 선택되었습니다.`);
     setShowSelectAllBanner(false);
+  };
+
+  /**
+   * 필터 초기화 핸들러
+   */
+  const handleResetFilters = () => {
+    setInputValue('');
+    setSearchQuery('');
+    setSearchTarget('total');
+    setFilterType('all');
+    setFilterCount('all');
+    setFilterDate('all');
+    setSortBy('newest');
   };
 
   // 모든 필터 결과가 선택되었는지 여부
@@ -218,15 +283,35 @@ export const FileList = () => {
 
         {files.length > 0 && (
           <div className="filter-bar">
-            <div className="search-wrapper">
-              <span className="search-icon">🔍</span>
-              <input 
-                type="text" 
-                placeholder="문제집 이름으로 검색..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input"
-              />
+            <div className="search-row">
+              <div className="search-target-select">
+                <select 
+                  value={searchTarget} 
+                  onChange={(e) => setSearchTarget(e.target.value)}
+                  className="target-select"
+                >
+                  <option value="total">제목+내용</option>
+                  <option value="title">제목</option>
+                  <option value="content">내용</option>
+                </select>
+              </div>
+              <div className="search-wrapper">
+                <span className="search-icon">
+                  {isSearchingContent ? '⏳' : '🔍'}
+                </span>
+                <input 
+                  type="text" 
+                  placeholder={
+                    searchTarget === 'title' ? "문제집 이름으로 검색... (Enter로 검색)" :
+                    searchTarget === 'content' ? "문제 내용/정답 키워드로 검색... (Enter로 검색)" :
+                    "이름 또는 내용 키워드로 검색... (Enter로 검색)"
+                  }
+                  value={inputValue}
+                  onChange={handleSearchInputChange}
+                  onKeyDown={handleSearchKeyDown}
+                  className="search-input"
+                />
+              </div>
             </div>
             
             <div className="filter-selects">
@@ -270,13 +355,7 @@ export const FileList = () => {
               : '조건에 맞는 문제집이 없습니다. 필터를 변경해 보세요.'}
           </p>
           {files.length > 0 && (
-            <button className="reset-filter-btn" onClick={() => {
-              setSearchQuery('');
-              setFilterType('all');
-              setFilterCount('all');
-              setFilterDate('all');
-              setSortBy('newest');
-            }}>
+            <button className="reset-filter-btn" onClick={handleResetFilters}>
               필터 초기화
             </button>
           )}

@@ -256,3 +256,32 @@ export const getWrongProblemsFromFiles = async (fileIds = []) => {
   
   return wrongProblemDetails;
 };
+/**
+ * 전체 문제 데이터베이스에서 특정 키워드를 포함하는 문제의 파일 ID 목록을 검색합니다 (딥 서치).
+ * @param {string} keyword - 검색할 키워드
+ * @returns {Promise<Set<string>>} 키워드를 포함하는 문제들이 속한 파일 ID들의 집합
+ */
+export const searchProblemsByKeyword = async (keyword) => {
+  const matchingFileIds = new Set();
+  const query = keyword.toLowerCase().trim();
+  
+  if (!query) return matchingFileIds;
+
+  await problemsDB.iterate((value) => {
+    const description = String(value.description || '').toLowerCase();
+    const answer = String(value.answer || '').toLowerCase();
+    const choices = (value.choices || []).map(c => String(c).toLowerCase());
+
+    const inDescription = description.includes(query);
+    const inAnswer = answer.includes(query);
+    const inChoices = choices.some(c => c.includes(query));
+
+    if (inDescription || inAnswer || inChoices) {
+      if (value.fileSetId) {
+        matchingFileIds.add(value.fileSetId);
+      }
+    }
+  });
+
+  return matchingFileIds;
+};

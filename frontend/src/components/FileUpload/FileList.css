@@ -112,13 +112,40 @@
 }
 
 .sticky-filters-wrapper:not([style*="top: -20px"]) {
-  /* 실제 스티키 상태 감지는 JS가 필요하지만, 
-     여기서는 기본적으로 배경색을 일치시켜 자연스럽게 만듭니다. */
+  /* 실제 스티키 상태 감지는 JS가 필요하지만, 기본 배경을 유지합니다. */
+  background-color: var(--bg-container);
+}
+
+.search-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.search-target-select {
+  flex-shrink: 0;
+}
+
+.target-select {
+  height: 48px; /* search-input과 높이 맞춤 */
+  padding: 0 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border-main);
+  background-color: var(--bg-container);
+  color: var(--text-main);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.target-select:hover {
+  border-color: var(--accent-primary);
 }
 
 .search-wrapper {
   position: relative;
-  width: 100%;
+  flex: 1; /* 나머지 공간 차지 */
 }
 
 .search-icon {
