@@ -27,7 +27,7 @@ export default function SettingsPage() {
    */
   const handleSave = () => {
     toast.success('설정이 저장되었습니다!');
-    navigate('/');
+    navigate(-1);
   };
 
   /**
@@ -327,7 +327,7 @@ export default function SettingsPage() {
       
       {/* 하단 고정 버튼 영역 */}
       <div className="settings-bottom-bar">
-        <button className="back-btn-fixed" onClick={() => navigate('/')}>
+        <button className="back-btn-fixed" onClick={() => navigate(-1)}>
           ← 돌아가기
         </button>
         <button className="save-btn-fixed" onClick={handleSave}>

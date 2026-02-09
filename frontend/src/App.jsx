@@ -14,9 +14,43 @@ import SettingsPage from './pages/SettingsPage';
 import './App.css';
 
 /**
- * 전역 설정을 실제 DOM 요소에 반영하고 페이지 이동을 감지하는 컴포넌트입니다.
- * BrowserRouter 내부에서 실행되어야 하므로 App 컴포넌트의 하위로 배치합니다.
+ * 페이지 이동 시 이전 스크롤 위치를 복원하거나 최상단으로 이동시키는 컴포넌트입니다.
  */
+function ScrollRestoration() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    // 1. 현재 경로에 저장된 스크롤 위치 조회
+    const savedPos = sessionStorage.getItem(`scrollPos:${pathname}`);
+    
+    if (savedPos) {
+      // 페이지 렌더링 완료 후 스크롤 복원 (데이터 로딩 등을 고려하여 약간의 지연)
+      const timer = setTimeout(() => {
+        window.scrollTo({
+          top: parseInt(savedPos, 10),
+          behavior: 'instant'
+        });
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      // 저장된 위치가 없으면 최상단으로
+      window.scrollTo(0, 0);
+    }
+
+    // 2. 스크롤 발생 시 현재 위치 저장
+    const handleScroll = () => {
+      // 설정 페이지 등 일부 페이지는 스크롤 저장을 제외할 수 있음
+      if (pathname === '/settings') return;
+      sessionStorage.setItem(`scrollPos:${pathname}`, window.scrollY.toString());
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [pathname]);
+
+  return null;
+}
+
 function AppContent() {
   const location = useLocation();
   const { settings, loadSettings, temporaryFontSize, resetTemporaryFontSize } = useSettingsStore();
@@ -52,6 +86,7 @@ function AppContent() {
 
   return (
     <div className={`app-container theme-${settings.theme || 'light'} card-theme-${settings.cardColor || 'indigo'}`}>
+      <ScrollRestoration />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/study/:fileId" element={<StudyPage />} />
