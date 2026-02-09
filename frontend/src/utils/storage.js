@@ -5,6 +5,7 @@
  */
 
 import localforage from 'localforage';
+import { chosungIncludes } from 'es-hangul';
 
 /**
  * [파일 메타데이터 DB 인스턴스]
@@ -258,6 +259,7 @@ export const getWrongProblemsFromFiles = async (fileIds = []) => {
 };
 /**
  * 전체 문제 데이터베이스에서 특정 키워드를 포함하는 문제의 파일 ID 목록을 검색합니다 (딥 서치).
+ * 한글 초성 검색도 지원합니다 (예: 'ㅂㄹㅇ' → '빌려온').
  * @param {string} keyword - 검색할 키워드
  * @returns {Promise<Set<string>>} 키워드를 포함하는 문제들이 속한 파일 ID들의 집합
  */
@@ -268,18 +270,29 @@ export const searchProblemsByKeyword = async (keyword) => {
   if (!query) return matchingFileIds;
 
   await problemsDB.iterate((value) => {
-    const description = String(value.description || '').toLowerCase();
-    const answer = String(value.answer || '').toLowerCase();
-    const choices = (value.choices || []).map(c => String(c).toLowerCase());
+    const description = String(value.description || '');
+    const answer = String(value.answer || '');
+    const choices = (value.choices || []).map(c => String(c));
 
-    const inDescription = description.includes(query);
-    const inAnswer = answer.includes(query);
-    const inChoices = choices.some(c => c.includes(query));
+    // 일반 검색 (대소문자 무시)
+    const descLower = description.toLowerCase();
+    const ansLower = answer.toLowerCase();
+    const choicesLower = choices.map(c => c.toLowerCase());
 
-    if (inDescription || inAnswer || inChoices) {
-      if (value.fileSetId) {
-        matchingFileIds.add(value.fileSetId);
-      }
+    const exactInDescription = descLower.includes(query);
+    const exactInAnswer = ansLower.includes(query);
+    const exactInChoices = choicesLower.some(c => c.includes(query));
+
+    // 초성 검색 (한글인 경우)
+    const chosungInDescription = chosungIncludes(description, query);
+    const chosungInAnswer = chosungIncludes(answer, query);
+    const chosungInChoices = choices.some(c => chosungIncludes(c, query));
+
+    const matched = exactInDescription || exactInAnswer || exactInChoices ||
+                    chosungInDescription || chosungInAnswer || chosungInChoices;
+
+    if (matched && value.fileSetId) {
+      matchingFileIds.add(value.fileSetId);
     }
   });
 

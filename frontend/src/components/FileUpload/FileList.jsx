@@ -9,6 +9,7 @@ import { useProgressStore } from '../../stores/useProgressStore';
 import { VirtuosoGrid } from 'react-virtuoso';
 import { useNavigate } from 'react-router-dom';
 import { searchProblemsByKeyword } from '../../utils/storage';
+import { chosungIncludes } from 'es-hangul';
 import toast from 'react-hot-toast';
 import './FileList.css';
 
@@ -147,7 +148,8 @@ export const FileList = () => {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       result = result.filter(f => {
-        const matchTitle = f.originalFilename.toLowerCase().includes(query);
+        const filename = f.originalFilename;
+        const matchTitle = filename.toLowerCase().includes(query) || chosungIncludes(filename, query);
         const matchContent = matchingContentIds.has(f.id);
 
         if (searchTarget === 'title') return matchTitle;
@@ -302,9 +304,9 @@ export const FileList = () => {
                 <input 
                   type="text" 
                   placeholder={
-                    searchTarget === 'title' ? "문제집 이름으로 검색... (Enter로 검색)" :
-                    searchTarget === 'content' ? "문제 내용/정답 키워드로 검색... (Enter로 검색)" :
-                    "이름 또는 내용 키워드로 검색... (Enter로 검색)"
+                    searchTarget === 'title' ? "문제집 이름으로 검색... (초성 검색 가능, Enter로 검색)" :
+                    searchTarget === 'content' ? "문제 내용/정답 키워드로 검색... (초성 검색 가능, Enter로 검색)" :
+                    "이름 또는 내용 키워드로 검색... (초성 검색 가능, Enter로 검색)"
                   }
                   value={inputValue}
                   onChange={handleSearchInputChange}
