@@ -8,7 +8,60 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+}
+
+/* 전체 선택 배너 */
+.select-all-banner {
+  background-color: var(--accent-primary);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.select-all-banner span {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.banner-link-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.banner-link-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.banner-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.banner-close-btn:hover {
+  opacity: 1;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .list-header h2 {
@@ -116,11 +169,12 @@
   opacity: 0.9;
 }
 
-/* 그리드 레이아웃 */
+/* 그리드 레이아웃 - VirtuosoGrid 내에서도 유지 */
 .file-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
+  padding-bottom: 40px; /* 하단 여백 추가 */
 }
 
 /* 개별 파일 카드 */

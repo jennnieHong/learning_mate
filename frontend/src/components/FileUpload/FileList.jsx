@@ -6,6 +6,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useFileStore } from '../../stores/useFileStore';
 import { useProgressStore } from '../../stores/useProgressStore';
+import { VirtuosoGrid } from 'react-virtuoso';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import './FileList.css';
@@ -30,6 +31,9 @@ export const FileList = () => {
   const [filterCount, setFilterCount] = useState('all');
   const [filterDate, setFilterDate] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+
+  // --- 추가 상태: 전체 선택 배너 노출 여부 ---
+  const [showSelectAllBanner, setShowSelectAllBanner] = useState(false);
 
   /**
    * 컴포넌트 마운트 시 파일 목록과 전체 진행 상황을 로드합니다.
@@ -146,8 +150,39 @@ export const FileList = () => {
     return result;
   }, [files, searchQuery, filterType, filterCount, filterDate, sortBy]);
 
-  // 모든 파일이 선택되었는지 여부
-  const isAllSelected = files.length > 0 && selectedFileIds.length === files.length;
+  /**
+   * 전체 선택 체크박스 변경 핸들러
+   */
+  const handleToggleSelectAll = (checked) => {
+    if (checked) {
+      // 1. 현재 필터링된 항목들만 우선 스토어에 추가
+      const filteredIds = filteredFiles.map(f => f.id);
+      selectAllFiles(false); // 기존 선택 해제 (깔끔하게 교체)
+      filteredIds.forEach(id => toggleFileSelection(id));
+      
+      // 2. 항목이 많을 경우 "진짜 전체"를 선택할지 묻는 배너 표시
+      if (filteredFiles.length > 10) {
+        setShowSelectAllBanner(true);
+      }
+    } else {
+      selectAllFiles(false);
+      setShowSelectAllBanner(false);
+    }
+  };
+
+  /**
+   * 배너에서 '모든 결과 선택' 클릭 시
+   */
+  const handleConfirmFullSelect = () => {
+    // 이미 filteredFiles는 다 선택된 상태이므로 배너만 내립니다. 
+    // (서버 페이징이 도입되면 여기서 서버측 전체 ID를 가져오는 로직이 들어갑니다.)
+    toast.success(`필터링된 ${filteredFiles.length}개 항목이 모두 선택되었습니다.`);
+    setShowSelectAllBanner(false);
+  };
+
+  // 모든 필터 결과가 선택되었는지 여부
+  const isAllFilteredSelected = filteredFiles.length > 0 && 
+    filteredFiles.every(file => selectedFileIds.includes(file.id));
 
   if (isLoading && files.length === 0) return <div className="loading">파일 목록 로딩 중...</div>;
 
@@ -161,14 +196,24 @@ export const FileList = () => {
             <label className="select-all">
               <input 
                 type="checkbox" 
-                checked={isAllSelected}
-                onChange={(e) => selectAllFiles(e.target.checked)}
+                checked={isAllFilteredSelected}
+                onChange={(e) => handleToggleSelectAll(e.target.checked)}
               />
-              전체 선택
+              결과 내 전체 선택
             </label>
           </div>
         )}
       </div>
+
+      {showSelectAllBanner && isAllFilteredSelected && (
+        <div className="select-all-banner">
+          <span>현재 필터링된 <strong>{filteredFiles.length}개</strong>의 문제집이 선택되었습니다.</span>
+          <button className="banner-link-btn" onClick={handleConfirmFullSelect}>
+            문항 데이터 보존 및 전체 확정
+          </button>
+          <button className="banner-close-btn" onClick={() => setShowSelectAllBanner(false)}>✕</button>
+        </div>
+      )}
 
       {files.length > 0 && (
         <div className="filter-bar">
@@ -235,8 +280,13 @@ export const FileList = () => {
           )}
         </div>
       ) : (
-        <div className="file-grid">
-          {filteredFiles.map((file) => {
+        /* 가상 스크롤 그리드 적용 */
+        <VirtuosoGrid
+          useWindowScroll
+          data={filteredFiles}
+          totalCount={filteredFiles.length}
+          listClassName="file-grid"
+          itemContent={(index, file) => {
             const { count, percent } = getProgress(file.id, file.totalProblems);
             const isSelected = selectedFileIds.includes(file.id);
 
@@ -301,8 +351,8 @@ export const FileList = () => {
                 </div>
               </div>
             );
-          })}
-        </div>
+          }}
+        />
       )}
     </div>
   );
