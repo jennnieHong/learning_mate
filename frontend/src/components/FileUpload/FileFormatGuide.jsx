@@ -12,7 +12,7 @@ export const FileFormatGuide = () => {
   return (
     <div className="format-guide">
       <button 
-        className="guide-toggle-btn" 
+        className="guide-toggle" 
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? '❌ 가이드 닫기' : 'ℹ️ 파일 형식 가이드 보기'}

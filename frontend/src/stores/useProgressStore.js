@@ -60,24 +60,42 @@ export const useProgressStore = create((set, get) => ({
    * 특정 문제의 학습 결과를 기록합니다.
    * @param {string} fileSetId - 파일 ID
    * @param {string} problemId - 문제 ID
-   * @param {boolean} isCorrect - 정답 여부
+   * @param {boolean|object} isCorrectOrOptions - 정답 여부 (boolean) 또는 옵션 객체 {isCorrect, isCompleted}
    */
-  saveResult: async (fileSetId, problemId, isCorrect) => {
+  saveResult: async (fileSetId, problemId, isCorrectOrOptions) => {
     // 1. 기존 진행 데이터 조회
     const existing = await progressDB.getItem(problemId);
     
-    // 2. 새 데이터 생성 또는 기존 데이터 업데이트
+    // 2. 매개변수 타입에 따라 처리
+    let isCorrect, isCompleted;
+    if (typeof isCorrectOrOptions === 'boolean') {
+      // 기존 방식: boolean만 전달 (하위 호환성)
+      isCorrect = isCorrectOrOptions;
+      isCompleted = true;
+    } else {
+      // 새로운 방식: 객체 전달
+      isCorrect = isCorrectOrOptions.isCorrect;
+      isCompleted = isCorrectOrOptions.isCompleted !== undefined 
+        ? isCorrectOrOptions.isCompleted 
+        : true;
+    }
+    
+    // 3. 새 데이터 생성 또는 기존 데이터 업데이트
     const newProgress = {
       id: existing?.id || crypto.randomUUID(),
       fileSetId,
       problemId,
-      isCompleted: true, // 풀었으므로 완료 상태로 표시
+      isCompleted,
       isCorrect,
-      wrongCount: isCorrect ? (existing?.wrongCount || 0) : ((existing?.wrongCount || 0) + 1),
+      // wrongCount는 명시적으로 오답이고, 기존에 오답 기록이 없을 때만 증가
+      // (같은 문제를 여러 번 틀려도 1번만 카운트)
+      wrongCount: (isCorrect === false && !existing?.wrongCount) 
+        ? 1 
+        : (existing?.wrongCount || 0),
       lastAttemptedAt: new Date().toISOString()
     };
     
-    // 3. DB 및 상태 반영
+    // 4. DB 및 상태 반영
     await progressDB.setItem(problemId, newProgress);
     set((state) => ({
       progressMap: { ...state.progressMap, [problemId]: newProgress }

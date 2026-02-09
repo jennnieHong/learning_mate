@@ -12,6 +12,7 @@ import { useProgressStore } from '../stores/useProgressStore';
 import { FlipCard } from '../components/Card/FlipCard';
 import { MultipleChoice } from '../components/Quiz/MultipleChoice';
 import { QuizResult } from '../components/Quiz/QuizResult';
+import ListStudy from '../components/Study/ListStudy';
 import { FontScaleWidget } from '../components/Common/FontScaleWidget';
 import toast, { Toaster } from 'react-hot-toast';
 import './StudyPage.css';
@@ -30,7 +31,7 @@ export default function StudyPage() {
   const [quizResults, setQuizResults] = useState([]);        // 이번 세션의 정답/오답 기록
   const [isFinished, setIsFinished] = useState(false);       // 학습 종료 여부
   const [shuffledProblems, setShuffledProblems] = useState([]); // (랜덤 모드일 경우) 섞인 문제 목록
-  const [filterMode, setFilterMode] = useState('all');       // 'all' | 'wrong' | 'incomplete'
+  const [filterMode, setFilterMode] = useState('incomplete');       // 'all' | 'wrong' | 'incomplete' (기본값: 미완료만)
 
   /**
    * 초기 설정 및 데이터 로딩
@@ -164,6 +165,34 @@ export default function StudyPage() {
           <p>{filterMode === 'wrong' ? '기록된 오답이 없습니다!' : '모든 학습을 완료했습니다!'}</p>
           <button className="header-btn primary" onClick={() => setFilterMode('all')}>전체 문제 보기</button>
         </div>
+      </div>
+    );
+  }
+
+  // 리스트 모드 렌더링
+  if (settings.mode === 'list') {
+    return (
+      <div className="study-page">
+        <Toaster />
+        <header className="study-header">
+          <button className="back-btn" onClick={() => navigate('/')} title="학습 중단 및 홈으로">
+            🏠 홈
+          </button>
+          <div className="study-info">
+            <h3>{currentFile.originalFilename}</h3>
+          </div>
+          <div className="study-filters">
+            <select className="filter-select" value={filterMode} onChange={(e) => setFilterMode(e.target.value)}>
+              <option value="all">전체 문제</option>
+              <option value="wrong">오답만</option>
+              <option value="incomplete">미완료만</option>
+            </select>
+          </div>
+          <FontScaleWidget />
+        </header>
+        <main className="study-content">
+          <ListStudy problems={shuffledProblems} fileId={fileId} />
+        </main>
       </div>
     );
   }

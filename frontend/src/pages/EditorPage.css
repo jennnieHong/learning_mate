@@ -142,6 +142,41 @@
   transform: translateY(-1px);
 }
 
+.reset-all-btn {
+  background-color: var(--bg-sub);
+  border: 1px solid var(--border-main);
+  color: var(--text-main);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-all-btn:hover {
+  background-color: var(--bg-container);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.delete-selected-btn {
+  background-color: #dc2626;
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-selected-btn:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+}
+
 .problem-count {
   font-size: 0.9rem;
   font-weight: 700;

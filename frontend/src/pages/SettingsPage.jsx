@@ -211,6 +211,23 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </label>
+              
+              <label className={`option-card ${settings.mode === 'list' ? 'selected' : ''}`}>
+                <input
+                  type="radio"
+                  name="mode"
+                  value="list"
+                  checked={settings.mode === 'list'}
+                  onChange={(e) => handleUpdate('mode', e.target.value)}
+                />
+                <div className="option-content">
+                  <div className="option-icon">📋</div>
+                  <div className="option-text">
+                    <h3>리스트 모드</h3>
+                    <p>전체 문제를 한눈에 보며 학습</p>
+                  </div>
+                </div>
+              </label>
             </div>
           </div>
           
