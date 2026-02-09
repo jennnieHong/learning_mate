@@ -150,6 +150,97 @@
   box-shadow: 0 12px 25px rgba(237, 137, 54, 0.4);
 }
 
+/* 학습 옵션 대시보드 */
+.study-dashboard {
+  margin-bottom: 30px;
+  animation: slideUp 0.5s ease-out;
+}
+
+.study-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.option-card {
+  background-color: var(--bg-container);
+  border: 2px solid var(--border-light);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.option-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-primary);
+}
+
+.option-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.option-icon {
+  font-size: 2rem;
+}
+
+.option-card h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--text-main);
+}
+
+.option-card p {
+  color: var(--text-sub);
+  margin: 0;
+  font-size: 1rem;
+  flex-grow: 1;
+}
+
+.option-card strong {
+  color: var(--danger);
+  font-size: 1.1rem;
+}
+
+.option-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: white;
+}
+
+.option-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+}
+
+.option-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.option-btn.danger {
+  background-color: #ed8936;
+  box-shadow: 0 6px 16px rgba(237, 137, 54, 0.3);
+}
+
+.option-btn.danger:hover {
+  background-color: #dd6b20;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(237, 137, 54, 0.4);
+}
+
 @media (max-width: 768px) {
   .review-card {
     flex-direction: column;

@@ -14,7 +14,8 @@ import {
   permanentDelete,
   saveProblems,
   getProblemsByFileId,
-  getWrongProblemsFromFiles
+  getWrongProblemsFromFiles,
+  getAllProblemsFromFiles
 } from '../utils/storage';
 import { parseFile } from '../utils/fileParser';
 
@@ -102,6 +103,38 @@ export const useFileStore = create((set, get) => ({
     }
   },
   
+  /**
+   * 선택된 파일들(혹은 전체)의 모든 문제를 모아 '전체 학습 세션'을 생성합니다.
+   * @returns {Promise<Object>} 성공 여부와 메시지를 담은 결과 객체
+   */
+  loadAggregatedAll: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const selectedIds = get().selectedFileIds;
+      const allProblems = await getAllProblemsFromFiles(selectedIds);
+      
+      if (allProblems.length === 0) {
+        set({ isLoading: false });
+        return { success: false, message: '문제가 없습니다.' };
+      }
+
+      // 'aggregated-all'이라는 가상의 ID를 가진 세션 파일 생성
+      set({ 
+        currentFile: { 
+          id: 'aggregated-all',
+          originalFilename: selectedIds.length === 0 ? '전체 문제' : '선택된 파일 전체 문제',
+          problems: allProblems,
+          isReviewMode: false
+        },
+        isLoading: false 
+      });
+      return { success: true };
+    } catch (error) {
+      set({ error: error.message, isLoading: false });
+      return { success: false, error: error.message };
+    }
+  },
+
   /**
    * 휴지통 목록을 로드합니다.
    */

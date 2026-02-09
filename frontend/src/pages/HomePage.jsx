@@ -21,7 +21,7 @@ export default function HomePage() {
   const navigate = useNavigate();
   
   // 스토어 상태 및 액션 추출
-  const { selectedFileIds, loadAggregatedReview } = useFileStore();
+  const { selectedFileIds, loadAggregatedReview, loadAggregatedAll } = useFileStore();
   const { progressMap, loadAllProgress } = useProgressStore();
   
   // 현재 선택된 파일들의 전체 오답 수
@@ -60,6 +60,18 @@ export default function HomePage() {
       navigate('/study/aggregated-review');
     } else {
       toast.error(result.message || '오답 학습을 시작할 수 없습니다.');
+    }
+  };
+
+  /**
+   * 전체 학습 모드(Aggregated All)로 진입합니다.
+   */
+  const handleStartAll = async () => {
+    const result = await loadAggregatedAll();
+    if (result.success) {
+      navigate('/study/aggregated-all');
+    } else {
+      toast.error(result.message || '학습을 시작할 수 없습니다.');
     }
   };
 
@@ -122,22 +134,35 @@ export default function HomePage() {
           <FileFormatGuide />
         </section>
 
-        {/* 오답 노트 대시보드 - 오답이 존재할 때만 표시 */}
-        {wrongCount > 0 && (
-          <section className="review-dashboard">
-            <div className="review-card">
-              <div className="review-info">
-                <h3>✍️ 오답 노트 모아보기</h3>
-                <p>
-                  {selectedFileIds.length === 0 
-                    ? '전체 문제집' 
-                    : `선택된 ${selectedFileIds.length}개 문제집`}에서 
-                  <strong> {wrongCount}개</strong>의 오답이 발견되었습니다.
-                </p>
+        {/* 학습 옵션 대시보드 - 파일이 선택되었을 때 표시 */}
+        {selectedFileIds.length > 0 && (
+          <section className="study-dashboard">
+            <div className="study-options">
+              {/* 전체 학습 카드 */}
+              <div className="option-card">
+                <div className="option-header">
+                  <div className="option-icon">📚</div>
+                  <h3>전체 학습</h3>
+                </div>
+                <p>선택된 {selectedFileIds.length}개 문제집의 모든 문제</p>
+                <button className="option-btn primary" onClick={handleStartAll}>
+                  학습 시작
+                </button>
               </div>
-              <button className="start-review-btn" onClick={handleStartReview}>
-                🔥 오답 학습 바로 시작
-              </button>
+              
+              {/* 오답 학습 카드 */}
+              {wrongCount > 0 && (
+                <div className="option-card">
+                  <div className="option-header">
+                    <div className="option-icon">✍️</div>
+                    <h3>오답 학습</h3>
+                  </div>
+                  <p><strong>{wrongCount}개</strong>의 틀린 문제만</p>
+                  <button className="option-btn danger" onClick={handleStartReview}>
+                    학습 시작
+                  </button>
+                </div>
+              )}
             </div>
           </section>
         )}

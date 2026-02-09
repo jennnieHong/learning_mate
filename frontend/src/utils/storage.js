@@ -257,6 +257,25 @@ export const getWrongProblemsFromFiles = async (fileIds = []) => {
   
   return wrongProblemDetails;
 };
+
+/**
+ * 선택된 파일들 혹은 전체에서 모든 문제를 추출합니다.
+ * @param {Array} fileIds - 필터링할 파일 ID 목록 (빈 배열이면 전체 파일 대상)
+ * @returns {Promise<Array>} 문제들의 상세 정보 목록
+ */
+export const getAllProblemsFromFiles = async (fileIds = []) => {
+  const allProblems = [];
+  
+  await problemsDB.iterate((value) => {
+    const isTargetFile = fileIds.length === 0 || fileIds.includes(value.fileSetId);
+    if (isTargetFile) {
+      allProblems.push(value);
+    }
+  });
+  
+  return allProblems;
+};
+
 /**
  * 전체 문제 데이터베이스에서 특정 키워드를 포함하는 문제의 파일 ID 목록을 검색합니다 (딥 서치).
  * 한글 초성 검색도 지원합니다 (예: 'ㅂㄹㅇ' → '빌려온').

@@ -38,8 +38,8 @@ export default function StudyPage() {
    */
   useEffect(() => {
     loadSettings();
-    if (fileId === 'aggregated-review') {
-      // 오답 모드인 경우 모든 진행 상황을 로드해야 함
+    if (fileId === 'aggregated-review' || fileId === 'aggregated-all') {
+      // 오답 모드 또는 전체 학습 모드인 경우 모든 진행 상황을 로드해야 함
       loadAllProgress();
     } else if (fileId) {
       selectFile(fileId);
