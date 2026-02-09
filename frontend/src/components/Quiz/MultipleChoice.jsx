@@ -7,10 +7,17 @@
 import { useState, useEffect } from 'react';
 import './MultipleChoice.css';
 
-export const MultipleChoice = ({ problem, onAnswer, questionType, answerPool = [] }) => {
+export const MultipleChoice = ({ 
+  problem, 
+  onAnswer, 
+  questionType, 
+  answerPool = [],
+  isRevealed = false, // 외부에서 제어하는 정답 공개 여부
+  isAnswered = false, // 외부에서 제어하는 답변 완료 여부
+}) => {
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [subjectiveInput, setSubjectiveInput] = useState('');
-  const [isAnswered, setIsAnswered] = useState(false);
+  const [localIsAnswered, setLocalIsAnswered] = useState(false);
   const [shuffleChoices, setShuffleChoices] = useState([]);
 
   /**
@@ -20,7 +27,7 @@ export const MultipleChoice = ({ problem, onAnswer, questionType, answerPool = [
   useEffect(() => {
     setSelectedChoice(null);
     setSubjectiveInput('');
-    setIsAnswered(false);
+    setLocalIsAnswered(false);
     
     if (questionType === 'multiple') {
       let finalChoices = [];
@@ -65,9 +72,9 @@ export const MultipleChoice = ({ problem, onAnswer, questionType, answerPool = [
    * @param {string} value - 사용자 입력값 또는 선택한 항목
    */
   const handleSubmit = (value) => {
-    if (isAnswered) return;
+    if (localIsAnswered || isAnswered) return;
     
-    setIsAnswered(true);
+    setLocalIsAnswered(true);
     const isCorrect = value.trim().toLowerCase() === problem.answer.trim().toLowerCase();
     
     // 약간의 딜레이를 주어 정답/오답 표시를 확인하게 한 뒤 다음 문제로 넘깁니다.
@@ -89,7 +96,8 @@ export const MultipleChoice = ({ problem, onAnswer, questionType, answerPool = [
         <div className="choices-grid">
           {shuffleChoices.map((choice, index) => {
             let statusClass = '';
-            if (isAnswered) {
+            const isActiveAnswered = isAnswered || localIsAnswered;
+            if (isActiveAnswered) {
               const isChoiceCorrect = choice.trim().toLowerCase() === problem.answer.trim().toLowerCase();
               if (isChoiceCorrect) statusClass = 'correct';
               else if (choice === selectedChoice) statusClass = 'wrong';
@@ -100,12 +108,12 @@ export const MultipleChoice = ({ problem, onAnswer, questionType, answerPool = [
                 key={index}
                 className={`choice-btn ${statusClass} ${selectedChoice === choice ? 'selected' : ''}`}
                 onClick={() => {
-                  if (!isAnswered) {
+                  if (!isActiveAnswered) {
                     setSelectedChoice(choice);
                     handleSubmit(choice);
                   }
                 }}
-                disabled={isAnswered}
+                disabled={isActiveAnswered}
               >
                 <span className="choice-number">{index + 1}</span>
                 <span className="choice-text">{choice}</span>
@@ -118,10 +126,8 @@ export const MultipleChoice = ({ problem, onAnswer, questionType, answerPool = [
   }
 
   /**
-   * [주관식 퀴즈 렌더링] - 카드 뒤집기 형태
+   * [주관식 퀴즈 렌더링] - 카드 뒤집기 형태 (컨트롤 버튼 없음)
    */
-  const [isRevealed, setIsRevealed] = useState(false);
-  
   return (
     <div className="quiz-container">
       <div className="quiz-question">
@@ -129,53 +135,17 @@ export const MultipleChoice = ({ problem, onAnswer, questionType, answerPool = [
         <h2>{problem.description}</h2>
       </div>
       
-      {!isRevealed ? (
-        <div className="reveal-answer-area">
-          <button 
-            className="reveal-btn"
-            onClick={() => setIsRevealed(true)}
-          >
-            🔒 클릭하여 정답 보기
-          </button>
+      {isRevealed && (
+        <div className="answer-display">
+          <div className="answer-label">정답</div>
+          <div className="answer-text">{problem.answer}</div>
         </div>
-      ) : (
-        <>
-          <div className="answer-display">
-            <div className="answer-label">정답</div>
-            <div className="answer-text">{problem.answer}</div>
-          </div>
-          
-          {!isAnswered && (
-            <div className="self-check-buttons">
-              <button 
-                className="check-btn correct-btn"
-                onClick={() => {
-                  setIsAnswered(true);
-                  setTimeout(() => onAnswer(true), 800);
-                }}
-              >
-                <span className="btn-icon">👍</span>
-                <span className="btn-text">맞았어요</span>
-              </button>
-              <button 
-                className="check-btn wrong-btn"
-                onClick={() => {
-                  setIsAnswered(true);
-                  setTimeout(() => onAnswer(false), 800);
-                }}
-              >
-                <span className="btn-icon">👎</span>
-                <span className="btn-text">틀렸어요</span>
-              </button>
-            </div>
-          )}
-          
-          {isAnswered && (
-            <div className="answer-feedback processing">
-              처리 중...
-            </div>
-          )}
-        </>
+      )}
+
+      {isAnswered && (
+        <div className="answer-feedback processing">
+          처리 중...
+        </div>
       )}
     </div>
   );

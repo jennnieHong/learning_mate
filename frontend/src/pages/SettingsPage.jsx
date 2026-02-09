@@ -43,13 +43,7 @@ export default function SettingsPage() {
     <div className="settings-page">
       <div className="settings-container">
         <header className="settings-header">
-          <button className="back-btn" onClick={() => navigate('/')}>
-            ← 돌아가기
-          </button>
           <h1>⚙️ 설정</h1>
-          <button className="save-btn" onClick={handleSave}>
-            저장
-          </button>
         </header>
         
         <main className="settings-content">
@@ -232,7 +226,7 @@ export default function SettingsPage() {
           </div>
           
           {/* [3. 문제 유형 설정] */}
-          {(settings.mode === 'problem' || settings.mode === 'list') && (
+          <div className={`question-type-wrapper ${(settings.mode === 'problem' || settings.mode === 'list') ? 'visible' : 'hidden'}`}>
             <div className="setting-group">
               <h2>📝 문제 유형</h2>
               <p className="setting-description">문제를 풀 때의 정답 입력 방식을 결정합니다</p>
@@ -273,7 +267,7 @@ export default function SettingsPage() {
                 </label>
               </div>
             </div>
-          )}
+          </div>
           
           {/* [4. 문제 순서 및 반복] */}
           <div className="setting-group grid-2">
@@ -329,6 +323,16 @@ export default function SettingsPage() {
             </div>
           </div>
         </main>
+      </div>
+      
+      {/* 하단 고정 버튼 영역 */}
+      <div className="settings-bottom-bar">
+        <button className="back-btn-fixed" onClick={() => navigate('/')}>
+          ← 돌아가기
+        </button>
+        <button className="save-btn-fixed" onClick={handleSave}>
+          💾 설정 저장
+        </button>
       </div>
     </div>
   );

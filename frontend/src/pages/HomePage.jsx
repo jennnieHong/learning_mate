@@ -133,45 +133,36 @@ export default function HomePage() {
           <FileDropzone />
           <FileFormatGuide />
         </section>
-
-        {/* 학습 옵션 대시보드 - 파일이 선택되었을 때 표시 */}
-        {selectedFileIds.length > 0 && (
-          <section className="study-dashboard">
-            <div className="study-options">
-              {/* 전체 학습 카드 */}
-              <div className="option-card">
-                <div className="option-header">
-                  <div className="option-icon">📚</div>
-                  <h3>전체 학습</h3>
-                </div>
-                <p>선택된 {selectedFileIds.length}개 문제집의 모든 문제</p>
-                <button className="option-btn primary" onClick={handleStartAll}>
-                  학습 시작
-                </button>
-              </div>
-              
-              {/* 오답 학습 카드 */}
-              {wrongCount > 0 && (
-                <div className="option-card">
-                  <div className="option-header">
-                    <div className="option-icon">✍️</div>
-                    <h3>오답 학습</h3>
-                  </div>
-                  <p><strong>{wrongCount}개</strong>의 틀린 문제만</p>
-                  <button className="option-btn danger" onClick={handleStartReview}>
-                    학습 시작
-                  </button>
-                </div>
-              )}
-            </div>
-          </section>
-        )}
         
         {/* 업로드된 파일 그리드 목록 */}
         <section className="files-section">
           <FileList />
         </section>
       </main>
+      
+      {/* 하단 고정 학습 시작 버튼 영역 */}
+      {selectedFileIds.length > 0 && (
+        <div className="study-bottom-bar">
+          <button className="study-btn-all" onClick={handleStartAll}>
+            <span className="btn-icon">📚</span>
+            <div className="btn-content">
+              <div className="btn-title">전체 학습</div>
+              <div className="btn-subtitle">{selectedFileIds.length}개 문제집</div>
+            </div>
+          </button>
+          
+          {wrongCount > 0 && (
+            <button className="study-btn-review" onClick={handleStartReview}>
+              <span className="btn-icon">✍️</span>
+              <div className="btn-content">
+                <div className="btn-title">오답 학습</div>
+                <div className="btn-subtitle">{wrongCount}개 문제</div>
+              </div>
+            </button>
+          )}
+        </div>
+      )}
+      
       <FontScaleWidget />
     </div>
   );

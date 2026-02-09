@@ -11,12 +11,14 @@
 .settings-container {
   max-width: 800px;
   margin: 0 auto;
+  padding-bottom: 100px; /* 하단 고정 버튼 영역을 위한 여백 */
+  position: relative;
 }
 
 .settings-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin-bottom: 40px;
   position: sticky;
   top: 0;
@@ -280,6 +282,24 @@
   color: var(--text-muted);
 }
 
+/* 문제 유형 래퍼 - UI 밀림 방지 */
+.question-type-wrapper {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.question-type-wrapper.hidden {
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  margin: 0;
+}
+
+.question-type-wrapper.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* 옵션 카드 */
 .setting-options {
   display: flex;
@@ -369,23 +389,87 @@
   transform: translateX(24px);
 }
 
-/* 버튼 스타일 */
-.back-btn {
+/* 하단 고정 버튼 영역 */
+.settings-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, var(--bg-page) 70%, transparent);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* 돌아가기 버튼 (왼쪽) */
+.back-btn-fixed {
   background-color: var(--bg-sub);
   color: var(--text-main);
   border: none;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-weight: 600;
+  padding: 16px 32px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
 }
 
-.save-btn {
-  background-color: var(--accent-primary);
+.back-btn-fixed:hover {
+  background-color: var(--border-main);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.back-btn-fixed:active {
+  transform: translateY(0);
+}
+
+/* 설정 저장 버튼 (오른쪽) */
+.save-btn-fixed {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #7c3aed 100%);
   color: white;
   border: none;
-  padding: 10px 24px;
-  border-radius: 12px;
+  padding: 16px 32px;
+  border-radius: 14px;
   font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.save-btn-fixed:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.save-btn-fixed:active {
+  transform: translateY(0);
+}
+
+/* 모바일 반응형 */
+@media (max-width: 640px) {
+  .settings-bottom-bar {
+    padding: 16px;
+  }
+  
+  .back-btn-fixed {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+  
+  .save-btn-fixed {
+    padding: 12px 24px;
+    font-size: 0.9rem;
+  }
 }

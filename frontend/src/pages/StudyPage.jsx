@@ -32,6 +32,10 @@ export default function StudyPage() {
   const [isFinished, setIsFinished] = useState(false);       // 학습 종료 여부
   const [shuffledProblems, setShuffledProblems] = useState([]); // (랜덤 모드일 경우) 섞인 문제 목록
   const [filterMode, setFilterMode] = useState('incomplete');       // 'all' | 'wrong' | 'incomplete' (기본값: 미완료만)
+  
+  // 주관식 퀴즈용 상태
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [localIsAnswered, setLocalIsAnswered] = useState(false);
 
   /**
    * 초기 설정 및 데이터 로딩
@@ -70,6 +74,8 @@ export default function StudyPage() {
       setCurrentIndex(0);
       setQuizResults([]);
       setIsFinished(false);
+      setIsRevealed(false);
+      setLocalIsAnswered(false);
     }
     // progressMap을 의존성에서 제외하여 학습 도중 데이터 저장 시 세션이 리셋되는 것을 방지합니다.
     // 필터나 순서가 바뀔 때만 리셋되도록 합니다.
@@ -95,21 +101,30 @@ export default function StudyPage() {
    * @param {boolean} isCorrect - 정답 여부
    */
   const handleAnswer = async (isCorrect) => {
+    if (localIsAnswered) return;
+    
     const problemId = currentProblem.id;
     const fileSetId = currentProblem.fileSetId;
 
-    // 1. DB 및 스토어에 결과 저장
+    // 1. 상태 업데이트 (주관식일 때 시각적 피드백 위해)
+    setLocalIsAnswered(true);
+
+    // 2. DB 및 스토어에 결과 저장
     await saveResult(fileSetId, problemId, isCorrect);
     
-    // 2. 현재 세션 기록 업데이트
+    // 3. 현재 세션 기록 업데이트
     setQuizResults([...quizResults, { problemId, isCorrect }]);
 
-    // 3. 다음 문제로 이동 또는 학습 종료
-    if (currentIndex < totalCount - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      setIsFinished(true);
-    }
+    // 4. 다음 문제로 이동 또는 학습 종료 (약간의 딜레이 후 이동)
+    setTimeout(() => {
+      if (currentIndex < totalCount - 1) {
+        setCurrentIndex(currentIndex + 1);
+        setIsRevealed(false);
+        setLocalIsAnswered(false);
+      } else {
+        setIsFinished(true);
+      }
+    }, quizResults.length > 0 ? 800 : 1200); 
   };
 
   /**
@@ -140,6 +155,8 @@ export default function StudyPage() {
     setCurrentIndex(0);
     setQuizResults([]);
     setIsFinished(false);
+    setIsRevealed(false);
+    setLocalIsAnswered(false);
   };
 
   // 데이터가 없거나 필터 결과가 없는 경우 처리
@@ -258,39 +275,6 @@ export default function StudyPage() {
               problem={currentProblem} 
               cardFront={settings.cardFront}
             />
-            
-            <div className="card-controls">
-              <button 
-                className="nav-btn prev" 
-                disabled={currentIndex === 0}
-                onClick={() => setCurrentIndex(currentIndex - 1)}
-              >
-                ◀ 이전
-              </button>
-              
-              <div className="status-actions">
-                <button 
-                  className={`complete-btn ${progressMap[currentProblem.id]?.isCompleted ? 'active' : ''}`}
-                  onClick={() => handleToggleComplete(!progressMap[currentProblem.id]?.isCompleted)}
-                >
-                  {progressMap[currentProblem.id]?.isCompleted ? '✅ 완료됨' : '📑 완료 체크'}
-                </button>
-              </div>
-
-              <button 
-                className="nav-btn next"
-                disabled={currentIndex === totalCount - 1}
-                onClick={() => setCurrentIndex(currentIndex + 1)}
-              >
-                다음 ▶
-              </button>
-            </div>
-            
-            {currentIndex === totalCount - 1 && (
-              <button className="finish-btn" onClick={() => setIsFinished(true)}>
-                🏁 학습 종료
-              </button>
-            )}
           </div>
         ) : (
           /* [문제 모드: 퀴즈] */
@@ -298,10 +282,70 @@ export default function StudyPage() {
             problem={currentProblem}
             questionType={settings.questionType}
             onAnswer={handleAnswer}
-            answerPool={answerPool} // 보기가 없는 경우를 위해 정답 풀 전달
+            answerPool={answerPool}
+            isRevealed={isRevealed}
+            isAnswered={localIsAnswered}
           />
         )}
       </main>
+
+      {/* 하단 고정 액션 바 */}
+      <footer className="study-action-bar">
+        <div className="bar-container">
+          <button 
+            className="action-nav-btn" 
+            disabled={currentIndex === 0}
+            onClick={() => {
+              setCurrentIndex(currentIndex - 1);
+              setIsRevealed(false);
+              setLocalIsAnswered(false);
+            }}
+          >
+            이전
+          </button>
+
+          <div className="center-actions">
+            {settings.mode === 'explanation' ? (
+              <button 
+                className={`action-check-btn ${progressMap[currentProblem.id]?.isCompleted ? 'active' : ''}`}
+                onClick={() => handleToggleComplete(!progressMap[currentProblem.id]?.isCompleted)}
+              >
+                {progressMap[currentProblem.id]?.isCompleted ? '✅ 완료' : '📑 완료 체크'}
+              </button>
+            ) : settings.questionType === 'subjective' ? (
+              !isRevealed ? (
+                <button className="action-reveal-btn" onClick={() => setIsRevealed(true)}>
+                  🔒 정답 보기
+                </button>
+              ) : !localIsAnswered ? (
+                <div className="self-check-group">
+                  <button className="self-btn correct" onClick={() => handleAnswer(true)}>👍 맞음</button>
+                  <button className="self-btn wrong" onClick={() => handleAnswer(false)}>👎 틀림</button>
+                </div>
+              ) : (
+                <div className="action-status">기록 중...</div>
+              )
+            ) : null}
+          </div>
+
+          {currentIndex < totalCount - 1 ? (
+            <button 
+              className="action-nav-btn primary"
+              onClick={() => {
+                setCurrentIndex(currentIndex + 1);
+                setIsRevealed(false);
+                setLocalIsAnswered(false);
+              }}
+            >
+              다음
+            </button>
+          ) : (
+            <button className="action-nav-btn finish" onClick={() => setIsFinished(true)}>
+              종료
+            </button>
+          )}
+        </div>
+      </footer>
       <FontScaleWidget />
     </div>
   );

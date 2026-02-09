@@ -356,3 +356,61 @@
   color: var(--danger);
   border-color: var(--danger);
 }
+
+/* 반응형: 좁은 화면에서 파일 카드를 한 줄 형식으로 변경 */
+@media (max-width: 640px) {
+  .file-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .file-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 16px;
+    gap: 16px;
+  }
+  
+  .card-selection {
+    position: static;
+    order: -1;
+    flex-shrink: 0;
+  }
+  
+  .file-info {
+    flex: 1;
+    min-width: 0;
+    gap: 4px;
+  }
+  
+  .file-type-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0;
+  }
+  
+  .file-name {
+    font-size: 1rem;
+  }
+  
+  .file-meta {
+    font-size: 0.75rem;
+  }
+  
+  .progress-container {
+    display: none; /* 좁은 화면에서는 진행률 바 숨김 */
+  }
+  
+  .file-card-actions {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 0;
+    flex-shrink: 0;
+  }
+  
+  .action-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    min-width: 60px;
+  }
+}
+
