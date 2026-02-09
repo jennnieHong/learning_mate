@@ -95,6 +95,34 @@
   justify-content: space-between;
   align-items: center;
   background-color: var(--bg-container);
+  gap: 20px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search-input-editor {
+  padding: 10px 16px;
+  border: 1px solid var(--border-main);
+  border-radius: 12px;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s;
+  min-width: 250px;
+}
+
+.search-input-editor:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.search-input-editor::placeholder {
+  color: var(--text-muted);
 }
 
 .add-problem-btn {

@@ -9,6 +9,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useFileStore } from '../stores/useFileStore';
 import { useProgressStore } from '../stores/useProgressStore';
 import { saveFile, saveProblems, getProblemsByFileId } from '../utils/storage';
+import { chosungIncludes } from '../utils/chosungUtils';
 import toast from 'react-hot-toast';
 import './EditorPage.css';
 
@@ -26,6 +27,7 @@ export default function EditorPage() {
     { id: crypto.randomUUID(), description: '', answer: '', choices: ['', '', ''] }
   ]);
   const [selectedIds, setSelectedIds] = useState(new Set()); // 다중 선택된 문제 ID들
+  const [searchQuery, setSearchQuery] = useState(''); // 검색어
   
   /**
    * 경로 파라미터(fileId)에 따라 모드를 결정합니다.
@@ -205,6 +207,26 @@ export default function EditorPage() {
     }
   };
   
+  // 검색 필터링된 문제 목록
+  const filteredProblems = problems.filter(problem => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    const desc = problem.description.toLowerCase();
+    const ans = problem.answer.toLowerCase();
+    const choices = problem.choices.map(c => c.toLowerCase()).join(' ');
+    
+    // 일반 검색
+    const exactMatch = desc.includes(query) || ans.includes(query) || choices.includes(query);
+    
+    // 초성 검색
+    const chosungMatch = chosungIncludes(problem.description, query) ||
+                        chosungIncludes(problem.answer, query) ||
+                        problem.choices.some(c => chosungIncludes(c, query));
+    
+    return exactMatch || chosungMatch;
+  });
+  
   // 현재 에디터에 표시되는 가장 많은 선택지 개수 (그리드 열 생성 기준)
   const maxChoices = Math.max(...problems.map(p => p.choices.length));
   
@@ -244,8 +266,17 @@ export default function EditorPage() {
                 </button>
               )}
             </div>
-            <div className="problem-count">
-              총 {problems.length}개 문제
+            <div className="toolbar-right">
+              <input
+                type="text"
+                className="search-input-editor"
+                placeholder="문제 검색... (초성 가능)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <div className="problem-count">
+                {searchQuery ? `${filteredProblems.length} / ` : ''}{problems.length}개 문제
+              </div>
             </div>
           </div>
           
@@ -273,7 +304,7 @@ export default function EditorPage() {
                 </tr>
               </thead>
               <tbody>
-                {problems.map((problem, index) => {
+                {filteredProblems.map((problem, index) => {
                   const progress = progressMap[problem.id];
                   const isCompleted = progress?.isCompleted;
                   const wrongCount = progress?.wrongCount || 0;
