@@ -205,60 +205,62 @@ export const FileList = () => {
         )}
       </div>
 
-      {showSelectAllBanner && isAllFilteredSelected && (
-        <div className="select-all-banner">
-          <span>현재 필터링된 <strong>{filteredFiles.length}개</strong>의 문제집이 선택되었습니다.</span>
-          <button className="banner-link-btn" onClick={handleConfirmFullSelect}>
-            문항 데이터 보존 및 전체 확정
-          </button>
-          <button className="banner-close-btn" onClick={() => setShowSelectAllBanner(false)}>✕</button>
-        </div>
-      )}
-
-      {files.length > 0 && (
-        <div className="filter-bar">
-          <div className="search-wrapper">
-            <span className="search-icon">🔍</span>
-            <input 
-              type="text" 
-              placeholder="문제집 이름으로 검색..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
+      <div className="sticky-filters-wrapper">
+        {showSelectAllBanner && isAllFilteredSelected && (
+          <div className="select-all-banner">
+            <span>현재 필터링된 <strong>{filteredFiles.length}개</strong>의 문제집이 선택되었습니다.</span>
+            <button className="banner-link-btn" onClick={handleConfirmFullSelect}>
+              문항 데이터 보존 및 전체 확정
+            </button>
+            <button className="banner-close-btn" onClick={() => setShowSelectAllBanner(false)}>✕</button>
           </div>
-          
-          <div className="filter-selects">
-            <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-              <option value="all">모든 형식</option>
-              <option value="xlsx">📊 Excel</option>
-              <option value="csv">📄 CSV</option>
-              <option value="txt">📝 TXT</option>
-            </select>
+        )}
+
+        {files.length > 0 && (
+          <div className="filter-bar">
+            <div className="search-wrapper">
+              <span className="search-icon">🔍</span>
+              <input 
+                type="text" 
+                placeholder="문제집 이름으로 검색..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+            </div>
             
-            <select value={filterCount} onChange={(e) => setFilterCount(e.target.value)}>
-              <option value="all">문항 수 (전체)</option>
-              <option value="small">10개 이하</option>
-              <option value="medium">11~50개</option>
-              <option value="large">50개 초과</option>
-            </select>
+            <div className="filter-selects">
+              <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+                <option value="all">모든 형식</option>
+                <option value="xlsx">📊 Excel</option>
+                <option value="csv">📄 CSV</option>
+                <option value="txt">📝 TXT</option>
+              </select>
+              
+              <select value={filterCount} onChange={(e) => setFilterCount(e.target.value)}>
+                <option value="all">문항 수 (전체)</option>
+                <option value="small">10개 이하</option>
+                <option value="medium">11~50개</option>
+                <option value="large">50개 초과</option>
+              </select>
 
-            <select value={filterDate} onChange={(e) => setFilterDate(e.target.value)}>
-              <option value="all">날짜 (전체)</option>
-              <option value="today">오늘</option>
-              <option value="week">최근 7일</option>
-              <option value="month">최근 30일</option>
-            </select>
+              <select value={filterDate} onChange={(e) => setFilterDate(e.target.value)}>
+                <option value="all">날짜 (전체)</option>
+                <option value="today">오늘</option>
+                <option value="week">최근 7일</option>
+                <option value="month">최근 30일</option>
+              </select>
 
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <option value="newest">최신순</option>
-              <option value="oldest">오래된순</option>
-              <option value="name">이름순</option>
-              <option value="count">문항수순</option>
-            </select>
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                <option value="newest">최신순</option>
+                <option value="oldest">오래된순</option>
+                <option value="name">이름순</option>
+                <option value="count">문항수순</option>
+              </select>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {filteredFiles.length === 0 ? (
         <div className="empty-list">

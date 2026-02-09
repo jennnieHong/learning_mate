@@ -89,8 +89,31 @@
   background-color: var(--bg-sub);
   padding: 20px;
   border-radius: 20px;
-  margin-bottom: 30px;
   border: 1px solid var(--border-light);
+}
+
+/* 필터 및 배너를 묶는 스티키 래퍼 */
+.sticky-filters-wrapper {
+  position: sticky;
+  top: -20px; /* 상단 트리거 지점 조절 */
+  z-index: 100;
+  padding: 20px 0 10px 0;
+  background-color: var(--bg-container);
+  margin: 0 -10px 20px -10px; /* 좌우 여백 확보 */
+  padding-left: 10px;
+  padding-right: 10px;
+  transition: box-shadow 0.3s ease;
+}
+
+/* 스크롤되어 상단에 붙었을 때 그림자 효과를 주면 좋지만 CSS만으로는 한계가 있어 
+   기본적으로 가벼운 그림자를 유지합니다. */
+.sticky-filters-wrapper {
+  border-bottom: 1px solid transparent;
+}
+
+.sticky-filters-wrapper:not([style*="top: -20px"]) {
+  /* 실제 스티키 상태 감지는 JS가 필요하지만, 
+     여기서는 기본적으로 배경색을 일치시켜 자연스럽게 만듭니다. */
 }
 
 .search-wrapper {
