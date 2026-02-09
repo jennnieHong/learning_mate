@@ -9,7 +9,7 @@ import { useProgressStore } from '../../stores/useProgressStore';
 import { VirtuosoGrid } from 'react-virtuoso';
 import { useNavigate } from 'react-router-dom';
 import { searchProblemsByKeyword } from '../../utils/storage';
-import { chosungIncludes } from 'es-hangul';
+import { chosungIncludes } from '../../utils/chosungUtils';
 import toast from 'react-hot-toast';
 import './FileList.css';
 

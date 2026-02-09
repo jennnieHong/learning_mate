@@ -5,7 +5,7 @@
  */
 
 import localforage from 'localforage';
-import { chosungIncludes } from 'es-hangul';
+import { chosungIncludes } from './chosungUtils';
 
 /**
  * [파일 메타데이터 DB 인스턴스]
