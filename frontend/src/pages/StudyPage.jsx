@@ -115,7 +115,7 @@ export default function StudyPage() {
     // 3. 현재 세션 기록 업데이트
     setQuizResults([...quizResults, { problemId, isCorrect }]);
 
-    // 4. 다음 문제로 이동 또는 학습 종료 (약간의 딜레이 후 이동)
+    // 4. 다음 문제로 이동 또는 학습 종료 (속도 개선: 딜레이 단축)
     setTimeout(() => {
       if (currentIndex < totalCount - 1) {
         setCurrentIndex(currentIndex + 1);
@@ -124,7 +124,7 @@ export default function StudyPage() {
       } else {
         setIsFinished(true);
       }
-    }, quizResults.length > 0 ? 800 : 1200); 
+    }, quizResults.length > 0 ? 200 : 300); 
   };
 
   /**

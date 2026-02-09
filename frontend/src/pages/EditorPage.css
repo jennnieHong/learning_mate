@@ -31,7 +31,7 @@
   color: var(--text-main);
   padding: 12px 24px;
   border-radius: 14px;
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -110,7 +110,7 @@
   border-radius: 12px;
   background-color: var(--bg-page);
   color: var(--text-main);
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   outline: none;
   transition: all 0.2s;
   min-width: 250px;
@@ -131,7 +131,7 @@
   color: white;
   padding: 12px 24px;
   border-radius: 12px;
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -148,7 +148,7 @@
   color: var(--text-main);
   padding: 12px 24px;
   border-radius: 12px;
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -166,7 +166,7 @@
   color: white;
   padding: 12px 24px;
   border-radius: 12px;
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -194,7 +194,7 @@
 .problems-grid {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: 0.7rem;
 }
 
 .problems-grid thead {

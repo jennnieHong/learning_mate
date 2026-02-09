@@ -44,14 +44,14 @@
 }
 
 .dropzone-text {
-  font-size: 1.25rem;
+  font-size: 1.0rem;
   font-weight: 700;
   color: var(--text-main);
   margin: 0;
 }
 
 .dropzone-hint {
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   color: var(--text-sub);
   margin: 0;
 }

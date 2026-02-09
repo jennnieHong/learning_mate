@@ -17,7 +17,7 @@
   position: relative;
   transform-style: preserve-3d;
   transform-origin: center center;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   margin: 0 auto;
 }
 
@@ -99,7 +99,7 @@
   right: 0;
   margin: 0 auto;
   width: fit-content;
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   font-weight: 700;
   opacity: 0.95;
   padding: 12px 28px;
@@ -117,7 +117,7 @@
 
 @media (max-width: 640px) {
   .card-content {
-    font-size: 1.8rem;
+    font-size: 1.0rem;
   }
   .card-face {
     padding: 30px 20px;

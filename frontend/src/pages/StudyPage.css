@@ -141,7 +141,7 @@
 }
 
 .empty-filter-result p {
-  font-size: 1.25rem;
+  font-size: 1.0rem;
   font-weight: 700;
   color: var(--text-sub);
   margin-bottom: 20px;
@@ -323,7 +323,7 @@
 
   .quiz-question h2, 
   .card-face .card-content p {
-    font-size: 1.25rem !important;
+    font-size: 1.0rem !important;
   }
   
   .answer-text {

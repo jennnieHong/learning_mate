@@ -33,7 +33,7 @@
 }
 
 .home-header p {
-  font-size: 1.25rem;
+  font-size: 1.0rem;
   color: var(--text-sub);
   margin: 0 0 30px 0;
 }
@@ -302,7 +302,7 @@
 }
 
 .btn-icon {
-  font-size: 1.8rem;
+  font-size: 1.0rem;
   line-height: 1;
 }
 

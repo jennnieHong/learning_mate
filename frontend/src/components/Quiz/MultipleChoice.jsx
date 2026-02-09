@@ -77,10 +77,10 @@ export const MultipleChoice = ({
     setLocalIsAnswered(true);
     const isCorrect = value.trim().toLowerCase() === problem.answer.trim().toLowerCase();
     
-    // 약간의 딜레이를 주어 정답/오답 표시를 확인하게 한 뒤 다음 문제로 넘깁니다.
+    // 약간의 딜레이를 주어 정답/오답 표시를 확인하게 한 뒤 다음 문제로 넘깁니다. (속도 개선: 1200ms -> 400ms)
     setTimeout(() => {
       onAnswer(isCorrect);
-    }, 1200);
+    }, 400);
   };
 
   /**

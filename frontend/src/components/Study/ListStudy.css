@@ -27,7 +27,7 @@
   border-radius: 12px;
   background-color: var(--bg-page);
   color: var(--text-main);
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   outline: none;
   transition: all 0.2s;
 }
@@ -42,7 +42,7 @@
 }
 
 .problem-count {
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--text-main);
   white-space: nowrap;
@@ -62,7 +62,7 @@
 .list-study-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: 0.7rem;
 }
 
 .list-study-table thead {
@@ -211,7 +211,7 @@
   border: 2px solid var(--border-main);
   border-radius: 12px;
   color: var(--text-main);
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   text-align: left;
   cursor: pointer;
   transition: all 0.2s;

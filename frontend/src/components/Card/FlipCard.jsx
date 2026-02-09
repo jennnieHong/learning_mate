@@ -40,7 +40,7 @@ export const FlipCard = ({ problem, cardFront }) => {
         onClick={() => setIsFlipped(!isFlipped)}
         initial={false}
         animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.5, type: 'spring', stiffness: 260, damping: 20 }}
+        transition={{ duration: 0.1, type: 'spring', stiffness: 300, damping: 25 }}
       >
         {/* 카드 앞면 */}
         <div className="card-face card-front">
