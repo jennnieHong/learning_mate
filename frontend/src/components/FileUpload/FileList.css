@@ -28,6 +28,94 @@
   cursor: pointer;
 }
 
+/* 필터 바 스타일 */
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: var(--bg-sub);
+  padding: 20px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+  border: 1px solid var(--border-light);
+}
+
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 14px 14px 14px 46px;
+  border-radius: 14px;
+  border: 1px solid var(--border-main);
+  background-color: var(--bg-container);
+  color: var(--text-main);
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.filter-selects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.filter-selects select {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-main);
+  background-color: var(--bg-container);
+  color: var(--text-sub);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.filter-selects select:hover {
+  border-color: var(--text-muted);
+  color: var(--text-main);
+}
+
+.filter-selects select:focus {
+  border-color: var(--accent-primary);
+}
+
+/* 필터 초기화 버튼 */
+.reset-filter-btn {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.reset-filter-btn:hover {
+  opacity: 0.9;
+}
+
 /* 그리드 레이아웃 */
 .file-grid {
   display: grid;
