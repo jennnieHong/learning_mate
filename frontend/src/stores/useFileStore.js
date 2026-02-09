@@ -224,6 +224,30 @@ export const useFileStore = create((set, get) => ({
       return { success: false, error: error.message };
     }
   },
+
+  /**
+   * 선택된 모든 파일을 휴지통으로 보냅니다.
+   */
+  deleteSelectedFiles: async () => {
+    const { selectedFileIds } = get();
+    if (selectedFileIds.length === 0) return { success: false, message: '선택된 파일이 없습니다.' };
+
+    set({ isLoading: true, error: null });
+    try {
+      // 모든 선택된 파일을 휴지통으로 이동 (병렬 처리)
+      await Promise.all(selectedFileIds.map(id => moveToTrash(id)));
+      
+      // 상태 업데이트
+      set({ selectedFileIds: [] });
+      await get().loadFiles();
+      
+      set({ isLoading: false });
+      return { success: true, count: selectedFileIds.length };
+    } catch (error) {
+      set({ error: error.message, isLoading: false });
+      return { success: false, error: error.message };
+    }
+  },
   
   /**
    * 휴지통에 있는 파일을 복원합니다.

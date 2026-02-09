@@ -71,6 +71,32 @@
   margin: 0;
 }
 
+.list-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.bulk-delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bulk-delete-btn:hover {
+  background-color: var(--danger);
+  color: white;
+}
+
 .select-all {
   display: flex;
   align-items: center;
@@ -359,58 +385,190 @@
 
 /* 반응형: 좁은 화면에서 파일 카드를 한 줄 형식으로 변경 */
 @media (max-width: 640px) {
+  .list-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .list-controls {
+    gap: 8px;
+  }
+
+  .bulk-delete-btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 8px;
+    gap: 4px;
+  }
+
+  .bulk-delete-btn .btn-text {
+    display: none;
+  }
+
+  /* 선택 전체 배너 울트라 컴팩트 */
+  .select-all-banner {
+    padding: 8px 12px;
+    border-radius: 10px;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: nowrap; /* 무조건 한 줄 유지 */
+    overflow: hidden;
+  }
+
+  .select-all-banner span {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  .banner-link-btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .banner-close-btn {
+    font-size: 1rem;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+
+  /* 필터 바 컴팩트화 */
+  .sticky-filters-wrapper {
+    top: -5px;
+    padding: 5px 0 2px 0;
+    margin-bottom: 8px;
+  }
+
+  .filter-bar {
+    padding: 8px;
+    gap: 8px;
+    border-radius: 12px;
+  }
+
+  .target-select {
+    height: 36px;
+    padding: 0 6px;
+    font-size: 0.8rem;
+  }
+
+  .search-input {
+    padding: 8px 8px 8px 30px;
+    font-size: 0.85rem;
+    height: 36px;
+  }
+
+  .search-icon {
+    left: 10px;
+    font-size: 0.85rem;
+  }
+
+  .filter-selects {
+    grid-template-columns: repeat(4, 1fr); /* 4개를 한 줄에 배치하여 높이 절약 */
+    gap: 4px;
+  }
+
+  .filter-selects select {
+    padding: 6px 2px;
+    font-size: 0.7rem;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  /* 파일 카드 진짜 1줄 모드 (Ultra-Compact) */
   .file-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 4px;
   }
   
   .file-card {
     flex-direction: row;
     align-items: center;
-    padding: 16px;
-    gap: 16px;
+    padding: 4px 10px;
+    gap: 8px;
+    border-radius: 10px;
+    min-height: unset;
   }
-  
+
+  /* 체크박스를 맨 앞으로 이동 및 위치 고정 */
   .card-selection {
-    position: static;
+    position: static !important;
     order: -1;
     flex-shrink: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .card-selection input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    cursor: pointer;
   }
   
   .file-info {
     flex: 1;
     min-width: 0;
-    gap: 4px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
   }
   
   .file-type-icon {
-    font-size: 1.8rem;
+    font-size: 1rem;
     margin-bottom: 0;
+    flex-shrink: 0;
   }
   
   .file-name {
-    font-size: 1rem;
+    font-size: 0.85rem;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    font-weight: 600;
   }
   
-  .file-meta {
-    font-size: 0.75rem;
-  }
-  
+  .file-meta,
   .progress-container {
-    display: none; /* 좁은 화면에서는 진행률 바 숨김 */
+    display: none;
   }
   
   .file-card-actions {
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 0;
+    flex-direction: row;
+    gap: 0;
+    margin: 0;
     flex-shrink: 0;
   }
   
   .action-btn {
-    padding: 8px 12px;
+    padding: 6px;
     font-size: 0.8rem;
-    min-width: 60px;
+    min-width: unset;
+    height: auto;
+    border: none;
+    background: transparent;
+    color: var(--accent-primary);
+  }
+
+  .action-btn.delete-btn {
+    color: var(--text-muted);
+  }
+
+  .action-btn span:not(.btn-icon) {
+    display: none;
+  }
+
+  .btn-text {
+    display: none;
   }
 }
+
+
 

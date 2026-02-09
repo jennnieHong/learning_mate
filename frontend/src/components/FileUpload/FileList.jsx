@@ -19,6 +19,7 @@ export const FileList = () => {
     files, 
     loadFiles, 
     deleteFile, 
+    deleteSelectedFiles,
     isLoading, 
     selectedFileIds, 
     toggleFileSelection,
@@ -109,6 +110,22 @@ export const FileList = () => {
       const result = await deleteFile(fileId);
       if (result.success) {
         toast.success('파일이 휴지통으로 이동되었습니다.');
+      }
+    }
+  };
+
+  /**
+   * 선택된 파일들을 일괄 삭제합니다.
+   */
+  const handleBulkDelete = async () => {
+    if (selectedFileIds.length === 0) return;
+    
+    if (confirm(`선택한 ${selectedFileIds.length}개의 파일을 휴지통으로 보내시겠습니까?`)) {
+      const result = await deleteSelectedFiles();
+      if (result.success) {
+        toast.success(`${result.count}개의 파일이 휴지통으로 이동되었습니다.`);
+      } else {
+        toast.error('삭제 중 오류가 발생했습니다.');
       }
     }
   };
@@ -260,6 +277,17 @@ export const FileList = () => {
         <h2>📑 문제집 목록 ({files.length})</h2>
         {files.length > 0 && (
           <div className="list-controls">
+            {selectedFileIds.length > 0 && (
+              <button 
+                className="bulk-delete-btn" 
+                onClick={handleBulkDelete}
+                title="선택된 파일 삭제"
+              >
+                <span className="btn-icon">🗑️</span>
+                <span className="btn-count">{selectedFileIds.length}</span>
+                <span className="btn-text">개 삭제</span>
+              </button>
+            )}
             <label className="select-all">
               <input 
                 type="checkbox" 
@@ -422,14 +450,16 @@ export const FileList = () => {
                     onClick={(e) => handleEdit(e, file.id)}
                     title="편집"
                   >
-                    ✏️ 편집
+                    <span className="btn-icon">✏️</span>
+                    <span className="btn-text">편집</span>
                   </button>
                   <button 
                     className="action-btn delete-btn"
                     onClick={(e) => handleDelete(e, file.id, file.originalFilename)}
                     title="삭제"
                   >
-                    🗑️ 삭제
+                    <span className="btn-icon">🗑️</span>
+                    <span className="btn-text">삭제</span>
                   </button>
                 </div>
               </div>

@@ -70,3 +70,21 @@
 .reset-scale-btn:hover {
   background-color: var(--bg-sub);
 }
+@media (max-width: 640px) {
+  .font-scale-widget {
+    bottom: 100px; /* 고정 하단 바와 겹치지 않게 위로 이동 */
+    right: 15px;
+    padding: 6px 10px;
+    gap: 6px;
+    transform: scale(0.9);
+  }
+
+  .scale-btn {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .current-scale-display {
+    font-size: 0.75rem;
+  }
+}

@@ -326,22 +326,61 @@
 }
 
 @media (max-width: 768px) {
+  .home-page {
+    padding: 20px 12px;
+  }
+
+  .home-header {
+    margin-bottom: 30px;
+  }
+
+  .home-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .home-header p {
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+
+  .upload-section, .files-section {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
   .review-card {
     flex-direction: column;
     text-align: center;
+    padding: 20px;
   }
-  
+
   .study-bottom-bar {
-    padding: 16px;
-    flex-direction: column;
-    gap: 10px;
+    padding: 8px 12px;
+    gap: 6px;
+    background: linear-gradient(to top, var(--bg-page) 95%, transparent);
   }
   
   .study-btn-all,
   .study-btn-review {
-    width: 100%;
-    max-width: 400px;
+    flex: 1;
+    min-width: 0;
+    padding: 10px 8px;
+    border-radius: 10px;
+    gap: 6px;
     justify-content: center;
   }
+
+  .btn-icon {
+    font-size: 1.2rem;
+  }
+
+  .btn-title {
+    font-size: 0.85rem;
+  }
+
+  .btn-subtitle {
+    font-size: 0.65rem;
+  }
 }
+
 
