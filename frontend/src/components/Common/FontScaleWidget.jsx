@@ -20,13 +20,17 @@ export const FontScaleWidget = () => {
   const [position, setPosition] = useState(settings.fontScaleWidgetPos || { top: 20, right: 20 });
   const dragStartPos = useRef({ x: 0, y: 0 });
   const widgetStartPos = useRef({ top: 0, right: 0 });
+  // 드래그 중 최신 위치를 이벤트 리스너(클로저)에서 참조하기 위한 Ref
+  const livePositionRef = useRef(position);
 
-  // 설정에서 위치가 변경되면 로컬 상태도 동기화
+  // 설정에서 위치가 변경되면 로컬 상태도 동기화 (드래그 중이 아닐 때만)
   useEffect(() => {
-    if (settings.fontScaleWidgetPos) {
-      setPosition(settings.fontScaleWidgetPos);
+    if (settings.fontScaleWidgetPos && !isDragging) {
+      const newPos = settings.fontScaleWidgetPos;
+      setPosition(newPos);
+      livePositionRef.current = newPos;
     }
-  }, [settings.fontScaleWidgetPos]);
+  }, [settings.fontScaleWidgetPos, isDragging]);
 
   if (!settings.showFontScaleWidget) return null;
 
@@ -64,13 +68,16 @@ export const FontScaleWidget = () => {
    * 드래그 이동 핸들러
    */
   const handleMouseMove = (e) => {
-    const deltaX = dragStartPos.current.x - e.clientX; // 오른쪽에서 시작하므로 clientX가 줄어들면 right는 늘어남
+    const deltaX = dragStartPos.current.x - e.clientX;
     const deltaY = e.clientY - dragStartPos.current.y;
 
-    const newTop = Math.max(0, Math.min(window.innerHeight - 50, widgetStartPos.current.top + deltaY));
-    const newRight = Math.max(0, Math.min(window.innerWidth - 100, widgetStartPos.current.right + deltaX));
+    // 화면 경계 제한 (위젯 크기 약 200x60 고려)
+    const newTop = Math.max(0, Math.min(window.innerHeight - 60, widgetStartPos.current.top + deltaY));
+    const newRight = Math.max(0, Math.min(window.innerWidth - 200, widgetStartPos.current.right + deltaX));
 
-    setPosition({ top: newTop, right: newRight });
+    const newPos = { top: newTop, right: newRight };
+    setPosition(newPos);
+    livePositionRef.current = newPos; // 클로저가 최신 값을 볼 수 있게 Ref 업데이트
   };
 
   /**
@@ -81,8 +88,8 @@ export const FontScaleWidget = () => {
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
     
-    // 최종 위치를 설정에 저장
-    updateSetting('fontScaleWidgetPos', position);
+    // stale closure 방지를 위해 Ref의 현재 값을 저장
+    updateSetting('fontScaleWidgetPos', livePositionRef.current);
   };
 
   /**
@@ -90,6 +97,8 @@ export const FontScaleWidget = () => {
    */
   const handleTouchStart = (e) => {
     const touch = e.touches[0];
+    if (touch.target.closest('button')) return; // 버튼 클릭 시엔 드래그 방지
+
     setIsDragging(true);
     dragStartPos.current = { x: touch.clientX, y: touch.clientY };
     widgetStartPos.current = { ...position };
@@ -101,15 +110,17 @@ export const FontScaleWidget = () => {
     const deltaX = dragStartPos.current.x - touch.clientX;
     const deltaY = touch.clientY - dragStartPos.current.y;
 
-    const newTop = Math.max(0, Math.min(window.innerHeight - 50, widgetStartPos.current.top + deltaY));
-    const newRight = Math.max(0, Math.min(window.innerWidth - 100, widgetStartPos.current.right + deltaX));
+    const newTop = Math.max(0, Math.min(window.innerHeight - 60, widgetStartPos.current.top + deltaY));
+    const newRight = Math.max(0, Math.min(window.innerWidth - 200, widgetStartPos.current.right + deltaX));
 
-    setPosition({ top: newTop, right: newRight });
+    const newPos = { top: newTop, right: newRight };
+    setPosition(newPos);
+    livePositionRef.current = newPos;
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
-    updateSetting('fontScaleWidgetPos', position);
+    updateSetting('fontScaleWidgetPos', livePositionRef.current);
   };
 
   return (
@@ -118,17 +129,23 @@ export const FontScaleWidget = () => {
       style={{ 
         top: `${position.top}px`, 
         right: `${position.right}px`,
-        bottom: 'auto' // 기존 bottom 초기화
+        bottom: 'auto'
       }}
-      onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="drag-handle">⋮⋮</div>
+      <div 
+        className="drag-handle"
+        onMouseDown={handleMouseDown}
+        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+      >
+        ⋮⋮
+      </div>
       <button 
         className="scale-btn" 
         onClick={handleDecrease} 
+        onMouseDown={(e) => e.stopPropagation()} // 드래그 시작 방지
         disabled={currentSize <= 1}
         title="글자 작게"
       >
@@ -140,20 +157,21 @@ export const FontScaleWidget = () => {
       <button 
         className="scale-btn" 
         onClick={handleIncrease} 
+        onMouseDown={(e) => e.stopPropagation()} // 드래그 시작 방지
         disabled={currentSize >= 10}
         title="글자 크게"
       >
         A+
       </button>
-      {temporaryFontSize !== null && (
-        <button 
-          className="reset-scale-btn" 
-          onClick={handleReset}
-          title="기본 크기로 복구"
-        >
-          🔄
-        </button>
-      )}
+      <button 
+        className={`reset-scale-btn ${temporaryFontSize === null ? 'disabled' : ''}`}
+        onClick={handleReset}
+        onMouseDown={(e) => e.stopPropagation()}
+        disabled={temporaryFontSize === null}
+        title="기본 크기로 복구"
+      >
+        🔄
+      </button>
     </div>
   );
 };

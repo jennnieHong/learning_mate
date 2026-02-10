@@ -15,12 +15,6 @@ export default function SettingsPage() {
   // 스토어에서 설정 상태와 업데이트 함수 추출
   const { settings, loadSettings, updateSetting, resetSettings } = useSettingsStore();
   
-  /**
-   * 페이지 진입 시 저장된 설정을 불러옵니다.
-   */
-  useEffect(() => {
-    loadSettings();
-  }, [loadSettings]);
   
   /**
    * 설정을 저장하고 홈으로 돌아갑니다.

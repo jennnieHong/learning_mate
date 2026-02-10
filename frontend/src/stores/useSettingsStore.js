@@ -36,11 +36,18 @@ export const useSettingsStore = create((set, get) => ({
   /**
    * DB에서 설정을 로드합니다.
    */
-  loadSettings: async () => {
+  loadSettings: async (force = false) => {
+    // 이미 로드되었고 강제 로드가 아니면 중복 로드 방지
+    if (!force && !get().isLoading && get().settings !== DEFAULT_SETTINGS) {
+      return;
+    }
+
     set({ isLoading: true });
     try {
       const saved = await getSettings();
-      set({ settings: saved, isLoading: false });
+      // 기존 저장된 설정과 기본 설정을 병합하여 새로운 키가 누락되지 않도록 합니다.
+      const mergedSettings = { ...DEFAULT_SETTINGS, ...saved };
+      set({ settings: mergedSettings, isLoading: false });
     } catch (error) {
       console.error('설정 로드 실패:', error);
       set({ isLoading: false });

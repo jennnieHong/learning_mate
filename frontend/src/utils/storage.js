@@ -225,7 +225,9 @@ export const getSettings = async () => {
     fontSize: 5,
     cardColor: 'indigo',
     cardSaturation: 70,
-    cardLightness: 60
+    cardLightness: 60,
+    showFontScaleWidget: true,
+    fontScaleWidgetPos: { top: 20, right: 20 }
   };
 };
 
