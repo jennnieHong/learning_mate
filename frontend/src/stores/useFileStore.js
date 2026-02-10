@@ -24,6 +24,7 @@ export const useFileStore = create((set, get) => ({
   files: [],              // 활성 상태의 파일 목록
   trashedFiles: [],       // 휴지통에 있는 파일 목록
   selectedFileIds: [],    // 메인 화면에서 다중 선택된 파일 ID들
+  selectedTrashedFileIds: [], // 휴지통에서 다중 선택된 파일 ID들
   currentFile: null,      // 현재 학습 또는 편집 중인 파일 (문제 정보 포함 가능)
   isLoading: false,       // 비동기 작업 로딩 상태
   error: null,            // 에러 메시지 데이터
@@ -332,6 +333,78 @@ export const useFileStore = create((set, get) => ({
       await get().loadTrash();
       set({ isLoading: false });
       return { success: true };
+    } catch (error) {
+      set({ error: error.message, isLoading: false });
+      return { success: false, error: error.message };
+    }
+  },
+
+  /**
+   * 휴지통 아이템의 선택 상태를 토글합니다.
+   */
+  toggleTrashedFileSelection: (fileId) => {
+    const { selectedTrashedFileIds } = get();
+    if (selectedTrashedFileIds.includes(fileId)) {
+      set({ selectedTrashedFileIds: selectedTrashedFileIds.filter(id => id !== fileId) });
+    } else {
+      set({ selectedTrashedFileIds: [...selectedTrashedFileIds, fileId] });
+    }
+  },
+
+  /**
+   * 휴지통의 모든 아이템을 선택합니다.
+   */
+  selectAllTrashedFiles: () => {
+    const { trashedFiles } = get();
+    set({ selectedTrashedFileIds: trashedFiles.map(f => f.id) });
+  },
+
+  /**
+   * 휴지통 선택을 모두 해제합니다.
+   */
+  clearTrashedSelection: () => {
+    set({ selectedTrashedFileIds: [] });
+  },
+
+  /**
+   * 선택된 모든 휴지통 파일을 복원합니다.
+   */
+  restoreSelectedTrashedFiles: async () => {
+    const { selectedTrashedFileIds } = get();
+    if (selectedTrashedFileIds.length === 0) return { success: false, message: '선택된 파일이 없습니다.' };
+
+    set({ isLoading: true, error: null });
+    try {
+      await Promise.all(selectedTrashedFileIds.map(id => restoreFile(id)));
+      
+      set({ selectedTrashedFileIds: [] });
+      await get().loadFiles();
+      await get().loadTrash();
+      
+      set({ isLoading: false });
+      return { success: true, count: selectedTrashedFileIds.length };
+    } catch (error) {
+      set({ error: error.message, isLoading: false });
+      return { success: false, error: error.message };
+    }
+  },
+
+  /**
+   * 선택된 모든 휴지통 파일을 영구 삭제합니다.
+   */
+  deletePermanentlySelectedFiles: async () => {
+    const { selectedTrashedFileIds } = get();
+    if (selectedTrashedFileIds.length === 0) return { success: false, message: '선택된 파일이 없습니다.' };
+
+    set({ isLoading: true, error: null });
+    try {
+      await Promise.all(selectedTrashedFileIds.map(id => permanentDelete(id)));
+      
+      set({ selectedTrashedFileIds: [] });
+      await get().loadTrash();
+      
+      set({ isLoading: false });
+      return { success: true, count: selectedTrashedFileIds.length };
     } catch (error) {
       set({ error: error.message, isLoading: false });
       return { success: false, error: error.message };

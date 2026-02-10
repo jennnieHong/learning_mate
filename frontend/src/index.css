@@ -110,3 +110,17 @@ button {
   box-sizing: border-box;
   word-break: keep-all;
 }
+
+/* 전역 체크박스 스타일 개선 (접근성 상향) */
+input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: var(--accent-primary);
+  border-radius: 6px;
+  transition: transform 0.1s ease;
+}
+
+input[type="checkbox"]:active {
+  transform: scale(0.9);
+}

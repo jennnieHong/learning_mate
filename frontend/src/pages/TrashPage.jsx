@@ -11,16 +11,74 @@ import './TrashPage.css';
 
 export default function TrashPage() {
   // 스토어 상태 및 액션 추출
-  const { trashedFiles, loadTrash, restoreFileFromTrash, deletePermanently, isLoading } = useFileStore();
+  const { 
+    trashedFiles, 
+    loadTrash, 
+    restoreFileFromTrash, 
+    deletePermanently, 
+    selectedTrashedFileIds,
+    toggleTrashedFileSelection,
+    selectAllTrashedFiles,
+    clearTrashedSelection,
+    restoreSelectedTrashedFiles,
+    deletePermanentlySelectedFiles,
+    isLoading 
+  } = useFileStore();
   const navigate = useNavigate();
   
   /**
-   * 페이지 진입 시 휴지통 목록을 새로 고칩니다.
+   * 페이지 진입 시 휴지통 목록을 새로 고치고 선택된 상태를 초기화합니다.
    */
   useEffect(() => {
     loadTrash();
-  }, [loadTrash]);
+    clearTrashedSelection();
+    return () => clearTrashedSelection(); // 페이지 이탈 시 선택 초기화
+  }, [loadTrash, clearTrashedSelection]);
+
+  // 전체 선택 상태 여부
+  const isAllSelected = trashedFiles.length > 0 && selectedTrashedFileIds.length === trashedFiles.length;
   
+  /**
+   * 전체 선택/해제 토글
+   */
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      clearTrashedSelection();
+    } else {
+      selectAllTrashedFiles();
+    }
+  };
+
+  /**
+   * 선택된 모든 파일을 복원합니다.
+   */
+  const handleRestoreSelected = async () => {
+    const result = await restoreSelectedTrashedFiles();
+    if (result.success) {
+      toast.success(`${result.count}개의 파일을 복원했습니다`);
+    } else {
+      toast.error('복원 중 오류가 발생했습니다');
+    }
+  };
+
+  /**
+   * 선택된 모든 파일을 영구 삭제합니다.
+   */
+  const handleDeleteSelected = async () => {
+    const isConfirmed = window.confirm(
+      `${selectedTrashedFileIds.length}개의 파일을 정말 영구 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`
+    );
+
+    if (isConfirmed) {
+      const result = await deletePermanentlySelectedFiles();
+      if (result.success) {
+        toast.success(`${result.count}개의 파일을 영구 삭제했습니다`);
+      } else {
+        toast.error('삭제 중 오류가 발생했습니다');
+      }
+    }
+  };
+
   /**
    * 파일을 원래 목록으로 복원합니다.
    * @param {string} fileId - 복원할 파일 ID
@@ -80,10 +138,22 @@ export default function TrashPage() {
             ← 돌아가기
           </button>
           <h1>🗑️ 휴지통</h1>
-          <div className="header-spacer"></div>
+          
+          {trashedFiles.length > 0 && (
+            <div className="header-actions">
+              <label className="select-all-label">
+                <input 
+                  type="checkbox" 
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                />
+                전체 선택
+              </label>
+            </div>
+          )}
         </header>
         
-        {isLoading ? (
+        {isLoading && trashedFiles.length === 0 ? (
           <div className="loading">로딩 중...</div>
         ) : trashedFiles.length === 0 ? (
           /* 휴지통이 비어있는 상태 */
@@ -94,10 +164,18 @@ export default function TrashPage() {
           /* 삭제된 파일 카드 목록 */
           <div className="trash-list">
             {trashedFiles.map((file) => (
-              <div key={file.id} className="trash-item">
+              <div key={file.id} className={`trash-item ${selectedTrashedFileIds.includes(file.id) ? 'selected' : ''}`}>
+                <div className="item-checkbox">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedTrashedFileIds.includes(file.id)}
+                    onChange={() => toggleTrashedFileSelection(file.id)}
+                  />
+                </div>
+                
                 <div className="trash-icon">🗑️</div>
                 
-                <div className="trash-info">
+                <div className="trash-info" onClick={() => toggleTrashedFileSelection(file.id)}>
                   <h3>{file.originalFilename}</h3>
                   <p className="trash-stats">
                     문제 {file.totalProblems}개 • 
@@ -111,14 +189,20 @@ export default function TrashPage() {
                 <div className="trash-actions">
                   <button 
                     className="btn btn-restore"
-                    onClick={() => handleRestore(file.id, file.originalFilename)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRestore(file.id, file.originalFilename);
+                    }}
                     title="기존 목록으로 복원"
                   >
                     🔄 복원
                   </button>
                   <button 
                     className="btn btn-delete"
-                    onClick={() => handlePermanentDelete(file.id, file.originalFilename)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePermanentDelete(file.id, file.originalFilename);
+                    }}
                     title="영구 삭제"
                   >
                     🔥 삭제
@@ -129,6 +213,23 @@ export default function TrashPage() {
           </div>
         )}
       </div>
+
+      {/* 하단 일괄 작업 바 */}
+      {selectedTrashedFileIds.length > 0 && (
+        <div className="trash-bulk-bar">
+          <div className="bulk-info">
+            <span className="count">{selectedTrashedFileIds.length}</span>개 선택됨
+          </div>
+          <div className="bulk-actions">
+            <button className="bulk-btn restore" onClick={handleRestoreSelected}>
+              🔄 선택 복원
+            </button>
+            <button className="bulk-btn delete" onClick={handleDeleteSelected}>
+              🔥 영구 삭제
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

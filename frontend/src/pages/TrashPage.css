@@ -86,12 +86,42 @@
   border-color: var(--text-muted);
 }
 
+.trash-item.selected {
+  border-color: var(--accent-primary);
+  background-color: rgba(99, 102, 241, 0.05); /* indigo-like subtle tint */
+}
+
+/* 체크박스 스타일링 */
+.item-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.item-checkbox input[type="checkbox"],
+.select-all-label input[type="checkbox"] {
+  width: 26px; /* 상향 */
+  height: 26px;
+  cursor: pointer;
+  accent-color: var(--accent-primary);
+}
+
+.select-all-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-sub);
+}
+
 .trash-icon {
   font-size: 2.5rem;
 }
 
 .trash-info {
   flex: 1;
+  cursor: pointer; /* 클릭해서 선택 가능함을 암시 */
 }
 
 .trash-info h3 {
@@ -150,4 +180,108 @@
 .btn-delete:hover {
   background-color: var(--danger);
   color: white;
+}
+
+/* 하단 고정 일괄 작업 바 */
+.trash-bulk-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--accent-primary);
+  color: white;
+  padding: 16px 32px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translate(-50%, 100px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.bulk-info {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.bulk-info .count {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-right: 4px;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.bulk-btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bulk-btn.restore {
+  background-color: white;
+  color: var(--accent-primary);
+}
+
+.bulk-btn.restore:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.bulk-btn.delete {
+  background-color: #fca5a5; /* light red */
+  color: #991b1b; /* dark red */
+}
+
+.bulk-btn.delete:hover {
+  background-color: #ef4444;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* 모바일 대응 */
+@media (max-width: 600px) {
+  .trash-page {
+    padding: 20px 10px;
+    padding-bottom: 120px; /* 바 공간 확보 */
+  }
+
+  .trash-container {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .trash-item {
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .trash-icon {
+    display: none; /* 모바일에서는 숨김 */
+  }
+
+  .trash-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .trash-bulk-bar {
+    width: calc(100% - 32px);
+    flex-direction: column;
+    gap: 16px;
+    bottom: 16px;
+    padding: 20px;
+  }
 }
