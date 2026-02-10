@@ -21,18 +21,31 @@ export default function ListStudy({ problems, fileId }) {
   const [searchQuery, setSearchQuery] = useState('');
   
   /**
-   * 답 공개 토글 (주관식용)
+   * 답 공개 토글 (주관식용) 및 학습 완료 처리
    */
-  const toggleRevealAnswer = (problemId) => {
+  const toggleRevealAnswer = async (problem) => {
+    const isRevealing = !revealedAnswers.has(problem.id);
+    
     setRevealedAnswers(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(problemId)) {
-        newSet.delete(problemId);
+      if (newSet.has(problem.id)) {
+        newSet.delete(problem.id);
       } else {
-        newSet.add(problemId);
+        newSet.add(problem.id);
       }
       return newSet;
     });
+
+    // 정답을 볼 때 자동으로 완료 처리 (이미 완료된 경우는 생략 가능하나 명시적으로 처리)
+    if (isRevealing) {
+      const currentProgress = progressMap[problem.id];
+      if (!currentProgress?.isCompleted) {
+        await saveResult(fileId, problem.id, {
+          isCorrect: currentProgress?.isCorrect ?? null,
+          isCompleted: true
+        });
+      }
+    }
   };
   
   /**
@@ -46,8 +59,6 @@ export default function ListStudy({ problems, fileId }) {
       isCorrect: currentProgress?.isCorrect ?? null, // 기존 정답 여부 유지
       isCompleted: newCompleteStatus
     });
-    
-    toast.success(newCompleteStatus ? '완료 처리되었습니다' : '미완료로 변경되었습니다');
   };
   
   /**
@@ -64,12 +75,6 @@ export default function ListStudy({ problems, fileId }) {
       isCorrect,
       isCompleted: false  // 사용자가 명시적으로 완료 버튼을 눌러야 함
     });
-    
-    if (isCorrect) {
-      toast.success('정답입니다! ✅');
-    } else {
-      toast.error(`오답입니다. 정답: ${problem.answer}`);
-    }
   };
   
   /**
@@ -230,7 +235,7 @@ export default function ListStudy({ problems, fileId }) {
                         {!isRevealed ? (
                           <button 
                             className="spoiler-btn"
-                            onClick={() => toggleRevealAnswer(problem.id)}
+                            onClick={() => toggleRevealAnswer(problem)}
                           >
                             🔒 클릭하여 정답 보기
                           </button>
