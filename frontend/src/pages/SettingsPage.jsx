@@ -103,20 +103,22 @@ export default function SettingsPage() {
 
               {/* 글자 크기 조절 위젯 노출 여부 */}
               <div className="setting-sub-item">
-                <label>글자 크기 위젯 표시</label>
-                <div className="checkbox-toggle-container">
-                  <label className="switch-label">
-                    <input 
-                      type="checkbox" 
-                      checked={settings.showFontScaleWidget ?? true}
-                      onChange={(e) => handleUpdate('showFontScaleWidget', e.target.checked)}
-                    />
-                    <span className="switch-text">
-                      {settings.showFontScaleWidget ? '사용 중' : '숨김'}
-                    </span>
-                  </label>
-                </div>
-                <p className="sub-description">화면 위에 글자 크기 조절 버튼을 항상 표시할지 결정합니다.</p>
+                <label className="toggle-option">
+                  <input
+                    type="checkbox"
+                    checked={settings.showFontScaleWidget ?? true}
+                    onChange={(e) => handleUpdate('showFontScaleWidget', e.target.checked)}
+                  />
+                  <div className="toggle-content">
+                    <div>
+                      <h3 className="toggle-label-text">글자 크기 위젯 표시</h3>
+                      <p className="sub-description">화면 위에 조절 버튼을 항상 표시합니다.</p>
+                    </div>
+                    <div className={`toggle-switch ${settings.showFontScaleWidget ? 'on' : ''}`}>
+                      <div className="toggle-slider"></div>
+                    </div>
+                  </div>
+                </label>
               </div>
             </div>
 

@@ -389,6 +389,32 @@
   transform: translateX(24px);
 }
 
+.toggle-label-text {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.sub-description {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.toggle-option {
+  display: block;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 12px;
+  transition: background-color 0.2s;
+}
+
+.toggle-option:hover {
+  background-color: var(--bg-sub);
+}
+
 /* 하단 고정 버튼 영역 */
 .settings-bottom-bar {
   position: fixed;
