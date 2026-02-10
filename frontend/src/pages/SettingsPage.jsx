@@ -13,7 +13,7 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   
   // 스토어에서 설정 상태와 업데이트 함수 추출
-  const { settings, loadSettings, updateSetting } = useSettingsStore();
+  const { settings, loadSettings, updateSetting, resetSettings } = useSettingsStore();
   
   /**
    * 페이지 진입 시 저장된 설정을 불러옵니다.
@@ -28,6 +28,20 @@ export default function SettingsPage() {
   const handleSave = () => {
     toast.success('설정이 저장되었습니다!');
     navigate(-1);
+  };
+
+  /**
+   * 모든 설정을 초기 기본값으로 되돌립니다.
+   */
+  const handleReset = async () => {
+    if (confirm('모든 설정을 초기화하시겠습니까?\n\n테마, 글자 크기, 카드 색상 등이 기본 상태로 복구됩니다.')) {
+      const result = await resetSettings();
+      if (result.success) {
+        toast.success('모든 설정이 초기화되었습니다.');
+      } else {
+        toast.error('초기화 중 오류가 발생했습니다.');
+      }
+    }
   };
 
   /**
@@ -340,6 +354,20 @@ export default function SettingsPage() {
               </label>
             </div>
           </div>
+
+          {/* [5. 데이터 및 초기화] */}
+          <section className="setting-group danger-zone">
+            <h2>⚠️ 위험 구역</h2>
+            <div className="danger-zone-content">
+              <div className="danger-text">
+                <h3>모든 설정 초기화</h3>
+                <p>애플리케이션의 모든 설정을 초기 상태로 되돌립니다. 이 작업은 취소할 수 없습니다.</p>
+              </div>
+              <button className="reset-all-btn" onClick={handleReset}>
+                초기화 실행
+              </button>
+            </div>
+          </section>
         </main>
       </div>
       

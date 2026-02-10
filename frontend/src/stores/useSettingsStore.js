@@ -7,22 +7,24 @@
 import { create } from 'zustand';
 import { getSettings, saveSettings } from '../utils/storage';
 
+const DEFAULT_SETTINGS = {
+  mode: 'problem',           // 'explanation' | 'problem'
+  orderMode: 'random',       // 'sequential' | 'random'
+  repeatMode: false,         // 반복 학습 여부
+  questionType: 'multiple',  // 'multiple' | 'subjective'
+  cardFront: 'explanation',   // 'explanation' | 'answer' | 'random'
+  theme: 'light',            // 'light' | 'dark'
+  fontSize: 5,               // 1 ~ 10 단계 (기본값 5)
+  cardColor: 'indigo',       // indigo, ocean, forest, sunset, rose, slate
+  cardSaturation: 70,        // 0 ~ 100
+  cardLightness: 60,         // 0 ~ 100
+  showFontScaleWidget: true, // 글자 크기 조절 위젯 표시 여부
+  fontScaleWidgetPos: { top: 20, right: 20 } // 위젯 위치 (기본 우측 상단)
+};
+
 export const useSettingsStore = create((set, get) => ({
   // --- 상태 (State) ---
-  settings: {
-    mode: 'problem',           // 'explanation' | 'problem'
-    orderMode: 'random',       // 'sequential' | 'random'
-    repeatMode: false,         // 반복 학습 여부
-    questionType: 'multiple',  // 'multiple' | 'subjective'
-    cardFront: 'explanation',   // 'explanation' | 'answer' | 'random'
-    theme: 'light',            // 'light' | 'dark'
-    fontSize: 5,               // 1 ~ 10 단계 (기본값 5)
-    cardColor: 'indigo',       // indigo, ocean, forest, sunset, rose, slate
-    cardSaturation: 70,        // 0 ~ 100
-    cardLightness: 60,         // 0 ~ 100
-    showFontScaleWidget: true, // 글자 크기 조절 위젯 표시 여부
-    fontScaleWidgetPos: { top: 20, right: 20 } // 위젯 위치 (기본 우측 상단)
-  },
+  settings: { ...DEFAULT_SETTINGS },
   
   // 현재 페이지에만 적용되는 임시 글자 크기 (null이면 settings.fontSize 사용)
   temporaryFontSize: null,
@@ -75,5 +77,19 @@ export const useSettingsStore = create((set, get) => ({
    */
   resetTemporaryFontSize: () => {
     set({ temporaryFontSize: null });
+  },
+
+  /**
+   * 모든 설정을 초기 기본값으로 되돌립니다.
+   */
+  resetSettings: async () => {
+    set({ settings: { ...DEFAULT_SETTINGS } });
+    try {
+      await saveSettings(DEFAULT_SETTINGS);
+      return { success: true };
+    } catch (error) {
+      console.error('설정 초기화 실패:', error);
+      return { success: false, error: error.message };
+    }
   }
 }));

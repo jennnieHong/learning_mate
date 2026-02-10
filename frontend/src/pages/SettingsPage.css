@@ -473,3 +473,70 @@
     font-size: 0.9rem;
   }
 }
+
+/* 위험 구역 (Danger Zone) */
+.danger-zone {
+  border-color: #fee2e2;
+  background-color: #fef2f2;
+}
+
+.dark .danger-zone {
+  background-color: rgba(127, 29, 29, 0.1);
+  border-color: rgba(153, 27, 27, 0.3);
+}
+
+.danger-zone h2 {
+  color: #dc2626;
+}
+
+.danger-zone-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.danger-text h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+  color: #dc2626;
+}
+
+.danger-text p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.reset-all-btn {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.reset-all-btn:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+.reset-all-btn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .danger-zone-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .reset-all-btn {
+    width: 100%;
+  }
+}
