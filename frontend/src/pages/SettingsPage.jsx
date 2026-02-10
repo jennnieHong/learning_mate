@@ -87,9 +87,9 @@ export default function SettingsPage() {
                   <input 
                     type="range" 
                     min="1" 
-                    max="10" 
+                    max="20" 
                     step="1"
-                    value={settings.fontSize || 5}
+                    value={settings.fontSize || 8}
                     onChange={(e) => handleUpdate('fontSize', parseInt(e.target.value))}
                     className="font-size-slider"
                   />

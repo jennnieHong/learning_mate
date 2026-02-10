@@ -67,12 +67,12 @@ function AppContent() {
   }, [location.pathname, resetTemporaryFontSize]);
 
   /**
-   * 글자 크기 단계(1~10)를 CSS 변수 스케일 비율로 변환합니다.
-   * 1단계: 0.8배 ~ 10단계: 1.7배 (0.1씩 증가)
-   * 기본값(5단계): 1.2배 -> 기존 디자인이 작게 보였으므로 약간 보정
+   * 글자 크기 단계(1~20)를 CSS 변수 스케일 비율로 변환합니다.
+   * 1단계: 0.5배 ~ 20단계: 2.4배 (0.1씩 증가)
+   * 기본값(8단계): 1.2배
    */
   const getScaleFactor = (step) => {
-    return 0.7 + (step * 0.1);
+    return 0.4 + (step * 0.1);
   };
 
   const currentScale = temporaryFontSize || settings.fontSize || 5;

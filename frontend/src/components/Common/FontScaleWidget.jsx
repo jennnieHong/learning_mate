@@ -34,11 +34,11 @@ export const FontScaleWidget = () => {
 
   if (!settings.showFontScaleWidget) return null;
 
-  const currentSize = temporaryFontSize || settings.fontSize || 5;
+  const currentSize = temporaryFontSize || settings.fontSize || 8;
 
   const handleIncrease = (e) => {
     e.stopPropagation();
-    if (currentSize < 10) setTemporaryFontSize(currentSize + 1);
+    if (currentSize < 20) setTemporaryFontSize(currentSize + 1);
   };
 
   const handleDecrease = (e) => {
@@ -158,7 +158,7 @@ export const FontScaleWidget = () => {
         className="scale-btn" 
         onClick={handleIncrease} 
         onMouseDown={(e) => e.stopPropagation()} // 드래그 시작 방지
-        disabled={currentSize >= 10}
+        disabled={currentSize >= 20}
         title="글자 크게"
       >
         A+

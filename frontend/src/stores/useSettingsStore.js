@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS = {
   questionType: 'multiple',  // 'multiple' | 'subjective'
   cardFront: 'explanation',   // 'explanation' | 'answer' | 'random'
   theme: 'light',            // 'light' | 'dark'
-  fontSize: 5,               // 1 ~ 10 단계 (기본값 5)
+  fontSize: 8,               // 1 ~ 20 단계 (기본값 8, 1.2배)
   cardColor: 'indigo',       // indigo, ocean, forest, sunset, rose, slate
   cardSaturation: 70,        // 0 ~ 100
   cardLightness: 60,         // 0 ~ 100

@@ -222,7 +222,7 @@ export const getSettings = async () => {
     questionType: 'multiple',
     cardFront: 'explanation',
     theme: 'light',
-    fontSize: 5,
+    fontSize: 8,
     cardColor: 'indigo',
     cardSaturation: 70,
     cardLightness: 60,
