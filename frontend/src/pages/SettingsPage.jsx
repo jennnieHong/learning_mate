@@ -351,7 +351,32 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* [5. 데이터 및 초기화] */}
+          {/* [5. 데이터 및 업로드 설정] */}
+          <div className="setting-group">
+            <h2>💾 데이터 및 업로드</h2>
+            <p className="setting-description">파일 업로드 및 처리 방식을 설정합니다</p>
+            
+            <div className="setting-options">
+              <label className="toggle-option">
+                <input
+                  type="checkbox"
+                  checked={settings.hasHeaderRow ?? true}
+                  onChange={(e) => handleUpdate('hasHeaderRow', e.target.checked)}
+                />
+                <div className="toggle-content">
+                  <div>
+                    <h3>첫 줄은 헤더로 처리</h3>
+                    <p className="sub-description">업로드한 파일의 첫 번째 행을 제목(헤더)으로 보고 데이터에서 제외합니다.</p>
+                  </div>
+                  <div className={`toggle-switch ${settings.hasHeaderRow ? 'on' : ''}`}>
+                    <div className="toggle-slider"></div>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* [6. 데이터 및 초기화] */}
           <section className="setting-group danger-zone">
             <h2>⚠️ 위험 구역</h2>
             <div className="danger-zone-content">

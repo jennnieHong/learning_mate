@@ -19,7 +19,8 @@ const DEFAULT_SETTINGS = {
   cardSaturation: 70,        // 0 ~ 100
   cardLightness: 60,         // 0 ~ 100
   showFontScaleWidget: true, // 글자 크기 조절 위젯 표시 여부
-  fontScaleWidgetPos: { top: 20, right: 20 } // 위젯 위치 (기본 우측 상단)
+  fontScaleWidgetPos: { top: 20, right: 20 }, // 위젯 위치 (기본 우측 상단)
+  hasHeaderRow: true         // 파일 업로드 시 첫 줄 헤더 제외 여부
 };
 
 export const useSettingsStore = create((set, get) => ({

@@ -20,6 +20,7 @@ import {
 } from '../utils/storage';
 import { parseFile } from '../utils/fileParser';
 import { exportFile } from '../utils/fileExporter';
+import { useSettingsStore } from './useSettingsStore';
 
 export const useFileStore = create((set, get) => ({
   // --- 상태 (State) ---
@@ -160,10 +161,12 @@ export const useFileStore = create((set, get) => ({
     const results = [];
     
     try {
+      const { hasHeaderRow } = useSettingsStore.getState().settings;
+
       // 모든 파일을 병렬로 처리 (하나가 실패해도 나머지는 계속 진행하도록 allSettled 사용)
       const uploadPromises = files.map(async (file) => {
         try {
-          const problems = await parseFile(file);
+          const problems = await parseFile(file, hasHeaderRow);
           const fileData = {
             id: crypto.randomUUID(),
             originalFilename: file.name,
@@ -213,7 +216,8 @@ export const useFileStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       // 1. 확장자에 따라 파싱 수행
-      const problems = await parseFile(file);
+      const { hasHeaderRow } = useSettingsStore.getState().settings;
+      const problems = await parseFile(file, hasHeaderRow);
       
       // 2. 파일 메타데이터 생성
       const fileData = {
