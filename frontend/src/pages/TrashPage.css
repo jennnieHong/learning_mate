@@ -5,7 +5,7 @@
   background-color: var(--bg-page);
   color: var(--text-main);
   padding: 40px 20px;
-  transition: all 0.3s ease;
+  /* transition 제거 - 즉각 반응 */
 }
 
 .trash-container {
@@ -77,7 +77,8 @@
   background-color: var(--bg-sub);
   border: 1px solid var(--border-main);
   border-radius: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 트랜지션 단축 - 즉각 반응 */
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0s;
 }
 
 .trash-item:hover {

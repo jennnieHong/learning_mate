@@ -6,7 +6,7 @@
   color: var(--text-main);
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
+  /* transition 제거 */
 }
 
 /* 상단 헤더 */
@@ -34,7 +34,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.1s ease, background-color 0s;
   font-size: 1.2rem;
   padding: 0;
 }
@@ -73,7 +73,7 @@
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s;
+  transition: transform 0.1s ease, background-color 0s, border-color 0s;
   display: flex;
   align-items: center;
   gap: 4px;

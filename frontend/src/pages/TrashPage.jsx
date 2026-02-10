@@ -3,9 +3,10 @@
  * @description 삭제된 파일들을 모아보고 복원하거나 영구 삭제할 수 있는 휴지통 페이지입니다.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useFileStore } from '../stores/useFileStore';
 import { useNavigate } from 'react-router-dom';
+import { VirtuosoGrid } from 'react-virtuoso';
 import toast from 'react-hot-toast';
 import './TrashPage.css';
 
@@ -36,7 +37,9 @@ export default function TrashPage() {
   }, [loadTrash, clearTrashedSelection]);
 
   // 전체 선택 상태 여부
-  const isAllSelected = trashedFiles.length > 0 && selectedTrashedFileIds.length === trashedFiles.length;
+  const isAllSelected = useMemo(() => 
+    trashedFiles.length > 0 && selectedTrashedFileIds.length === trashedFiles.length,
+  [trashedFiles.length, selectedTrashedFileIds.length]);
   
   /**
    * 전체 선택/해제 토글
@@ -131,7 +134,7 @@ export default function TrashPage() {
   };
   
   return (
-    <div className="trash-page">
+    <div className="trash-page" style={{ transition: 'none' }}>
       <div className="trash-container">
         <header className="trash-header">
           <button className="back-btn" onClick={() => navigate('/')}>
@@ -161,56 +164,63 @@ export default function TrashPage() {
             <p>휴지통이 비어있습니다</p>
           </div>
         ) : (
-          /* 삭제된 파일 카드 목록 */
-          <div className="trash-list">
-            {trashedFiles.map((file) => (
-              <div key={file.id} className={`trash-item ${selectedTrashedFileIds.includes(file.id) ? 'selected' : ''}`}>
-                <div className="item-checkbox">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedTrashedFileIds.includes(file.id)}
-                    onChange={() => toggleTrashedFileSelection(file.id)}
-                  />
+          /* 삭제된 파일 가상 리스트 */
+          <VirtuosoGrid
+            useWindowScroll
+            data={trashedFiles}
+            totalCount={trashedFiles.length}
+            listClassName="trash-list"
+            itemContent={(index, file) => {
+              const isSelected = selectedTrashedFileIds.includes(file.id);
+              return (
+                <div key={file.id} className={`trash-item ${isSelected ? 'selected' : ''}`}>
+                  <div className="item-checkbox">
+                    <input 
+                      type="checkbox" 
+                      checked={isSelected}
+                      onChange={() => toggleTrashedFileSelection(file.id)}
+                    />
+                  </div>
+                  
+                  <div className="trash-icon">🗑️</div>
+                  
+                  <div className="trash-info" onClick={() => toggleTrashedFileSelection(file.id)}>
+                    <h3>{file.originalFilename}</h3>
+                    <p className="trash-stats">
+                      문제 {file.totalProblems}개 • 
+                      휴지통 기간 {getDaysInTrash(file.deletedAt)}일째
+                    </p>
+                    <p className="trash-date">
+                      삭제일시: {new Date(file.deletedAt).toLocaleString('ko-KR')}
+                    </p>
+                  </div>
+                  
+                  <div className="trash-actions">
+                    <button 
+                      className="btn btn-restore"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRestore(file.id, file.originalFilename);
+                      }}
+                      title="기존 목록으로 복원"
+                    >
+                      🔄 복원
+                    </button>
+                    <button 
+                      className="btn btn-delete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePermanentDelete(file.id, file.originalFilename);
+                      }}
+                      title="영구 삭제"
+                    >
+                      🔥 삭제
+                    </button>
+                  </div>
                 </div>
-                
-                <div className="trash-icon">🗑️</div>
-                
-                <div className="trash-info" onClick={() => toggleTrashedFileSelection(file.id)}>
-                  <h3>{file.originalFilename}</h3>
-                  <p className="trash-stats">
-                    문제 {file.totalProblems}개 • 
-                    휴지통 기간 {getDaysInTrash(file.deletedAt)}일째
-                  </p>
-                  <p className="trash-date">
-                    삭제일: {new Date(file.deletedAt).toLocaleDateString('ko-KR')}
-                  </p>
-                </div>
-                
-                <div className="trash-actions">
-                  <button 
-                    className="btn btn-restore"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRestore(file.id, file.originalFilename);
-                    }}
-                    title="기존 목록으로 복원"
-                  >
-                    🔄 복원
-                  </button>
-                  <button 
-                    className="btn btn-delete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePermanentDelete(file.id, file.originalFilename);
-                    }}
-                    title="영구 삭제"
-                  >
-                    🔥 삭제
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              );
+            }}
+          />
         )}
       </div>
 
