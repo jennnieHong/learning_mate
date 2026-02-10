@@ -12,6 +12,7 @@ import { useProgressStore } from '../stores/useProgressStore';
 import { FlipCard } from '../components/Card/FlipCard';
 import { MultipleChoice } from '../components/Quiz/MultipleChoice';
 import { QuizResult } from '../components/Quiz/QuizResult';
+import { useStudyStore } from '../stores/useStudyStore';
 import ListStudy from '../components/Study/ListStudy';
 import { FontScaleWidget } from '../components/Common/FontScaleWidget';
 import toast, { Toaster } from 'react-hot-toast';
@@ -32,13 +33,18 @@ export default function StudyPage() {
   const { settings, loadSettings, isLoading: isSettingsLoading } = useSettingsStore();
   const { saveResult, toggleComplete, progressMap, loadProgress, loadAllProgress, isLoading: isProgressLoading } = useProgressStore();
 
-  // --- 내부 상태 (Local State) ---
-  const [currentIndex, setCurrentIndex] = useState(0);       // 현재 풀고 있는 문제의 인덱스
-  const [quizResults, setQuizResults] = useState([]);        // 이번 세션의 정답/오답 기록
-  const [isFinished, setIsFinished] = useState(false);       // 학습 종료 여부
-  const [shuffledProblems, setShuffledProblems] = useState([]); // (랜덤 모드일 경우) 섞인 문제 목록
-  
-  // 새로고침 시에도 필터 상태 유지 (sessionStorage 활용)
+  // --- 세션 상태 (Store-based) ---
+  const { 
+    shuffledProblems, 
+    currentIndex, 
+    setCurrentIndex, 
+    sessionAnswers, 
+    setSessionAnswer, 
+    problemChoices,
+    startSession 
+  } = useStudyStore();
+
+  const [isFinished, setIsFinished] = useState(false);
   const [activeFilters, setActiveFilters] = useState(() => {
     const saved = sessionStorage.getItem('study_active_filters');
     return saved ? JSON.parse(saved) : [];
@@ -70,6 +76,19 @@ export default function StudyPage() {
   }, [fileId]);
 
   /**
+   * [자동 보기 생성을 위한 정답 풀 생성]
+   * 현재 파일에 들어있는 모든 문제의 정답 목록을 추출합니다.
+   * MultipleChoice 컴포넌트에서 보기가 없을 때 오답 보기를 생성하는 용도로 사용됩니다.
+   */
+  const answerPool = useMemo(() => {
+    if (!currentFile?.problems) return [];
+    return currentFile.problems.map(p => ({
+      answer: p.answer,
+      isCalculation: p.description?.includes('[계산]')
+    }));
+  }, [currentFile]);
+
+  /**
    * 문제가 로드되거나 필터/순서 설정이 변경되면 문제 배열을 준비합니다.
    * 모든 데이터(파일, 설정, 진행 상황)가 준비된 시점에 실행되도록 종속성을 강화했습니다.
    */
@@ -96,17 +115,9 @@ export default function StudyPage() {
       });
     }
 
-    // 2. 순서 모드(순차/랜덤) 적용
-    if (!currentFile.isReviewMode && settings.orderMode === 'random') {
-      filtered = filtered.sort(() => Math.random() - 0.5);
-    }
-    
-    setShuffledProblems(filtered);
-    setCurrentIndex(0);
-    setQuizResults([]);
-    setIsFinished(false);
-    setIsRevealed(false);
-    setLocalIsAnswered(false);
+    // 2. 세션 시작 (또는 유지) - answerPool 전달
+    startSession(currentFile.id, filtered, settings.orderMode, activeFilters, answerPool);
+
   }, [
     currentFile?.id, 
     currentFile?.problems, 
@@ -114,26 +125,15 @@ export default function StudyPage() {
     activeFilters, 
     isProgressLoading, 
     isFileLoading, 
-    isSettingsLoading
+    isSettingsLoading,
+    startSession,
+    answerPool
   ]);
 
   // 현재 활성화된 문제 객체
   const currentProblem = shuffledProblems[currentIndex];
   // 전체 문제 수
   const totalCount = shuffledProblems.length;
-
-  /**
-   * [자동 보기 생성을 위한 정답 풀 생성]
-   * 현재 파일에 들어있는 모든 문제의 정답 목록을 추출합니다.
-   * MultipleChoice 컴포넌트에서 보기가 없을 때 오답 보기를 생성하는 용도로 사용됩니다.
-   */
-  const answerPool = useMemo(() => {
-    if (!currentFile?.problems) return [];
-    return currentFile.problems.map(p => ({
-      answer: p.answer,
-      isCalculation: p.description?.includes('[계산]')
-    }));
-  }, [currentFile]);
 
   /**
    * 주관식/객관식 퀴즈 정답 제출 시 호출되는 핸들러입니다.
@@ -152,9 +152,9 @@ export default function StudyPage() {
     await saveResult(fileSetId, problemId, isCorrect);
     
     // 3. 현재 세션 기록 업데이트
-    setQuizResults([...quizResults, { problemId, isCorrect }]);
+    setSessionAnswer(problemId, { isCorrect });
 
-    // 4. 다음 문제로 이동 또는 학습 종료 (속도 개선: 딜레이 단축)
+    // 4. 다음 문제로 이동 또는 학습 종료 (속도 개선)
     setTimeout(() => {
       if (currentIndex < totalCount - 1) {
         setCurrentIndex(currentIndex + 1);
@@ -163,7 +163,7 @@ export default function StudyPage() {
       } else {
         setIsFinished(true);
       }
-    }, quizResults.length > 0 ? 200 : 300); 
+    }, Object.keys(sessionAnswers).length > 0 ? 200 : 300); 
   };
 
   /**
@@ -192,15 +192,30 @@ export default function StudyPage() {
     }
   };
 
+  // --- 학습 제어 ---
+  const { restartSession } = useStudyStore();
+
   /**
    * 처음부터 다시 학습하기를 눌렀을 때의 처리입니다.
    */
   const handleRestart = () => {
-    if (settings.orderMode === 'random') {
-      setShuffledProblems([...shuffledProblems].sort(() => Math.random() - 0.5));
+    let filtered = [...currentFile.problems];
+    
+    // 필터링 재적용
+    if (activeFilters.length > 0) {
+      filtered = filtered.filter(p => {
+        const prog = progressMap[p.id];
+        return activeFilters.some(filter => {
+          if (filter === 'wrong') return (prog?.wrongCount || 0) > 0;
+          if (filter === 'correct') return prog?.isCorrect === true;
+          if (filter === 'incomplete') return !prog?.isCompleted;
+          if (filter === 'complete') return prog?.isCompleted;
+          return false;
+        });
+      });
     }
-    setCurrentIndex(0);
-    setQuizResults([]);
+
+    restartSession(currentFile.id, filtered, settings.orderMode, activeFilters, answerPool);
     setIsFinished(false);
     setIsRevealed(false);
     setLocalIsAnswered(false);
@@ -325,7 +340,7 @@ export default function StudyPage() {
   if (isFinished) {
     return (
       <QuizResult 
-        results={quizResults} 
+        results={Object.values(sessionAnswers)} 
         total={totalCount} 
         onRestart={handleRestart}
         filename={currentFile.originalFilename}
@@ -409,10 +424,11 @@ export default function StudyPage() {
         ) : (
           /* [문제 모드: 퀴즈] */
           <MultipleChoice 
+            key={`${currentProblem.id}-${settings.questionType}`}
             problem={currentProblem}
             questionType={settings.questionType}
             onAnswer={handleAnswer}
-            answerPool={answerPool}
+            choices={problemChoices[currentProblem.id] || []}
             isRevealed={isRevealed}
             isAnswered={localIsAnswered}
           />

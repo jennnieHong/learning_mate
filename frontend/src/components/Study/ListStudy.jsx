@@ -7,6 +7,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useProgressStore } from '../../stores/useProgressStore';
 import { useSettingsStore } from '../../stores/useSettingsStore';
+import { useStudyStore } from '../../stores/useStudyStore';
 import { chosungIncludes } from '../../utils/chosungUtils';
 import toast from 'react-hot-toast';
 import './ListStudy.css';
@@ -14,29 +15,26 @@ import './ListStudy.css';
 export default function ListStudy({ problems, fileId }) {
   const { progressMap, saveResult } = useProgressStore();
   const { settings } = useSettingsStore();
+  const { 
+    sessionAnswers, 
+    setSessionAnswer, 
+    problemChoices 
+  } = useStudyStore();
   
   // 상태
-  const [revealedAnswers, setRevealedAnswers] = useState(new Set());
-  const [selectedChoices, setSelectedChoices] = useState(new Map());
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   /**
    * 답 공개 토글 (주관식용) 및 학습 완료 처리
    */
   const toggleRevealAnswer = async (problem) => {
-    const isRevealing = !revealedAnswers.has(problem.id);
+    const saved = sessionAnswers[problem.id];
+    const isRevealing = !(saved?.isRevealed);
     
-    setRevealedAnswers(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(problem.id)) {
-        newSet.delete(problem.id);
-      } else {
-        newSet.add(problem.id);
-      }
-      return newSet;
-    });
+    // 세션 저장
+    setSessionAnswer(problem.id, { isRevealed: isRevealing });
 
-    // 정답을 볼 때 자동으로 완료 처리 (이미 완료된 경우는 생략 가능하나 명시적으로 처리)
+    // 정답을 볼 때 자동으로 완료 처리
     if (isRevealing) {
       const currentProgress = progressMap[problem.id];
       if (!currentProgress?.isCompleted) {
@@ -56,7 +54,7 @@ export default function ListStudy({ problems, fileId }) {
     const newCompleteStatus = !currentProgress?.isCompleted;
     
     await saveResult(fileId, problem.id, {
-      isCorrect: currentProgress?.isCorrect ?? null, // 기존 정답 여부 유지
+      isCorrect: currentProgress?.isCorrect ?? null,
       isCompleted: newCompleteStatus
     });
   };
@@ -64,83 +62,37 @@ export default function ListStudy({ problems, fileId }) {
   /**
    * 객관식 선택 처리 (정답 체크만, 완료는 별도)
    */
-  const handleChoiceSelect = async (problem, choiceIndex, shuffledChoices) => {
-    const selectedAnswer = shuffledChoices[choiceIndex];
-    const isCorrect = selectedAnswer === problem.answer;
+  const handleChoiceSelect = async (problem, choice) => {
+    const isCorrect = choice === problem.answer;
     
-    setSelectedChoices(prev => new Map(prev).set(problem.id, choiceIndex));
+    // 세션 저장: 선택한 값을 index가 아닌 문자열(choice)로 저장하여 안정성 극대화
+    setSessionAnswer(problem.id, { selectedChoice: choice, isCorrect });
     
-    // 정답/오답 기록만 저장, 완료 처리는 하지 않음
+    // 정답/오답 기록만 저장
     await saveResult(fileId, problem.id, {
       isCorrect,
-      isCompleted: false  // 사용자가 명시적으로 완료 버튼을 눌러야 함
+      isCompleted: false
     });
   };
   
   /**
-   * 배열 셔플 함수
-   */
-  const shuffleArray = (array) => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
-  
-  /**
-   * 자동 선택지 생성 (선택지가 없는 객관식 문제용)
-   */
-  const generateAutoChoices = (currentProblem, allProblems) => {
-    // 현재 문제의 카테고리 (계산 문제 여부) 확인
-    const isCurrentCalculation = currentProblem.description?.includes('[계산]');
-
-    const otherAnswers = allProblems
-      .filter(p => {
-        const isThisCalculation = p.description?.includes('[계산]');
-        return p.id !== currentProblem.id && 
-               p.answer && p.answer.trim() && 
-               isThisCalculation === isCurrentCalculation;
-      })
-      .map(p => p.answer.trim());
-    
-    const uniqueAnswers = [...new Set(otherAnswers)];
-    const shuffled = shuffleArray(uniqueAnswers);
-    const selected = shuffled.slice(0, 3);
-    
-    // 정답이 포함되지 않도록 확인 (대소문자 무시)
-    const currentAnswerRef = currentProblem.answer.trim().toLowerCase();
-    const filtered = selected.filter(ans => ans.toLowerCase() !== currentAnswerRef);
-    
-    return filtered.slice(0, 3);
-  };
-  
-  /**
-   * 각 문제에 대한 셔플된 선택지 생성 (메모이제이션)
+   * 문제 목록 전처리: 스토어에서 셔플된 보기를 가져와 연결합니다.
    */
   const problemsWithChoices = useMemo(() => {
     return problems.map(problem => {
       const isMultipleChoice = settings.questionType === 'multiple';
       
-      if (!isMultipleChoice) {
-        // 주관식 모드
-        return { ...problem, shuffledChoices: null, isSubjective: true };
-      }
+      // 스토어에서 이미 계산/셔플된 보기를 가져옵니다.
+      // (StudyPage에서 startSession 호출 시점에 이미 준비됨)
+      const choices = problemChoices[problem.id] || [];
       
-      // 객관식 모드
-      let choices = problem.choices && problem.choices.length > 0
-        ? [...problem.choices]
-        : generateAutoChoices(problem, problems);
-      
-      // 정답 포함하여 셔플
-      const allChoices = [...choices, problem.answer];
-      const uniqueChoices = [...new Set(allChoices)];
-      const shuffled = shuffleArray(uniqueChoices);
-      
-      return { ...problem, shuffledChoices: shuffled, isSubjective: false };
+      return { 
+        ...problem, 
+        shuffledChoices: choices, 
+        isSubjective: !isMultipleChoice 
+      };
     });
-  }, [problems, settings.questionType]);
+  }, [problems, settings.questionType, problemChoices]);
   
   /**
    * 검색 필터링
@@ -153,12 +105,12 @@ export default function ListStudy({ problems, fileId }) {
     return problemsWithChoices.filter(problem => {
       const desc = problem.description.toLowerCase();
       const ans = problem.answer.toLowerCase();
-      const choices = (problem.choices || []).map(c => c.toLowerCase()).join(' ');
+      const choicesText = (problem.shuffledChoices || []).map(c => c.toLowerCase()).join(' ');
       
-      const exactMatch = desc.includes(query) || ans.includes(query) || choices.includes(query);
+      const exactMatch = desc.includes(query) || ans.includes(query) || choicesText.includes(query);
       const chosungMatch = chosungIncludes(problem.description, query) ||
                           chosungIncludes(problem.answer, query) ||
-                          (problem.choices || []).some(c => chosungIncludes(c, query));
+                          (problem.shuffledChoices || []).some(c => chosungIncludes(c, query));
       
       return exactMatch || chosungMatch;
     });
@@ -196,10 +148,11 @@ export default function ListStudy({ problems, fileId }) {
             {filteredProblems.map((problem, index) => {
               const progress = progressMap[problem.id];
               const isCompleted = progress?.isCompleted || false;
-              const isCorrect = progress?.isCorrect || false;
               const wrongCount = progress?.wrongCount || 0;
-              const isRevealed = revealedAnswers.has(problem.id);
-              const selectedChoice = selectedChoices.get(problem.id);
+              
+              const saved = sessionAnswers[problem.id] || {};
+              const isRevealed = saved.isRevealed || false;
+              const selectedChoice = saved.selectedChoice || null;
               
               return (
                 <tr key={problem.id} className={`problem-row ${isCompleted ? 'completed' : ''}`}>
@@ -253,7 +206,7 @@ export default function ListStudy({ problems, fileId }) {
                       // 객관식: 선택지 표시
                       <div className="multiple-choices">
                         {problem.shuffledChoices.map((choice, idx) => {
-                          const isSelected = selectedChoice === idx;
+                          const isSelected = selectedChoice === choice;
                           const isThisCorrect = choice === problem.answer;
                           const showResult = isSelected;
                           
@@ -261,7 +214,7 @@ export default function ListStudy({ problems, fileId }) {
                             <button
                               key={idx}
                               className={`choice-btn ${isSelected ? 'selected' : ''} ${showResult && isThisCorrect ? 'correct' : ''} ${showResult && !isThisCorrect ? 'wrong' : ''}`}
-                              onClick={() => handleChoiceSelect(problem, idx, problem.shuffledChoices)}
+                              onClick={() => handleChoiceSelect(problem, choice)}
                             >
                               {choice}
                               {showResult && isThisCorrect && ' ✓'}

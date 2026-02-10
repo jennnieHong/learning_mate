@@ -12,6 +12,7 @@ import { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useFileStore } from '../stores/useFileStore';
 import { useProgressStore } from '../stores/useProgressStore';
+import { useStudyStore } from '../stores/useStudyStore';
 import { filesDB } from '../utils/storage';
 import toast from 'react-hot-toast';
 import './HomePage.css';
@@ -27,10 +28,11 @@ export default function HomePage() {
   const [wrongCount, setWrongCount] = useState(0);
 
   /**
-   * 컴포넌트 마운트 시 모든 문제의 진행 상황을 불러옵니다 (오답 뱃지용).
+   * 컴포넌트 마운트 시 모든 문제의 진행 상황을 불러오고, 진행 중인 학습 세션이 있다면 초기화합니다.
    */
   useEffect(() => {
     loadAllProgress();
+    useStudyStore.getState().clearSession();
   }, [loadAllProgress]);
 
   /**

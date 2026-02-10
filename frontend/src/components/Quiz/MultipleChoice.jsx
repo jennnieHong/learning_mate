@@ -4,70 +4,37 @@
  * 선택지가 없는 경우(빈 배열), 외부에서 제공받은 answerPool을 바탕으로 자동으로 보기를 생성합니다.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useStudyStore } from '../../stores/useStudyStore';
 import './MultipleChoice.css';
 
 export const MultipleChoice = ({ 
   problem, 
   onAnswer, 
   questionType, 
-  answerPool = [],
-  isRevealed = false, // 외부에서 제어하는 정답 공개 여부
-  isAnswered = false, // 외부에서 제어하는 답변 완료 여부
+  choices = [],
+  isRevealed = false, 
+  isAnswered = false, 
 }) => {
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [subjectiveInput, setSubjectiveInput] = useState('');
   const [localIsAnswered, setLocalIsAnswered] = useState(false);
-  const [shuffleChoices, setShuffleChoices] = useState([]);
+  const { sessionAnswers, setSessionAnswer } = useStudyStore();
 
   /**
-   * 문제가 바뀔 때마다 입력값과 정답 상태를 초기화하고,
-   * 객관식의 경우 선택지를 준비합니다.
+   * 문제가 바뀔 때 또는 세션 데이터가 있을 때 로컬 상태를 동기화합니다.
    */
   useEffect(() => {
-    setSelectedChoice(null);
-    setSubjectiveInput('');
-    setLocalIsAnswered(false);
-    
-    if (questionType === 'multiple') {
-      let finalChoices = [];
-
-      // 1. 문제 자체에 선택지가 이미 있는 경우
-      if (problem.choices && problem.choices.length > 0) {
-        finalChoices = [...problem.choices];
-        // 정답이 선택지에 포함되어 있지 않다면 추가
-        if (!finalChoices.some(c => c.trim().toLowerCase() === problem.answer.trim().toLowerCase())) {
-          finalChoices.push(problem.answer);
-        }
-      } 
-      // 2. 선택지가 아예 없는 경우 (자동 생성 로직)
-      else if (answerPool.length > 0) {
-        // 현재 문제의 카테고리 (계산 문제 여부) 확인
-        const isCurrentCalculation = problem.description?.includes('[계산]');
-        const currentAnswerRef = problem.answer.trim().toLowerCase();
-        
-        // 1) 전체 중 유니크한 정답들만 추리되, 같은 카테고리인 것만 필터링
-        const filteredPool = answerPool.filter(p => p.isCalculation === isCurrentCalculation);
-        
-        // 2) 현재 정답과 다른 내용의 정답들만 추출
-        const uniqueAnswers = [...new Set(filteredPool.map(p => p.answer.trim()))];
-        const otherAnswers = uniqueAnswers.filter(ans => 
-          ans.toLowerCase() !== currentAnswerRef
-        );
-        
-        // 3) 무작위 셔플 후 최대 3개 선택
-        const fakeChoices = otherAnswers
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 3);
-        
-        finalChoices = [problem.answer, ...fakeChoices];
-      }
-
-      // 3. 최종 선택지 목록을 무작위로 섞음 (중복 제거 보장)
-      const uniqueFinalChoices = [...new Set(finalChoices.map(c => c.trim()))];
-      setShuffleChoices(uniqueFinalChoices.sort(() => Math.random() - 0.5));
+    const saved = sessionAnswers[problem.id];
+    if (saved) {
+      setSelectedChoice(saved.selectedChoice);
+      setLocalIsAnswered(true);
+    } else {
+      setSelectedChoice(null);
+      setSubjectiveInput('');
+      setLocalIsAnswered(false);
     }
-  }, [problem.id, questionType, answerPool]);
+  }, [problem.id, sessionAnswers]);
 
   /**
    * 사용자가 제출 버튼(또는 선택지)을 클릭했을 때 정답을 확인합니다.
@@ -76,10 +43,13 @@ export const MultipleChoice = ({
   const handleSubmit = (value) => {
     if (localIsAnswered || isAnswered) return;
     
-    setLocalIsAnswered(true);
     const isCorrect = value.trim().toLowerCase() === problem.answer.trim().toLowerCase();
+    setLocalIsAnswered(true);
+
+    // 세션 기록: 선택된 보기와 정답 여부를 함께 저장
+    setSessionAnswer(problem.id, { selectedChoice: value, isCorrect });
     
-    // 약간의 딜레이를 주어 정답/오답 표시를 확인하게 한 뒤 다음 문제로 넘깁니다. (속도 개선: 1200ms -> 400ms)
+    // 약간의 딜레이를 주어 정답/오답 표시를 확인하게 한 뒤 다음 문제로 넘깁니다.
     setTimeout(() => {
       onAnswer(isCorrect);
     }, 400);
@@ -88,7 +58,7 @@ export const MultipleChoice = ({
   /**
    * [객관식 퀴즈 렌더링]
    */
-  if (questionType === 'multiple' && (shuffleChoices.length > 0)) {
+  if (questionType === 'multiple' && (choices.length > 0)) {
     return (
       <div className="quiz-container">
         <div className="quiz-question">
@@ -96,18 +66,21 @@ export const MultipleChoice = ({
           <h2>{problem.description}</h2>
         </div>
         <div className="choices-grid">
-          {shuffleChoices.map((choice, index) => {
+          {choices.map((choice, index) => {
             let statusClass = '';
             const isActiveAnswered = isAnswered || localIsAnswered;
+            const normalizedChoice = choice.trim().toLowerCase();
+            const normalizedAnswer = problem.answer.trim().toLowerCase();
+
             if (isActiveAnswered) {
-              const isChoiceCorrect = choice.trim().toLowerCase() === problem.answer.trim().toLowerCase();
+              const isChoiceCorrect = normalizedChoice === normalizedAnswer;
               if (isChoiceCorrect) statusClass = 'correct';
               else if (choice === selectedChoice) statusClass = 'wrong';
             }
 
             return (
               <button
-                key={index}
+                key={`${problem.id}-${choice}`}
                 className={`choice-btn ${statusClass} ${selectedChoice === choice ? 'selected' : ''}`}
                 onClick={() => {
                   if (!isActiveAnswered) {
