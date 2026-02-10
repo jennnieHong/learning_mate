@@ -114,8 +114,7 @@ export default function StudyPage() {
     activeFilters, 
     isProgressLoading, 
     isFileLoading, 
-    isSettingsLoading,
-    progressMap
+    isSettingsLoading
   ]);
 
   // 현재 활성화된 문제 객체

@@ -67,7 +67,7 @@ export const MultipleChoice = ({
       const uniqueFinalChoices = [...new Set(finalChoices.map(c => c.trim()))];
       setShuffleChoices(uniqueFinalChoices.sort(() => Math.random() - 0.5));
     }
-  }, [problem, questionType, answerPool]);
+  }, [problem.id, questionType, answerPool]);
 
   /**
    * 사용자가 제출 버튼(또는 선택지)을 클릭했을 때 정답을 확인합니다.
