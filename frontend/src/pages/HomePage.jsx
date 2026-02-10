@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react';
 import { FileDropzone } from '../components/FileUpload/FileDropzone';
 import { FileList } from '../components/FileUpload/FileList';
 import { FileFormatGuide } from '../components/FileUpload/FileFormatGuide';
-import { FontScaleWidget } from '../components/Common/FontScaleWidget';
 import { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useFileStore } from '../stores/useFileStore';
@@ -163,7 +162,6 @@ export default function HomePage() {
         </div>
       )}
       
-      <FontScaleWidget />
     </div>
   );
 }

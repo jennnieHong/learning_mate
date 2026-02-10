@@ -2,8 +2,6 @@
 
 .font-scale-widget {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -13,12 +11,30 @@
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-main);
   gap: 10px;
-  animation: slideIn 0.3s ease-out;
+  cursor: default;
+  user-select: none;
+  touch-action: none; /* 브라우저 기본 터치 방지 (드래그용) */
+  transition: box-shadow 0.2s;
 }
 
-@keyframes slideIn {
-  from { transform: translateX(50px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+.font-scale-widget.dragging {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  opacity: 0.9;
+  cursor: grabbing;
+}
+
+/* 드래그 핸들 아이콘 */
+.drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+}
+
+.font-scale-widget.dragging .drag-handle {
+  cursor: grabbing;
 }
 
 .scale-btn {
@@ -72,8 +88,6 @@
 }
 @media (max-width: 640px) {
   .font-scale-widget {
-    bottom: 100px; /* 고정 하단 바와 겹치지 않게 위로 이동 */
-    right: 15px;
     padding: 6px 10px;
     gap: 6px;
     transform: scale(0.9);

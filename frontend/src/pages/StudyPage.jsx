@@ -462,7 +462,6 @@ export default function StudyPage() {
           )}
         </div>
       </footer>
-      <FontScaleWidget />
     </div>
   );
 }

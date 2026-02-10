@@ -19,7 +19,9 @@ export const useSettingsStore = create((set, get) => ({
     fontSize: 5,               // 1 ~ 10 단계 (기본값 5)
     cardColor: 'indigo',       // indigo, ocean, forest, sunset, rose, slate
     cardSaturation: 70,        // 0 ~ 100
-    cardLightness: 60          // 0 ~ 100
+    cardLightness: 60,         // 0 ~ 100
+    showFontScaleWidget: true, // 글자 크기 조절 위젯 표시 여부
+    fontScaleWidgetPos: { top: 20, right: 20 } // 위젯 위치 (기본 우측 상단)
   },
   
   // 현재 페이지에만 적용되는 임시 글자 크기 (null이면 settings.fontSize 사용)

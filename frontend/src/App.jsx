@@ -11,6 +11,7 @@ import StudyPage from './pages/StudyPage';
 import EditorPage from './pages/EditorPage';
 import TrashPage from './pages/TrashPage';
 import SettingsPage from './pages/SettingsPage';
+import { FontScaleWidget } from './components/Common/FontScaleWidget';
 import './App.css';
 
 /**
@@ -94,6 +95,7 @@ function AppContent() {
         <Route path="/trash" element={<TrashPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
+      <FontScaleWidget />
     </div>
   );
 }
