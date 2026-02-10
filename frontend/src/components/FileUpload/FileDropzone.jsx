@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import './FileList.css'; // 공유 스타일 사용
 
 export const FileDropzone = () => {
-  const { uploadFile } = useFileStore();
+  const { uploadMultipleFiles } = useFileStore();
 
   /**
    * 파일이 드롭되거나 선택되었을 때 실행되는 콜백 함수입니다.
@@ -18,18 +18,34 @@ export const FileDropzone = () => {
   const onDrop = async (acceptedFiles) => {
     if (acceptedFiles.length === 0) return;
     
-    const file = acceptedFiles[0];
+    // 로딩 토스트 시작
+    const loadingToast = toast.loading(`${acceptedFiles.length}개의 파일 처리 중...`);
     
     try {
-      // 스토어의 uploadFile 액션을 호출하여 파싱 및 저장을 수행합니다.
-      const result = await uploadFile(file);
+      // 스토어의 uploadMultipleFiles 액션을 호출하여 병렬 처리를 수행합니다.
+      const result = await uploadMultipleFiles(acceptedFiles);
       
-      if (result.success) {
-        toast.success(`"${file.name}" 업로드 완료! (${result.problemCount}개 문제)`);
-      } else {
-        toast.error(result.error || '파일 업로드에 실패했습니다.');
+      toast.dismiss(loadingToast);
+
+      if (result.successCount > 0) {
+        if (result.failCount === 0) {
+          toast.success(`${result.successCount}개의 파일 업로드 완료!`);
+        } else {
+          toast.success(`${result.successCount}개 성공, ${result.failCount}개 실패`);
+        }
+      } else if (result.failCount > 0) {
+        toast.error('파일 업로드에 실패했습니다.');
       }
+
+      // 실패한 파일이 있다면 에러 내용 출력
+      result.details?.forEach(detail => {
+        if (!detail.success) {
+          toast.error(`"${detail.fileName}": ${detail.error}`, { duration: 4000 });
+        }
+      });
+
     } catch (error) {
+      toast.dismiss(loadingToast);
       toast.error('파일 처리 중 예상치 못한 오류가 발생했습니다.');
       console.error('Upload error:', error);
     }
@@ -38,7 +54,7 @@ export const FileDropzone = () => {
   // react-dropzone 설정
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: false, // 한 번에 하나의 파일만 허용
+    multiple: true, // 여러 파일 허용
     accept: {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
       'application/vnd.ms-excel': ['.xls'],

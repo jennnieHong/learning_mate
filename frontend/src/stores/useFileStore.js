@@ -149,7 +149,61 @@ export const useFileStore = create((set, get) => ({
   },
   
   /**
-   * 파일을 업로드하고 파싱하여 DB에 저장합니다.
+   * 여러 파일을 동시에 업로드하고 파싱하여 DB에 저장합니다.
+   * @param {Array<File>} files - 업로드된 브라우저 File 객체 배열
+   */
+  uploadMultipleFiles: async (files) => {
+    set({ isLoading: true, error: null });
+    const results = [];
+    
+    try {
+      // 모든 파일을 병렬로 처리 (하나가 실패해도 나머지는 계속 진행하도록 allSettled 사용)
+      const uploadPromises = files.map(async (file) => {
+        try {
+          const problems = await parseFile(file);
+          const fileData = {
+            id: crypto.randomUUID(),
+            originalFilename: file.name,
+            fileType: file.name.split('.').pop().toLowerCase(),
+            totalProblems: problems.length,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            deletedAt: null
+          };
+          
+          await saveFile(fileData);
+          const problemsWithFileId = problems.map(p => ({
+            ...p,
+            fileSetId: fileData.id
+          }));
+          await saveProblems(fileData.id, problemsWithFileId);
+          
+          return { success: true, fileName: file.name, count: problems.length };
+        } catch (err) {
+          return { success: false, fileName: file.name, error: err.message };
+        }
+      });
+
+      const settledResults = await Promise.all(uploadPromises);
+      
+      // 목록 새로고침
+      await get().loadFiles();
+      
+      set({ isLoading: false });
+      return { 
+        total: files.length,
+        successCount: settledResults.filter(r => r.success).length,
+        failCount: settledResults.filter(r => !r.success).length,
+        details: settledResults
+      };
+    } catch (error) {
+      set({ error: error.message, isLoading: false });
+      return { success: false, error: error.message };
+    }
+  },
+
+  /**
+   * 파일을 업로드하고 파싱하여 DB에 저장합니다. (단일 파일용 - 하위 호환성 유지)
    * @param {File} file - 업로드된 브라우저 File 객체
    */
   uploadFile: async (file) => {
