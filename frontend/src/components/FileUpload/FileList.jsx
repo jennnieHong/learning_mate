@@ -23,7 +23,8 @@ export const FileList = () => {
     isLoading, 
     selectedFileIds, 
     toggleFileSelection,
-    selectAllFiles 
+    selectAllFiles,
+    downloadFile
   } = useFileStore();
   
   const { progressMap, loadAllProgress } = useProgressStore();
@@ -43,6 +44,9 @@ export const FileList = () => {
 
   // --- 추가 상태: 전체 선택 배너 노출 여부 ---
   const [showSelectAllBanner, setShowSelectAllBanner] = useState(false);
+
+  // --- 추가 상태: 다운로드 형식 선택 메뉴 ---
+  const [downloadMenuFileId, setDownloadMenuFileId] = useState(null);
 
   /**
    * 컴포넌트 마운트 시 파일 목록과 전체 진행 상황을 로드합니다.
@@ -137,6 +141,43 @@ export const FileList = () => {
   const handleEdit = (e, fileId) => {
     e.stopPropagation();
     navigate(`/editor/${fileId}`);
+  };
+
+  /**
+   * 다운로드 메뉴를 토글합니다.
+   */
+  const toggleDownloadMenu = (e, fileId) => {
+    e.stopPropagation();
+    setDownloadMenuFileId(downloadMenuFileId === fileId ? null : fileId);
+  };
+
+  /**
+   * 특정 형식으로 파일을 다운로드합니다.
+   */
+  const handleDownloadFormat = async (e, fileId, format) => {
+    e.stopPropagation();
+    setDownloadMenuFileId(null);
+    const result = await downloadFile(fileId, format);
+    if (result.success) {
+      toast.success(`${format.toUpperCase()} 형식으로 다운로드를 시작합니다.`);
+    } else {
+      toast.error('다운로드에 실패했습니다.');
+    }
+  };
+
+  /**
+   * 특정 파일을 다운로드(수출)합니다.
+   * @param {Event} e 
+   * @param {string} fileId 
+   */
+  const handleDownload = async (e, fileId) => {
+    e.stopPropagation();
+    const result = await downloadFile(fileId);
+    if (result.success) {
+      toast.success('다운로드가 시작되었습니다.');
+    } else {
+      toast.error('다운로드에 실패했습니다.');
+    }
   };
 
   /**
@@ -445,6 +486,25 @@ export const FileList = () => {
 
                 {/* 카드 하단 액션 버튼 */}
                 <div className="file-card-actions">
+                  <div className="download-container">
+                    <button 
+                      className={`action-btn download-btn ${downloadMenuFileId === file.id ? 'active' : ''}`}
+                      onClick={(e) => toggleDownloadMenu(e, file.id)}
+                      title="다운로드 형식 선택"
+                    >
+                      <span className="btn-icon">📥</span>
+                      <span className="btn-text">내보내기</span>
+                    </button>
+                    
+                    {downloadMenuFileId === file.id && (
+                      <div className="download-menu" onClick={(e) => e.stopPropagation()}>
+                        <button onClick={(e) => handleDownloadFormat(e, file.id, 'xlsx')}>📊 Excel</button>
+                        <button onClick={(e) => handleDownloadFormat(e, file.id, 'csv')}>📄 CSV</button>
+                        <button onClick={(e) => handleDownloadFormat(e, file.id, 'txt')}>📝 TXT</button>
+                        <button onClick={(e) => handleDownloadFormat(e, file.id, 'json')}>📦 JSON</button>
+                      </div>
+                    )}
+                  </div>
                   <button 
                     className="action-btn edit-btn"
                     onClick={(e) => handleEdit(e, file.id)}

@@ -5,19 +5,21 @@
  */
 
 import { create } from 'zustand';
-import { 
-  saveFile, 
-  getActiveFiles, 
-  getTrashFiles, 
-  moveToTrash, 
-  restoreFile, 
+import {
+  saveFile,
+  getActiveFiles,
+  getTrashFiles,
+  moveToTrash,
+  restoreFile,
   permanentDelete,
   saveProblems,
   getProblemsByFileId,
   getWrongProblemsFromFiles,
-  getAllProblemsFromFiles
+  getAllProblemsFromFiles,
+  filesDB
 } from '../utils/storage';
 import { parseFile } from '../utils/fileParser';
+import { exportFile } from '../utils/fileExporter';
 
 export const useFileStore = create((set, get) => ({
   // --- 상태 (State) ---
@@ -407,6 +409,27 @@ export const useFileStore = create((set, get) => ({
       return { success: true, count: selectedTrashedFileIds.length };
     } catch (error) {
       set({ error: error.message, isLoading: false });
+      return { success: false, error: error.message };
+    }
+  },
+  
+  /**
+   * 특정 파일을 원하는 형식으로 다운로드합니다.
+   * @param {string} fileId - 다운로드할 파일 ID
+   * @param {string} format - 다운로드 형식 ('xlsx', 'csv', 'txt', 'json')
+   */
+  downloadFile: async (fileId, format = 'json') => {
+    try {
+      const file = await filesDB.getItem(fileId);
+      if (!file) throw new Error('파일을 찾을 수 없습니다.');
+      
+      const problems = await getProblemsByFileId(fileId);
+      
+      exportFile(file, problems, format);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Download failed:', error);
       return { success: false, error: error.message };
     }
   },

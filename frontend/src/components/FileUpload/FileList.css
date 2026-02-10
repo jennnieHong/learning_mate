@@ -384,6 +384,82 @@
   border-color: var(--danger);
 }
 
+.action-btn.download-btn:hover,
+.action-btn.download-btn.active {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+/* 다운로드 메뉴 컨테이너 */
+.download-container {
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+
+.download-menu {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  width: 130px;
+  background-color: var(--bg-container);
+  border: 1px solid var(--border-main);
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1000;
+  animation: menuFadeUp 0.2s ease-out;
+}
+
+@keyframes menuFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.download-menu button {
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.download-menu button:hover {
+  background-color: var(--bg-sub);
+  color: var(--accent-primary);
+}
+
+.download-menu button:not(:last-child) {
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* 반응형 모바일 메뉴 조정 */
+@media (max-width: 640px) {
+  .download-menu {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    width: auto;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 10px;
+    background-color: var(--bg-container);
+  }
+
+  .download-menu button {
+    padding: 12px;
+    font-size: 0.9rem;
+    border: none !important;
+  }
+}
+
 /* 반응형: 좁은 화면에서 파일 카드를 한 줄 형식으로 변경 */
 @media (max-width: 640px) {
   .list-header h2 {
