@@ -142,14 +142,22 @@
   white-space: nowrap;
 }
 
+.badge-completed {
+  background-color: var(--bg-sub);
+  color: var(--text-main);
+  border: 1px solid var(--border-main);
+}
+
 .badge-correct {
   background-color: rgba(34, 197, 94, 0.15);
   color: #16a34a;
+  padding: 4px 8px;
 }
 
 .badge-wrong {
   background-color: rgba(239, 68, 68, 0.15);
   color: #dc2626;
+  padding: 4px 8px;
 }
 
 .badge-wrong-count {

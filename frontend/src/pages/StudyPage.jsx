@@ -178,6 +178,21 @@ export default function StudyPage() {
   };
 
   /**
+   * 특정 문제를 '완료' 또는 '미완료' 상태로 직접 토글합니다.
+   * (설명 모드 등에서 사용자가 명시적으로 체크할 때 사용)
+   */
+  const handleToggleComplete = async (isCompleted) => {
+    const problemId = currentProblem.id;
+    const fileSetId = currentProblem.fileSetId;
+    
+    await toggleComplete(fileSetId, problemId, isCompleted);
+    
+    if (isCompleted) {
+      toast.success('완료 상태로 표시되었습니다.');
+    }
+  };
+
+  /**
    * 처음부터 다시 학습하기를 눌렀을 때의 처리입니다.
    */
   const handleRestart = () => {

@@ -210,9 +210,13 @@ export default function ListStudy({ problems, fileId }) {
                   <td className="col-status">
                     <div className="status-badges">
                       {isCompleted && (
-                        <span className={`badge ${isCorrect ? 'badge-correct' : 'badge-wrong'}`}>
-                          {isCorrect ? '✓' : '✗'}
-                        </span>
+                        <span className="badge badge-completed">완료</span>
+                      )}
+                      {progress?.isCorrect === true && (
+                        <span className="badge badge-correct">✓</span>
+                      )}
+                      {progress?.isCorrect === false && (
+                        <span className="badge badge-wrong">✗</span>
                       )}
                       {wrongCount > 0 && (
                         <span className="badge badge-wrong-count">
