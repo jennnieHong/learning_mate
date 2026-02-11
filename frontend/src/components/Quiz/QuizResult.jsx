@@ -59,8 +59,13 @@ export const QuizResult = ({ results, total, onRestart, filename }) => {
         </section>
 
         <footer className="result-footer">
-          <button className="restart-btn" onClick={onRestart}>
-            🔄 다시 학습하기
+          {total - correctCount > 0 && (
+            <button className="restart-btn review-mistakes" onClick={() => onRestart('wrong')}>
+              ❌ 오답만 다시 하기
+            </button>
+          )}
+          <button className="restart-btn" onClick={() => onRestart('all')}>
+            🔄 전체 다시 학습하기
           </button>
           <button className="home-btn" onClick={() => navigate('/')}>
             🏠 메인으로

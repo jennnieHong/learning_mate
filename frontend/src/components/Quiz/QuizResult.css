@@ -131,6 +131,15 @@
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
+.restart-btn.review-mistakes {
+  background: linear-gradient(135deg, #ef4444, #f43f5e);
+}
+
+.restart-btn.review-mistakes:hover {
+  background: linear-gradient(135deg, #dc2626, #e11d48);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
 .home-btn {
   padding: 16px;
   background: white;

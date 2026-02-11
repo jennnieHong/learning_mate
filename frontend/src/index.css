@@ -20,6 +20,9 @@
   --card-hue: 239;
   --card-saturation: 70%;
   --card-lightness: 60%;
+
+  /* --- 전체 숫자 폭 고정 (가변폭 방지), 대문자높이 맞춤 --- */
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 /* [라이트 모드 정의] */

@@ -27,6 +27,7 @@ export const useStudyStore = create((set, get) => ({
   problemChoices: {},       // 각 문제의 셔플된 선택지 { problemId: choices[] }
   orderMode: null,          // 세션 시작 당시의 순서 모드
   activeFilters: [],        // 세션 시작 당시의 필터
+  sessionID: null,          // 세션 고유 ID (상태 초기화 강제용)
 
   // --- 액션 (Actions) ---
 
@@ -56,6 +57,7 @@ export const useStudyStore = create((set, get) => ({
       problemChoices,
       orderMode,
       activeFilters: filters,
+      sessionID: Date.now(),
     });
   },
 
@@ -73,6 +75,7 @@ export const useStudyStore = create((set, get) => ({
       problemChoices,
       orderMode,
       activeFilters: filters,
+      sessionID: Date.now(),
     });
   },
 

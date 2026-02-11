@@ -41,7 +41,8 @@ export default function StudyPage() {
     sessionAnswers, 
     setSessionAnswer, 
     problemChoices,
-    startSession 
+    startSession,
+    sessionID
   } = useStudyStore();
 
   const [isFinished, setIsFinished] = useState(false);
@@ -197,15 +198,26 @@ export default function StudyPage() {
 
   /**
    * 처음부터 다시 학습하기를 눌렀을 때의 처리입니다.
+   * @param {'all' | 'wrong'} mode - 전체 다시 시작 또는 오답만 다시 시작
    */
-  const handleRestart = () => {
+  const handleRestart = (mode = 'all') => {
+    let newFilters = activeFilters;
+    
+    if (mode === 'wrong') {
+      newFilters = ['wrong'];
+      setActiveFilters(newFilters);
+    } else if (mode === 'all') {
+      newFilters = [];
+      setActiveFilters([]);
+    }
+
     let filtered = [...currentFile.problems];
     
     // 필터링 재적용
-    if (activeFilters.length > 0) {
+    if (newFilters.length > 0) {
       filtered = filtered.filter(p => {
         const prog = progressMap[p.id];
-        return activeFilters.some(filter => {
+        return newFilters.some(filter => {
           if (filter === 'wrong') return (prog?.wrongCount || 0) > 0;
           if (filter === 'correct') return prog?.isCorrect === true;
           if (filter === 'incomplete') return !prog?.isCompleted;
@@ -215,7 +227,7 @@ export default function StudyPage() {
       });
     }
 
-    restartSession(currentFile.id, filtered, settings.orderMode, activeFilters, answerPool);
+    restartSession(currentFile.id, filtered, settings.orderMode, newFilters, answerPool);
     setIsFinished(false);
     setIsRevealed(false);
     setLocalIsAnswered(false);
@@ -416,7 +428,7 @@ export default function StudyPage() {
           /* [설명 모드: 카드 뒤집기] */
           <div className="explanation-view">
             <FlipCard 
-              key={currentProblem.id}
+              key={`${sessionID}-${currentProblem.id}`}
               problem={currentProblem} 
               cardFront={settings.cardFront}
             />
@@ -424,7 +436,7 @@ export default function StudyPage() {
         ) : (
           /* [문제 모드: 퀴즈] */
           <MultipleChoice 
-            key={`${currentProblem.id}-${settings.questionType}`}
+            key={`${sessionID}-${currentProblem.id}-${settings.questionType}`}
             problem={currentProblem}
             questionType={settings.questionType}
             onAnswer={handleAnswer}
