@@ -170,8 +170,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-height: calc(100vh - 80px);
-  padding-top: 40px;
+  padding-top: 20px;
 }
 
 /* 필터 결과가 없을 때 */
@@ -200,17 +199,16 @@
 
 /* 하단 고정 액션 바 */
 .study-action-bar {
-  position: fixed;
-  bottom: 0;
+  position: sticky;
+  top: 75px; /* 헤더 높이(약 75px) 바로 아래에 고정 */
   left: 0;
   right: 0;
-  background: linear-gradient(to top, var(--bg-page) 90%, transparent);
-  padding: 24px 20px;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid var(--border-light);
-  animation: slideUp 0.4s ease-out;
+  background-color: var(--bg-container);
+  padding: 12px 20px;
+  z-index: 90;
+  border-bottom: 1px solid var(--border-light);
+  border-top: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .bar-container {
@@ -384,7 +382,7 @@
 
 @media (max-width: 640px) {
   .study-header {
-    padding: 6px 12px;
+    padding: 6px 6px; /* 12px -> 6px */
     gap: 8px;
   }
   
@@ -397,9 +395,10 @@
   }
 
   .study-content {
-    padding: 12px;
-    padding-top: 10px;
-    padding-bottom: 150px;
+    padding: 8px 4px;
+    padding-top: 5px;
+    padding-bottom: 20px;
+    height: auto;
   }
 
   .quiz-question h2, 
@@ -412,7 +411,8 @@
   }
 
   .study-action-bar {
-    padding: 10px 12px;
+    top: 60px; /* 모바일 헤더 높이에 맞춤 */
+    padding: 8px 6px; /* 양쪽 여백 축소 */
   }
   
   .bar-container {

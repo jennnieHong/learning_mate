@@ -327,7 +327,7 @@
 
 @media (max-width: 768px) {
   .home-page {
-    padding: 20px 12px;
+    padding: 20px 8px; /* 12px -> 8px */
   }
 
   .home-header {
@@ -344,7 +344,7 @@
   }
 
   .upload-section, .files-section {
-    padding: 20px;
+    padding: 20px 10px; /* 양쪽 여백 축소 */
     border-radius: 20px;
   }
 
@@ -355,7 +355,7 @@
   }
 
   .study-bottom-bar {
-    padding: 8px 12px;
+    padding: 8px 6px; /* 12px -> 6px */
     gap: 6px;
     background: linear-gradient(to top, var(--bg-page) 95%, transparent);
   }

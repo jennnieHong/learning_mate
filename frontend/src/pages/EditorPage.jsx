@@ -264,49 +264,63 @@ export default function EditorPage() {
   return (
     <div className="editor-page">
       <div className="editor-container">
-        <header className="editor-header">
-          <div className="header-top-row">
+        <header className="editor-compact-header">
+          <div className="compact-header-container">
+            <button className="compact-back-btn" onClick={() => navigate('/')} title="취소 및 돌아가기">
+              ←
+            </button>
+            
             <input
               type="text"
-              className="filename-input"
+              className="compact-filename-input"
               value={filename}
               onChange={(e) => setFilename(e.target.value)}
               placeholder="파일명 입력"
             />
-            <div className="header-actions">
+
+            <div className="compact-tools">
               <button 
-                className={`header-tool-btn search-toggle ${isSearchOpen ? 'active' : ''}`} 
+                className={`compact-tool-btn search ${isSearchOpen ? 'active' : ''}`} 
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                title="검색/필터"
+                title="검색"
               >
                 🔍
               </button>
-              <button className="header-tool-btn add" onClick={addProblem} title="문제 추가">
+              <button className="compact-tool-btn add" onClick={addProblem} title="문제 추가">
                 ➕
               </button>
               {fileId !== 'new' && (
-                <button className="header-tool-btn reset" onClick={handleResetAllProgress} title="진행 상황 초기화">
+                <button className="compact-tool-btn reset" onClick={handleResetAllProgress} title="진행 상황 초기화">
                   🔄
                 </button>
               )}
             </div>
+
+            <div className="compact-actions">
+              {selectedIds.size > 0 && (
+                <button className="compact-delete-btn" onClick={removeSelected} title="선택 삭제">
+                  🗑️ {selectedIds.size}
+                </button>
+              )}
+              <button className="compact-save-btn" onClick={handleSave}>
+                💾 <span className="desktop-only-text">저장</span>
+              </button>
+            </div>
           </div>
           
           {isSearchOpen && (
-            <div className="header-search-drawer">
+            <div className="compact-search-drawer">
               <input
                 type="text"
-                className="search-input-editor"
+                className="compact-search-input"
                 placeholder="검색어 입력... (초성 가능)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
               />
-              <div className="drawer-stats">
-                <span className="problem-count">
-                  {searchQuery ? `${filteredProblems.length} / ` : ''}{problems.length}개 문제
-                </span>
-              </div>
+              <span className="compact-stats">
+                {searchQuery ? `${filteredProblems.length} / ` : ''}{problems.length}
+              </span>
             </div>
           )}
         </header>
@@ -561,28 +575,6 @@ export default function EditorPage() {
             </div>
           </div>
         </main>
-
-        <footer className="editor-footer">
-          <div className="footer-container">
-            <button className="footer-action-btn back" onClick={() => navigate('/')}>
-              ← 취소
-            </button>
-            <div className="footer-center">
-              {selectedIds.size > 0 ? (
-                <button className="footer-delete-btn" onClick={removeSelected}>
-                  🗑️ {selectedIds.size}개 삭제
-                </button>
-              ) : (
-                <div className="footer-status">
-                  {problems.length}개 중 {filteredProblems.length}개 표시
-                </div>
-              )}
-            </div>
-            <button className="footer-action-btn save" onClick={handleSave}>
-              💾 저장
-            </button>
-          </div>
-        </footer>
       </div>
     </div>
   );

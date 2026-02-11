@@ -102,6 +102,16 @@ export default function SettingsPage() {
         <header className="settings-header">
           <h1>⚙️ 설정</h1>
         </header>
+
+        {/* 상단 고정 버튼 영역 */}
+        <div className="settings-action-bar">
+          <button className="back-btn-fixed" onClick={() => navigate(-1)}>
+            ← 돌아가기
+          </button>
+          <button className="save-btn-fixed" onClick={handleSave}>
+            💾 설정 저장
+          </button>
+        </div>
         
         <main className="settings-content">
           {/* [1. 테마 및 디자인 설정] */}
@@ -535,7 +545,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* [6. 데이터 및 초기화] */}
+          {/* [7. 위험 구역] */}
           <section className="setting-group danger-zone">
             <h2>⚠️ 위험 구역</h2>
             <div className="danger-zone-content">
@@ -549,16 +559,6 @@ export default function SettingsPage() {
             </div>
           </section>
         </main>
-      </div>
-      
-      {/* 하단 고정 버튼 영역 */}
-      <div className="settings-bottom-bar">
-        <button className="back-btn-fixed" onClick={() => navigate(-1)}>
-          ← 돌아가기
-        </button>
-        <button className="save-btn-fixed" onClick={handleSave}>
-          💾 설정 저장
-        </button>
       </div>
     </div>
   );

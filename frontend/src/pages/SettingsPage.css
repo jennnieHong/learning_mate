@@ -1,7 +1,7 @@
 /* [SettingsPage.css] 설정 페이지 스타일 */
 
 .settings-page {
-  padding: 40px 20px;
+  padding: 0 10px 40px 10px; /* 상단 여백 제거, 좌우 여백 축소 */
   min-height: 100vh;
   background-color: var(--bg-page);
   color: var(--text-main);
@@ -19,16 +19,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 40px;
+  margin-bottom: 0;
   position: sticky;
   top: 0;
-  background-color: var(--bg-page);
-  padding: 10px 0;
-  z-index: 10;
+  background-color: var(--bg-container); /* 하단 바와 색상 통일 */
+  padding: 0;
+  height: 60px; /* 고정 높이 설정 */
+  z-index: 100;
+  border-bottom: none;
 }
 
 .settings-header h1 {
-  font-size: 2rem;
+  font-size: 1.5rem; /* 헤더가 얇아졌으므로 폰트 크기 소폭 축소 */
   margin: 0;
 }
 
@@ -415,23 +417,24 @@
   background-color: var(--bg-sub);
 }
 
-/* 하단 고정 버튼 영역 */
-.settings-bottom-bar {
-  position: fixed;
-  bottom: 0;
+/* 상단 고정 버튼 영역 */
+.settings-action-bar {
+  position: sticky;
+  top: 60px; /* 헤더 높이와 정확히 일치시켜 틈 제거 */
   left: 0;
   right: 0;
-  background: linear-gradient(to top, var(--bg-page) 70%, transparent);
-  padding: 20px;
+  background-color: var(--bg-container);
+  padding: 10px 16px; 
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  z-index: 100;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  z-index: 90;
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto 20px auto; 
+  border-radius: 0 0 16px 16px;
 }
 
 /* 돌아가기 버튼 (왼쪽) */
@@ -484,9 +487,19 @@
 }
 
 /* 모바일 반응형 */
-@media (max-width: 640px) {
-  .settings-bottom-bar {
-    padding: 16px;
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 20px 8px; /* 20px -> 8px */
+  }
+
+  .setting-group {
+    padding: 20px 15px; /* 30px -> 15px */
+    border-radius: 16px;
+  }
+
+  .settings-action-bar {
+    top: 60px; /* 모바일 헤더 높이에 맞춤 */
+    padding: 12px 16px;
   }
   
   .back-btn-fixed {

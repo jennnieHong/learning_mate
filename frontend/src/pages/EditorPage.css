@@ -5,7 +5,7 @@
   background-color: var(--bg-page);
   color: var(--text-main);
   padding: 16px; /* 모바일/데스크탑 기본 패딩 통일/축소 */
-  padding-bottom: 100px; /* 하단 고정 바 공간 확보 */
+  padding-bottom: 20px; /* 고정 바가 상단으로 이동했으므로 대폭 축소 */
   transition: all 0.3s ease;
 }
 
@@ -18,112 +18,134 @@
   margin: 0 auto;
 }
 
-/* 상단 헤더: 대변신 (Study 느낌) */
-.editor-header {
+/* [Compact Header] 슬림한 가로형 헤더 */
+.editor-compact-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
   background-color: var(--bg-container);
-  padding: 12px 20px;
-  border-radius: 16px;
-  box-shadow: var(--shadow-md);
-  margin-bottom: 20px;
-  border: 1px solid var(--border-light);
+  z-index: 1000;
+  border-bottom: 2px solid var(--border-light);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
-.header-top-row {
+.compact-header-container {
   display: flex;
   align-items: center;
-  gap: 16px;
-  width: 100%;
+  gap: 12px;
+  padding: 8px 16px;
+  height: 56px;
 }
 
-.filename-input {
+.compact-back-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-sub);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.compact-filename-input {
   flex: 1;
-  border: 1px solid var(--border-light);
-  background-color: var(--bg-page);
-  color: var(--text-main);
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 700;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.filename-input:focus {
-  border-color: var(--accent-primary);
-}
-
-.header-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.header-tool-btn {
   background-color: var(--bg-sub);
   border: 1px solid var(--border-main);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
   color: var(--text-main);
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
+  outline: none;
+  min-width: 0; /* flex 자식 최소너비 무시 */
+}
+
+.compact-filename-input:focus {
+  border-color: var(--accent-primary);
+  background-color: var(--bg-page);
+}
+
+.compact-tools {
+  display: flex;
+  gap: 6px;
+}
+
+.compact-tool-btn {
+  width: 36px;
+  height: 36px;
+  background-color: var(--bg-sub);
+  border: 1px solid var(--border-main);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
-.header-tool-btn:hover {
-  background-color: var(--bg-container);
-  border-color: var(--accent-primary);
-  transform: translateY(-2px);
-}
-
-.header-tool-btn.search-toggle.active {
+.compact-tool-btn.active {
   background-color: var(--accent-primary);
   color: white;
-  border-color: var(--accent-primary);
 }
 
-/* 검색 드로어 (Dropdown 스러운 서랍) */
-.header-search-drawer {
-  padding-top: 12px;
-  border-top: 1px dashed var(--border-light);
+.compact-actions {
   display: flex;
-  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.compact-delete-btn {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.compact-save-btn {
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 검색 드로어 compact 버전 */
+.compact-search-drawer {
+  background-color: var(--bg-container);
+  padding: 8px 16px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
   gap: 12px;
   animation: slideDown 0.2s ease-out;
 }
 
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.search-input-editor {
-  width: 100%;
-  padding: 12px 16px;
-  border: 2px solid var(--accent-primary);
-  border-radius: 12px;
-  background-color: var(--bg-page);
+.compact-search-input {
+  flex: 1;
+  border: none;
+  background: none;
   color: var(--text-main);
-  font-size: 0.9rem;
-  outline: none;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
-}
-
-.drawer-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.problem-count {
   font-size: 0.85rem;
-  font-weight: 700;
+  outline: none;
+}
+
+.compact-stats {
+  font-size: 0.75rem;
   color: var(--text-sub);
+  font-weight: 700;
 }
 
 .delete-selected-mini {
@@ -306,19 +328,6 @@
   font-size: 0.75rem;
 }
 
-/* 하단 고정 액션 바 (Study 모드와 유사) */
-.editor-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: var(--bg-container);
-  padding: 16px 24px;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-  border-top: 1px solid var(--border-light);
-  z-index: 100;
-  backdrop-filter: blur(10px);
-}
 
 .footer-container {
   max-width: 1200px;
@@ -399,39 +408,46 @@
 /* [모바일 대응] */
 @media screen and (max-width: 768px) {
   .editor-page {
-    padding: 10px;
-    padding-bottom: 120px;
+    padding: 6px; /* 10px -> 6px */
+    /* 안드로이드 하단바 간섭 방지를 위해 패딩 대폭 상향 */
+    padding-bottom: 30px;
   }
 
   .desktop-only { display: none !important; }
   .mobile-only { display: block !important; }
 
-  .editor-header {
-    padding: 12px;
-    border-radius: 12px;
+  .editor-compact-header {
+    top: 0;
+    box-shadow: var(--shadow-sm);
   }
 
-  .filename-input {
+  .compact-header-container {
+    padding: 8px 10px;
+    gap: 8px;
+    height: 50px;
+  }
+
+  .compact-filename-input {
+    font-size: 0.8rem;
+    padding: 6px 8px;
+  }
+
+  .compact-tool-btn {
+    width: 32px;
+    height: 32px;
     font-size: 0.9rem;
   }
 
-  .grid-wrapper {
-    max-height: calc(100vh - 300px);
-    overflow-x: hidden;
-  }
-
-  .footer-status {
+  .desktop-only-text {
     display: none;
   }
 
-  .footer-center {
-    flex: unset;
+  .compact-save-btn {
+    padding: 8px 12px;
   }
 
-  .footer-delete-btn {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    border-radius: 10px;
+  .grid-wrapper {
+    max-height: calc(100vh - 120px);
   }
 
   /* 모바일용 카드 스타일 보완 */
@@ -502,7 +518,7 @@
   }
 
   .card-body {
-    padding: 16px;
+    padding: 12px 10px; /* 16px -> 10px */
     display: flex;
     flex-direction: column;
     gap: 16px;

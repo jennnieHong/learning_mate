@@ -1,12 +1,14 @@
 /* [FlipCard.css] 카드 뒤집기 애니메이션 및 스타일 */
 
 .flip-card-container {
-  display: block;
+  display: flex;
+  justify-content: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 800px; /* 600 -> 800 더 넓게 */
   margin: 0 auto;
-  perspective: 1500px; /* 3D 효과의 깊이감 */
+  perspective: 2000px; /* 심도감 강화 */
   position: relative;
+  box-sizing: border-box;
 }
 
 .flip-card {
@@ -17,7 +19,7 @@
   position: relative;
   transform-style: preserve-3d;
   transform-origin: center center;
-  transition: transform 0.01s cubic-bezier(0.4, 0, 0.2, 1);
+  /* transition 제거 - Framer Motion에서 처리함 */
   margin: 0 auto;
 }
 
@@ -29,6 +31,7 @@
   height: 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  transform: translateZ(1px); /* 3D 렌더링 시 갈라짐 방지용 */
   
   display: flex;
   flex-direction: column;
@@ -50,7 +53,7 @@
 .card-back {
   background: var(--card-back-gradient);
   color: white;
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(1px); /* 뒷면도 레이어 격리 */
 }
 
 .card-label {
@@ -85,6 +88,12 @@
   word-break: keep-all;
   margin: 40px 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* 내용이 많을 경우 여기서 스크롤 처리 */
+  scrollbar-width: none;
+}
+
+.card-content::-webkit-scrollbar {
+  display: none;
 }
 
 .card-content p {
@@ -116,10 +125,39 @@
 }
 
 @media (max-width: 640px) {
-  .card-content {
-    font-size: 1.0rem;
+  .flip-card-container {
+    width: 100%;
+    padding: 0 4px;
+    max-width: 100vw;
   }
+
+  .flip-card {
+    aspect-ratio: auto;
+    height: 65vh;
+    min-height: 320px;
+    width: 95vw; /* 화면 너비에 가깝게 조절 */
+    margin: 0 auto;
+  }
+
+  .card-content {
+    font-size: 1.1rem; /* 1.0 -> 1.1 다시 키움 */
+    margin: 50px 0;
+  }
+  
   .card-face {
-    padding: 30px 20px;
+    padding: 25px 20px;
+    justify-content: center; /* 모바일에서도 중앙 정렬 유지 */
+  }
+
+  .card-label {
+    top: 15px;
+    font-size: 0.8rem;
+    padding: 4px 14px;
+  }
+
+  .card-hint {
+    bottom: 20px;
+    padding: 10px 24px;
+    font-size: 0.7rem;
   }
 }

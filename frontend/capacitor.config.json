@@ -1,5 +1,6 @@
 {
   "appId": "com.learningmate.app",
   "appName": "LearningMate",
-  "webDir": "dist"
+  "webDir": "dist",
+  "bundledWebRuntime": false
 }

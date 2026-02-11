@@ -120,3 +120,11 @@ input[type="checkbox"] {
 input[type="checkbox"]:active {
   transform: scale(0.9);
 }
+
+/* [모바일 전역 최적화] 양쪽 여백 축소 */
+@media screen and (max-width: 768px) {
+  body {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

@@ -14,12 +14,12 @@ const DEFAULT_SETTINGS = {
   questionType: 'multiple',  // 'multiple' | 'subjective'
   cardFront: 'explanation',   // 'explanation' | 'answer' | 'random'
   theme: 'light',            // 'light' | 'dark'
-  fontSize: 8,               // 1 ~ 20 단계 (기본값 8, 1.2배)
+  fontSize: 2,               // 1 ~ 20 단계 (기본값 8, 1.2배)
   cardColor: 'indigo',       // indigo, ocean, forest, sunset, rose, slate
   cardHue: 239,
   cardSaturation: 70,        // 0 ~ 100
   cardLightness: 60,         // 0 ~ 100
-  showFontScaleWidget: true, // 글자 크기 조절 위젯 표시 여부
+  showFontScaleWidget: false, // 글자 크기 조절 위젯 표시 여부
   fontScaleWidgetPos: { top: 20, right: 20 }, // 위젯 위치 (기본 우측 상단)
   hasHeaderRow: true,        // 파일 업로드 시 첫 줄 헤더 제외 여부
   

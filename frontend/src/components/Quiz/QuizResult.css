@@ -156,3 +156,23 @@
   background: #f8fafc;
   border-color: #cbd5e1;
 }
+
+@media (max-width: 640px) {
+  .quiz-result-view {
+    padding: 10px 8px;
+  }
+  
+  .result-card {
+    padding: 30px 16px;
+    border-radius: 20px;
+  }
+  
+  .score-circle {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .score-value {
+    font-size: 2.8rem;
+  }
+}

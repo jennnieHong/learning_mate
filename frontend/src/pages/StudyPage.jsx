@@ -427,33 +427,9 @@ export default function StudyPage() {
           ⚙️
         </button>
       </header>
-
-      <main className="study-content">
-        {settings.mode === 'explanation' ? (
-          /* [설명 모드: 카드 뒤집기] */
-          <div className="explanation-view">
-            <FlipCard 
-              key={`${sessionID}-${currentProblem.id}`}
-              problem={currentProblem} 
-              cardFront={settings.cardFront}
-            />
-          </div>
-        ) : (
-          /* [문제 모드: 퀴즈] */
-          <MultipleChoice 
-            key={`${sessionID}-${currentProblem.id}-${settings.questionType}`}
-            problem={currentProblem}
-            questionType={settings.questionType}
-            onAnswer={handleAnswer}
-            choices={problemChoices[currentProblem.id] || []}
-            isRevealed={isRevealed}
-            isAnswered={localIsAnswered}
-          />
-        )}
-      </main>
-
-      {/* 하단 고정 액션 바 */}
-      <footer className="study-action-bar">
+      
+      {/* 액션 바를 상단으로 이동 (안드로이드 하단바 간섭 방지) */}
+      <div className="study-action-bar top-sticky">
         <div className="bar-container">
           <button 
             className="action-nav-btn" 
@@ -540,7 +516,31 @@ export default function StudyPage() {
             </button>
           )}
         </div>
-      </footer>
+      </div>
+
+      <main className="study-content">
+        {settings.mode === 'explanation' ? (
+          /* [설명 모드: 카드 뒤집기] */
+          <div className="explanation-view">
+            <FlipCard 
+              key={`${sessionID}-${currentProblem.id}`}
+              problem={currentProblem} 
+              cardFront={settings.cardFront}
+            />
+          </div>
+        ) : (
+          /* [문제 모드: 퀴즈] */
+          <MultipleChoice 
+            key={`${sessionID}-${currentProblem.id}-${settings.questionType}`}
+            problem={currentProblem}
+            questionType={settings.questionType}
+            onAnswer={handleAnswer}
+            choices={problemChoices[currentProblem.id] || []}
+            isRevealed={isRevealed}
+            isAnswered={localIsAnswered}
+          />
+        )}
+      </main>
 
       <StudyModal 
         isOpen={modalOpen} 
