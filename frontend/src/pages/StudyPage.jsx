@@ -15,6 +15,7 @@ import { QuizResult } from '../components/Quiz/QuizResult';
 import { useStudyStore } from '../stores/useStudyStore';
 import ListStudy from '../components/Study/ListStudy';
 import { FontScaleWidget } from '../components/Common/FontScaleWidget';
+import StudyModal from '../components/Common/StudyModal';
 import toast, { Toaster } from 'react-hot-toast';
 import './StudyPage.css';
 
@@ -58,6 +59,10 @@ export default function StudyPage() {
   // 주관식 퀴즈용 상태
   const [isRevealed, setIsRevealed] = useState(false);
   const [localIsAnswered, setLocalIsAnswered] = useState(false);
+
+  // 모달 상태
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState('hint'); // 'hint' or 'explanation'
 
   /**
    * 초기 설정 및 데이터 로딩
@@ -463,6 +468,32 @@ export default function StudyPage() {
           </button>
 
           <div className="center-actions">
+            {currentProblem?.hint?.trim() && (
+              <button 
+                className="action-icon-btn hint" 
+                onClick={() => {
+                  setModalType('hint');
+                  setModalOpen(true);
+                }}
+                title="힌트 보기"
+              >
+                💡 힌트
+              </button>
+            )}
+
+            {currentProblem?.explanation?.trim() && (
+              <button 
+                className="action-icon-btn explanation" 
+                onClick={() => {
+                  setModalType('explanation');
+                  setModalOpen(true);
+                }}
+                title="해설 보기"
+              >
+                📖 해설
+              </button>
+            )}
+
             {settings.mode === 'explanation' ? (
               <button 
                 className={`action-check-btn ${progressMap[currentProblem.id]?.isCompleted ? 'active' : ''}`}
@@ -504,6 +535,14 @@ export default function StudyPage() {
           )}
         </div>
       </footer>
+
+      <StudyModal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)}
+        type={modalType}
+        title={modalType === 'hint' ? '힌트' : '해설'}
+        content={modalType === 'hint' ? currentProblem?.hint : currentProblem?.explanation}
+      />
     </div>
   );
 }

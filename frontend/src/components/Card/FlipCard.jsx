@@ -16,7 +16,7 @@ export const FlipCard = ({ problem, cardFront }) => {
    * key prop으로 컴포넌트가 재생성되므로 useEffect 없이도 초기화가 보장되지만,
    * 렌더링 시마다 텍스트가 바뀌지 않도록 useMemo를 사용합니다.
    */
-  const { front, back } = useMemo(() => {
+  const { front, back, frontInfo, backInfo, frontLabel, backLabel } = useMemo(() => {
     let showAnswerFirst = false;
 
     if (cardFront === 'answer') {
@@ -29,7 +29,9 @@ export const FlipCard = ({ problem, cardFront }) => {
     
     return {
       front: showAnswerFirst ? problem.answer : problem.description,
-      back: showAnswerFirst ? problem.description : problem.answer
+      back: showAnswerFirst ? problem.description : problem.answer,
+      frontLabel: showAnswerFirst ? '정답' : '질문',
+      backLabel: showAnswerFirst ? '질문' : '정답'
     };
   }, [problem.id, problem.answer, problem.description, cardFront]);
 
@@ -44,20 +46,20 @@ export const FlipCard = ({ problem, cardFront }) => {
       >
         {/* 카드 앞면 */}
         <div className="card-face card-front">
-          <div className="card-label">질문</div>
+          <div className="card-label">{frontLabel}</div>
           <div className="card-content">
             <p>{front}</p>
           </div>
-          <div className="card-hint">클릭하여 정답 확인</div>
+          <div className="card-hint">클릭하여 뒤집기</div>
         </div>
 
         {/* 카드 뒷면 */}
         <div className="card-face card-back">
-          <div className="card-label">정답</div>
+          <div className="card-label">{backLabel}</div>
           <div className="card-content">
             <p>{back}</p>
           </div>
-          <div className="card-hint">클릭하여 질문으로 돌아가기</div>
+          <div className="card-hint">클릭하여 뒤집기</div>
         </div>
       </motion.div>
     </div>

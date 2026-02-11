@@ -352,6 +352,36 @@
   font-size: 1rem;
 }
 
+/* 힌트/해설 아이콘 버튼 */
+.action-icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all 0.2s;
+  gap: 4px;
+}
+
+.action-icon-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+.action-icon-btn.hint {
+  color: #d97706; /* Amber */
+}
+
+.action-icon-btn.explanation {
+  color: var(--accent-primary);
+}
+
 @media (max-width: 640px) {
   .study-header {
     padding: 6px 12px;

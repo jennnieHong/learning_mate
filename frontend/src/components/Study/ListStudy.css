@@ -171,6 +171,40 @@
   word-break: break-word;
 }
 
+.list-extra-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.list-info-btn {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: var(--bg-page);
+  border: 1px solid var(--border-main);
+  color: var(--text-main);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.list-info-btn:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--accent-primary);
+}
+
+.list-info-btn.hint {
+  color: #d97706;
+}
+
+.list-info-btn.explanation {
+  color: var(--accent-primary);
+}
+
 /* 주관식 답 */
 .subjective-answer {
   display: flex;

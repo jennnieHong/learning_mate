@@ -213,6 +213,14 @@
   white-space: nowrap;
 }
 
+/* 컬럼별 너비 최적화 */
+.col-description { min-width: 300px; }
+.col-answer { min-width: 200px; }
+.col-hint, .col-explanation { min-width: 200px; }
+.col-choice { min-width: 180px; }
+.col-wrong { min-width: 80px; text-align: center; }
+.col-status { min-width: 100px; text-align: center; }
+
 .delete-selected-btn {
   background-color: rgba(239, 68, 68, 0.1);
   border: 1px solid var(--danger);

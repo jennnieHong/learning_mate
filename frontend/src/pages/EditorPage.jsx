@@ -24,7 +24,7 @@ export default function EditorPage() {
   // --- 로컬 상태 (Local State) ---
   const [filename, setFilename] = useState('새로운 문제집');
   const [problems, setProblems] = useState([
-    { id: crypto.randomUUID(), description: '', answer: '', choices: ['', '', ''] }
+    { id: crypto.randomUUID(), description: '', answer: '', hint: '', explanation: '', choices: ['', '', ''] }
   ]);
   const [selectedIds, setSelectedIds] = useState(new Set()); // 다중 선택된 문제 ID들
   const [searchQuery, setSearchQuery] = useState(''); // 검색어
@@ -38,7 +38,7 @@ export default function EditorPage() {
     if (fileId === 'new') {
       setFilename('새로운 문제집');
       setProblems([
-        { id: crypto.randomUUID(), description: '', answer: '', choices: ['', '', ''] }
+        { id: crypto.randomUUID(), description: '', answer: '', hint: '', explanation: '', choices: ['', '', ''] }
       ]);
     } else if (fileId) {
       loadExistingFile(fileId);
@@ -58,6 +58,8 @@ export default function EditorPage() {
       setFilename(file.originalFilename);
       setProblems(loadedProblems.map(p => ({
         ...p,
+        hint: p.hint || '',
+        explanation: p.explanation || '',
         choices: p.choices || ['', '', '']
       })));
     }
@@ -69,47 +71,60 @@ export default function EditorPage() {
   const addProblem = () => {
     setProblems([
       ...problems,
-      { id: crypto.randomUUID(), description: '', answer: '', choices: ['', '', ''] }
+      { id: crypto.randomUUID(), description: '', answer: '', hint: '', explanation: '', choices: ['', '', ''] }
     ]);
   };
   
-  /** 특정 인덱스의 문제를 삭제합니다. */
-  const removeProblem = (index) => {
+  /** 특정 ID의 문제를 삭제합니다. */
+  const removeProblem = (id) => {
     if (problems.length === 1) {
       toast.error('최소 1개의 문제가 필요합니다');
       return;
     }
-    setProblems(problems.filter((_, i) => i !== index));
+    setProblems(problems.filter(p => p.id !== id));
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
   };
   
-  /** 문제의 설명(질문) 또는 정답 필드를 업데이트합니다. */
-  const updateProblem = (index, field, value) => {
-    const updated = [...problems];
-    updated[index] = { ...updated[index], [field]: value };
-    setProblems(updated);
+  /** 문제의 설명(질문) 또는 정답 필드를 업데이트합니다. (ID 기준) */
+  const updateProblem = (id, field, value) => {
+    setProblems(prev => prev.map(p => 
+      p.id === id ? { ...p, [field]: value } : p
+    ));
   };
   
-  /** 특정 순서의 선택지 내용을 업데이트합니다. */
-  const updateChoice = (problemIndex, choiceIndex, value) => {
-    const updated = [...problems];
-    updated[problemIndex].choices[choiceIndex] = value;
-    setProblems(updated);
+  /** 특정 문제의 선택지 내용을 업데이트합니다. (ID 기준) */
+  const updateChoice = (problemId, choiceIndex, value) => {
+    setProblems(prev => prev.map(p => {
+      if (p.id === problemId) {
+        const newChoices = [...p.choices];
+        newChoices[choiceIndex] = value;
+        return { ...p, choices: newChoices };
+      }
+      return p;
+    }));
   };
   
-  /** 특정 문제에 새로운 빈 선택지 칸을 추가합니다. */
-  const addChoice = (problemIndex) => {
-    const updated = [...problems];
-    updated[problemIndex].choices.push('');
-    setProblems(updated);
+  /** 특정 문제에 새로운 빈 선택지 칸을 추가합니다. (ID 기준) */
+  const addChoice = (problemId) => {
+    setProblems(prev => prev.map(p => 
+      p.id === problemId ? { ...p, choices: [...p.choices, ''] } : p
+    ));
   };
   
-  /** 특정 선택지를 삭제합니다. */
-  const removeChoice = (problemIndex, choiceIndex) => {
-    const updated = [...problems];
-    if (updated[problemIndex].choices.length > 1) {
-      updated[problemIndex].choices.splice(choiceIndex, 1);
-      setProblems(updated);
-    }
+  /** 특정 문제의 선택지를 삭제합니다. (ID 기준) */
+  const removeChoice = (problemId, choiceIndex) => {
+    setProblems(prev => prev.map(p => {
+      if (p.id === problemId && p.choices.length > 1) {
+        const newChoices = [...p.choices];
+        newChoices.splice(choiceIndex, 1);
+        return { ...p, choices: newChoices };
+      }
+      return p;
+    }));
   };
   
   /** 현재까지의 편집 내용을 로컬 스토리지에 저장합니다. */
@@ -296,6 +311,8 @@ export default function EditorPage() {
                   <th className="col-wrong">오답</th>
                   <th className="col-description">설명/문제</th>
                   <th className="col-answer">정답</th>
+                  <th className="col-hint">힌트</th>
+                  <th className="col-explanation">해설</th>
                   {/* 동적 선택지 헤더 생성 */}
                   {Array.from({ length: maxChoices + 1 }).map((_, i) => (
                     <th key={i} className="col-choice">선택지 {i + 1}</th>
@@ -342,7 +359,7 @@ export default function EditorPage() {
                       <td className="col-description">
                         <textarea
                           value={problem.description}
-                          onChange={(e) => updateProblem(index, 'description', e.target.value)}
+                          onChange={(e) => updateProblem(problem.id, 'description', e.target.value)}
                           placeholder="문제 입력..."
                           rows={2}
                         />
@@ -351,8 +368,24 @@ export default function EditorPage() {
                         <input
                           type="text"
                           value={problem.answer}
-                          onChange={(e) => updateProblem(index, 'answer', e.target.value)}
+                          onChange={(e) => updateProblem(problem.id, 'answer', e.target.value)}
                           placeholder="정답 입력..."
+                        />
+                      </td>
+                      <td className="col-hint">
+                        <textarea
+                          value={problem.hint || ''}
+                          onChange={(e) => updateProblem(problem.id, 'hint', e.target.value)}
+                          placeholder="힌트(선택)..."
+                          rows={2}
+                        />
+                      </td>
+                      <td className="col-explanation">
+                        <textarea
+                          value={problem.explanation || ''}
+                          onChange={(e) => updateProblem(problem.id, 'explanation', e.target.value)}
+                          placeholder="해설(선택)..."
+                          rows={2}
                         />
                       </td>
                       {/* 선택지 편집 영역: 항상 하나 이상의 여유 열(+추가 버튼) 노출 */}
@@ -363,12 +396,12 @@ export default function EditorPage() {
                               <input
                                 type="text"
                                 value={problem.choices[choiceIdx]}
-                                onChange={(e) => updateChoice(index, choiceIdx, e.target.value)}
+                                onChange={(e) => updateChoice(problem.id, choiceIdx, e.target.value)}
                                 placeholder={`선택지 ${choiceIdx + 1}`}
                               />
                               <button
                                 className="remove-choice-icon"
-                                onClick={() => removeChoice(index, choiceIdx)}
+                                onClick={() => removeChoice(problem.id, choiceIdx)}
                                 title="삭제"
                               >
                                 ✕
@@ -379,7 +412,7 @@ export default function EditorPage() {
                             choiceIdx === problem.choices.length && (
                               <button
                                 className="add-choice-cell"
-                                onClick={() => addChoice(index)}
+                                onClick={() => addChoice(problem.id)}
                               >
                                 + 추가
                               </button>
@@ -390,7 +423,7 @@ export default function EditorPage() {
                       <td className="col-actions">
                         <button
                           className="delete-row-btn"
-                          onClick={() => removeProblem(index)}
+                          onClick={() => removeProblem(problem.id)}
                           disabled={problems.length === 1}
                           title="이 행 삭제"
                         >

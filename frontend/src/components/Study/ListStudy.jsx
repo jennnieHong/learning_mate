@@ -10,6 +10,7 @@ import { useSettingsStore } from '../../stores/useSettingsStore';
 import { useStudyStore } from '../../stores/useStudyStore';
 import { chosungIncludes } from '../../utils/chosungUtils';
 import toast from 'react-hot-toast';
+import StudyModal from '../Common/StudyModal';
 import './ListStudy.css';
 
 export default function ListStudy({ problems, fileId }) {
@@ -23,6 +24,18 @@ export default function ListStudy({ problems, fileId }) {
   
   // 상태
   const [searchQuery, setSearchQuery] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState('hint');
+  const [selectedProblem, setSelectedProblem] = useState(null);
+
+  /**
+   * 힌트/해설 모달 열기
+   */
+  const openInfoModal = (problem, type) => {
+    setSelectedProblem(problem);
+    setModalType(type);
+    setModalOpen(true);
+  };
 
   /**
    * 답 공개 토글 (주관식용) 및 학습 완료 처리
@@ -182,6 +195,28 @@ export default function ListStudy({ problems, fileId }) {
                   {/* 문제 설명 */}
                   <td className="col-description">
                     <div className="problem-text">{problem.description}</div>
+                    {(problem.hint?.trim() || problem.explanation?.trim()) && (
+                      <div className="list-extra-actions">
+                        {problem.hint?.trim() && (
+                          <button 
+                            className="list-info-btn hint"
+                            onClick={() => openInfoModal(problem, 'hint')}
+                            title="힌트 보기"
+                          >
+                            💡 힌트
+                          </button>
+                        )}
+                        {problem.explanation?.trim() && (
+                          <button 
+                            className="list-info-btn explanation"
+                            onClick={() => openInfoModal(problem, 'explanation')}
+                            title="해설 보기"
+                          >
+                            📖 해설
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </td>
                   
                   {/* 답 / 선택지 */}
@@ -247,6 +282,14 @@ export default function ListStudy({ problems, fileId }) {
           검색 결과가 없습니다.
         </div>
       )}
+
+      <StudyModal 
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        type={modalType}
+        title={modalType === 'hint' ? '힌트' : '해설'}
+        content={modalType === 'hint' ? selectedProblem?.hint : selectedProblem?.explanation}
+      />
     </div>
   );
 }
