@@ -4,7 +4,7 @@
  * 그리드 형태의 UI를 통해 대량의 데이터를 효율적으로 수정할 수 있습니다.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useFileStore } from '../stores/useFileStore';
 import { useProgressStore } from '../stores/useProgressStore';
@@ -28,6 +28,8 @@ export default function EditorPage() {
   ]);
   const [selectedIds, setSelectedIds] = useState(new Set()); // 다중 선택된 문제 ID들
   const [searchQuery, setSearchQuery] = useState(''); // 검색어
+  const [isSearchOpen, setIsSearchOpen] = useState(false); // 검색창 열림 상태
+  const scrollEndRef = useRef(null); // 추가 시 스크롤할 위치
   
   /**
    * 경로 파라미터(fileId)에 따라 모드를 결정합니다.
@@ -69,10 +71,15 @@ export default function EditorPage() {
 
   /** 새로운 빈 문제 행을 추가합니다. */
   const addProblem = () => {
-    setProblems([
-      ...problems,
+    setProblems(prev => [
+      ...prev,
       { id: crypto.randomUUID(), description: '', answer: '', hint: '', explanation: '', choices: ['', '', ''] }
     ]);
+    
+    // 상태 변경 후 레이아웃이 업데이트될 때까지 대기 후 스크롤
+    setTimeout(() => {
+      scrollEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 50);
   };
   
   /** 특정 ID의 문제를 삭제합니다. */
@@ -134,9 +141,18 @@ export default function EditorPage() {
       return;
     }
     
-    const emptyProblems = problems.filter(p => !p.description || !p.answer);
-    if (emptyProblems.length > 0) {
-      toast.error('모든 문제의 설명과 정답을 입력해주세요');
+    // 1. 완전히 비어있는 행(질문과 정답이 모두 공백)은 자동으로 제외
+    const validProblems = problems.filter(p => p.description.trim() || p.answer.trim());
+    
+    if (validProblems.length === 0) {
+      toast.error('최소 1개 이상의 유효한 문제를 입력해주세요');
+      return;
+    }
+
+    // 2. 남은 행들 중 정답이나 설명이 하나라도 비어있는지 확인 (필수값 검증)
+    const incompleteProblems = validProblems.filter(p => !p.description.trim() || !p.answer.trim());
+    if (incompleteProblems.length > 0) {
+      toast.error('모든 문제의 설명과 정답(필수)을 입력해주세요');
       return;
     }
     
@@ -147,7 +163,7 @@ export default function EditorPage() {
         id: newFileId,
         originalFilename: filename.endsWith('.custom') ? filename : `${filename}.custom`,
         fileType: 'custom',
-        totalProblems: problems.length,
+        totalProblems: validProblems.length,
         createdAt: fileId === 'new' ? new Date().toISOString() : currentFile?.createdAt,
         updatedAt: new Date().toISOString(),
         deletedAt: null
@@ -155,7 +171,7 @@ export default function EditorPage() {
       
       await saveFile(fileData);
       
-      const problemsWithFileId = problems.map((p, index) => ({
+      const problemsWithFileId = validProblems.map((p, index) => ({
         ...p,
         fileSetId: newFileId,
         sequenceNumber: index + 1,
@@ -249,54 +265,56 @@ export default function EditorPage() {
     <div className="editor-page">
       <div className="editor-container">
         <header className="editor-header">
-          <button className="back-btn" onClick={() => navigate('/')}>
-            ← 취소
-          </button>
-          <input
-            type="text"
-            className="filename-input"
-            value={filename}
-            onChange={(e) => setFilename(e.target.value)}
-            placeholder="파일명 입력"
-          />
-          <button className="save-btn" onClick={handleSave}>
-            💾 저장
-          </button>
-        </header>
-        
-        <main className="editor-content-grid">
-          <div className="toolbar">
-            <div className="toolbar-left">
-              <button className="add-problem-btn" onClick={addProblem}>
-                ➕ 문제 추가
+          <div className="header-top-row">
+            <input
+              type="text"
+              className="filename-input"
+              value={filename}
+              onChange={(e) => setFilename(e.target.value)}
+              placeholder="파일명 입력"
+            />
+            <div className="header-actions">
+              <button 
+                className={`header-tool-btn search-toggle ${isSearchOpen ? 'active' : ''}`} 
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                title="검색/필터"
+              >
+                🔍
+              </button>
+              <button className="header-tool-btn add" onClick={addProblem} title="문제 추가">
+                ➕
               </button>
               {fileId !== 'new' && (
-                <button className="reset-all-btn" onClick={handleResetAllProgress}>
-                  🔄 전체 진행 상황 초기화
+                <button className="header-tool-btn reset" onClick={handleResetAllProgress} title="진행 상황 초기화">
+                  🔄
                 </button>
               )}
-              {selectedIds.size > 0 && (
-                <button className="delete-selected-btn" onClick={removeSelected}>
-                  🗑️ {selectedIds.size}개 삭제
-                </button>
-              )}
-            </div>
-            <div className="toolbar-right">
-              <input
-                type="text"
-                className="search-input-editor"
-                placeholder="문제 검색... (초성 가능)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <div className="problem-count">
-                {searchQuery ? `${filteredProblems.length} / ` : ''}{problems.length}개 문제
-              </div>
             </div>
           </div>
           
+          {isSearchOpen && (
+            <div className="header-search-drawer">
+              <input
+                type="text"
+                className="search-input-editor"
+                placeholder="검색어 입력... (초성 가능)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+              />
+              <div className="drawer-stats">
+                <span className="problem-count">
+                  {searchQuery ? `${filteredProblems.length} / ` : ''}{problems.length}개 문제
+                </span>
+              </div>
+            </div>
+          )}
+        </header>
+        
+        <main className="editor-content-grid">
           <div className="grid-wrapper">
-            <table className="problems-grid">
+            {/* 데스크탑: 테이블 그리드 뷰 */}
+            <table className="problems-grid desktop-only">
               <thead>
                 <tr>
                   <th className="col-select">
@@ -309,8 +327,8 @@ export default function EditorPage() {
                   <th className="col-number">#</th>
                   <th className="col-status">상태</th>
                   <th className="col-wrong">오답</th>
-                  <th className="col-description">설명/문제</th>
-                  <th className="col-answer">정답</th>
+                  <th className="col-description">설명/문제 <span className="req-star">(필수)</span></th>
+                  <th className="col-answer">정답 <span className="req-star">(필수)</span></th>
                   <th className="col-hint">힌트</th>
                   <th className="col-explanation">해설</th>
                   {/* 동적 선택지 헤더 생성 */}
@@ -339,7 +357,7 @@ export default function EditorPage() {
                       <td className="col-number">{index + 1}</td>
                       <td className="col-status">
                         <span className={`status-badge ${isCompleted ? 'completed' : 'pending'}`}>
-                          {isCompleted ? '✅ 완료' : '⏳ 미완료'}
+                          {isCompleted ? '✅' : '⏳'}
                         </span>
                       </td>
                       <td className="col-wrong">
@@ -435,8 +453,136 @@ export default function EditorPage() {
                 })}
               </tbody>
             </table>
+
+            {/* 모바일: 카드 리스트 뷰 */}
+            <div className="mobile-card-list mobile-only">
+              {filteredProblems.map((problem, index) => {
+                const progress = progressMap[problem.id];
+                const isCompleted = progress?.isCompleted;
+                const wrongCount = progress?.wrongCount || 0;
+                const isSelected = selectedIds.has(problem.id);
+
+                return (
+                  <div key={problem.id} className={`mobile-problem-card ${isSelected ? 'selected' : ''}`}>
+                    <div className="card-header">
+                      <div className="card-header-left">
+                        <input 
+                          type="checkbox" 
+                          checked={isSelected}
+                          onChange={() => toggleSelect(problem.id)}
+                        />
+                        <span className="card-number">#{index + 1}</span>
+                        <span className={`status-badge mini ${isCompleted ? 'completed' : 'pending'}`}>
+                          {isCompleted ? '✅' : '⏳'}
+                        </span>
+                        {wrongCount > 0 && <span className="wrong-badge mini">{wrongCount}회 틀림</span>}
+                      </div>
+                      <button
+                        className="card-delete-btn"
+                        onClick={() => removeProblem(problem.id)}
+                        disabled={problems.length === 1}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+
+                    <div className="card-body">
+                      <div className="input-group required">
+                        <label>질문/설명 <span className="req-star">(필수)</span></label>
+                        <textarea
+                          value={problem.description}
+                          onChange={(e) => updateProblem(problem.id, 'description', e.target.value)}
+                          placeholder="문제를 입력하세요"
+                          rows={2}
+                        />
+                      </div>
+                      <div className="input-group required">
+                        <label>정답 <span className="req-star">(필수)</span></label>
+                        <input
+                          type="text"
+                          value={problem.answer}
+                          onChange={(e) => updateProblem(problem.id, 'answer', e.target.value)}
+                          placeholder="정답을 입력하세요"
+                        />
+                      </div>
+                      <div className="input-row">
+                        <div className="input-group">
+                          <label>💡 힌트</label>
+                          <textarea
+                            value={problem.hint || ''}
+                            onChange={(e) => updateProblem(problem.id, 'hint', e.target.value)}
+                            placeholder="힌트(선택)"
+                            rows={1}
+                          />
+                        </div>
+                        <div className="input-group">
+                          <label>📖 해설</label>
+                          <textarea
+                            value={problem.explanation || ''}
+                            onChange={(e) => updateProblem(problem.id, 'explanation', e.target.value)}
+                            placeholder="해설(선택)"
+                            rows={1}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="card-choices-section">
+                        <label>선택지 목록</label>
+                        <div className="mobile-choices-grid">
+                          {problem.choices.map((choice, cIdx) => (
+                            <div key={cIdx} className="choice-item">
+                              <input
+                                type="text"
+                                value={choice}
+                                onChange={(e) => updateChoice(problem.id, cIdx, e.target.value)}
+                                placeholder={`선택지 ${cIdx + 1}`}
+                              />
+                              <button 
+                                className="choice-remove-btn"
+                                onClick={() => removeChoice(problem.id, cIdx)}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                          <button 
+                            className="mobile-add-choice-btn"
+                            onClick={() => addChoice(problem.id)}
+                          >
+                            + 추가
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={scrollEndRef} />
+            </div>
           </div>
         </main>
+
+        <footer className="editor-footer">
+          <div className="footer-container">
+            <button className="footer-action-btn back" onClick={() => navigate('/')}>
+              ← 취소
+            </button>
+            <div className="footer-center">
+              {selectedIds.size > 0 ? (
+                <button className="footer-delete-btn" onClick={removeSelected}>
+                  🗑️ {selectedIds.size}개 삭제
+                </button>
+              ) : (
+                <div className="footer-status">
+                  {problems.length}개 중 {filteredProblems.length}개 표시
+                </div>
+              )}
+            </div>
+            <button className="footer-action-btn save" onClick={handleSave}>
+              💾 저장
+            </button>
+          </div>
+        </footer>
       </div>
     </div>
   );
