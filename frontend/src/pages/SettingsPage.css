@@ -566,3 +566,95 @@
     width: 100%;
   }
 }
+/* 컬럼 매핑 스타일 */
+.mapping-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: var(--bg-sub);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border-light);
+}
+
+.mapping-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mapping-label {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.mapping-label h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.mapping-label span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.mapping-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.col-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-main);
+  background-color: var(--bg-container);
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.letter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: var(--accent-primary);
+  color: white;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.mandatory-badge {
+  font-size: 0.65rem;
+  color: #ef4444;
+  background-color: #fee2e2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+@media (max-width: 480px) {
+  .mapping-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .mapping-control {
+    width: 100%;
+  }
+  
+  .col-select {
+    flex: 1;
+  }
+}

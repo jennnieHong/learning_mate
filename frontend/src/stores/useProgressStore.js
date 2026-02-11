@@ -163,5 +163,35 @@ export const useProgressStore = create((set, get) => ({
       delete newMap[problemId];
       return { progressMap: newMap };
     });
+  },
+
+  /**
+   * [시딩/이동용] 대량의 진행 정보를 한 번에 저장합니다.
+   * @param {Array} progressItems - { fileSetId, problemId, isCompleted, wrongCount } 배열
+   */
+  bulkSaveProgress: async (progressItems) => {
+    if (!progressItems || progressItems.length === 0) return;
+    
+    const newProgressMap = { ...get().progressMap };
+    
+    for (const item of progressItems) {
+      const { fileSetId, problemId, isCompleted, wrongCount } = item;
+      
+      const progressData = {
+        id: crypto.randomUUID(),
+        fileSetId,
+        problemId,
+        isCompleted: !!isCompleted,
+        isCorrect: null, // 직접 기록 전까지는 알 수 없음
+        wrongCount: parseInt(wrongCount, 10) || 0,
+        lastAttemptedAt: isCompleted ? new Date().toISOString() : null,
+        completedAt: isCompleted ? new Date().toISOString() : null
+      };
+      
+      await progressDB.setItem(problemId, progressData);
+      newProgressMap[problemId] = progressData;
+    }
+    
+    set({ progressMap: newProgressMap });
   }
 }));

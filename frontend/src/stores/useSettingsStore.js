@@ -20,7 +20,27 @@ const DEFAULT_SETTINGS = {
   cardLightness: 60,         // 0 ~ 100
   showFontScaleWidget: true, // 글자 크기 조절 위젯 표시 여부
   fontScaleWidgetPos: { top: 20, right: 20 }, // 위젯 위치 (기본 우측 상단)
-  hasHeaderRow: true         // 파일 업로드 시 첫 줄 헤더 제외 여부
+  hasHeaderRow: true,        // 파일 업로드 시 첫 줄 헤더 제외 여부
+  
+  // 파일 업로드(파서) 컬럼 매핑 (0부터 시작하는 인덱스, -1은 사용 안 함)
+  parserMapping: {
+    description: 0, // Column A (문제/설명)
+    answer: 1,      // Column B (정답)
+    hint: -1,       // 사용 안 함
+    explanation: -1, // 사용 안 함
+    isCompleted: -1, // 학습 완료 상태
+    wrongCount: -1   // 오답 횟수
+  },
+
+  // 파일 내보내기(다운로드) 컬럼 매핑 및 포함 여부
+  exportMapping: {
+    description: 0,
+    answer: 1,
+    hint: -1, // 사용 안 함
+    explanation: -1, // 사용 안 함
+    isCompleted: -1, // 사용 안 함
+    wrongCount: -1, // 사용 안 함
+  }
 };
 
 export const useSettingsStore = create((set, get) => ({

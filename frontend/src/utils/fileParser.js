@@ -10,31 +10,69 @@ import Papa from 'papaparse';
  * 파일 확장명에 따라 적절한 파서 함수를 호출합니다.
  * @param {File} file - 브라우저로부터 받은 File 객체
  * @param {boolean} hasHeader - 첫 줄을 헤더로 처리할지 여부
+ * @param {Object} mapping - 컬럼 매핑 {description: index, answer: index, ...}
  * @returns {Promise<Array>} 파싱된 문제 목록
  */
-export const parseFile = async (file, hasHeader = true) => {
+export const parseFile = async (file, hasHeader = true, mapping = { description: 0, answer: 1 }) => {
   const extension = file.name.split('.').pop().toLowerCase();
   
   switch (extension) {
     case 'xlsx':
     case 'xls':
-      return parseExcel(file, hasHeader);
+      return parseExcel(file, hasHeader, mapping);
     case 'csv':
-      return parseCSV(file, hasHeader);
+      return parseCSV(file, hasHeader, mapping);
     case 'txt':
-      return parseTXT(file, hasHeader);
+      return parseTXT(file, hasHeader, mapping);
     default:
       throw new Error('지원하지 않는 파일 형식입니다. (.xlsx, .csv, .txt만 가능)');
   }
 };
 
 /**
- * [Excel 파서]
- * xlsx 라이브러리를 사용하여 시트의 데이터를 읽어옵니다.
- * @param {File} file
- * @param {boolean} hasHeader
+ * [공통] 행 데이터에서 매핑 정보를 바탕으로 문제 객체를 생성합니다.
  */
-export const parseExcel = (file, hasHeader = true) => {
+const mapRowToProblem = (row, mapping, index) => {
+  const getVal = (idx) => (idx !== undefined && idx !== -1 && row[idx] !== undefined) ? String(row[idx]).trim() : '';
+
+  // 기본 필드 추출
+  const description = getVal(mapping.description);
+  const answer = getVal(mapping.answer);
+  const hint = getVal(mapping.hint);
+  const explanation = getVal(mapping.explanation);
+  
+  // 학습 상태 추출 (O/X 또는 true/false 문자열 처리)
+  const isCompletedVal = getVal(mapping.isCompleted).toUpperCase();
+  const isCompleted = isCompletedVal === 'O' || isCompletedVal === 'TRUE' || isCompletedVal === '1';
+  
+  // 오답 횟수 추출 (숫자형)
+  const wrongCountVal = getVal(mapping.wrongCount);
+  const wrongCount = parseInt(wrongCountVal, 10) || 0;
+
+  // 보기(choices) 처리: 매핑된 컬럼들을 제외한 나머지 필드들을 보기로 인식
+  const mappedIndices = Object.values(mapping).filter(v => v !== -1);
+  const choices = row
+    .filter((_, idx) => !mappedIndices.includes(idx))
+    .filter(c => c !== undefined && c !== null && String(c).trim() !== '')
+    .map(c => String(c).trim());
+
+  return {
+    id: crypto.randomUUID(),
+    sequenceNumber: index + 1,
+    description,
+    answer,
+    hint,
+    explanation,
+    isCompleted,
+    wrongCount,
+    choices
+  };
+};
+
+/**
+ * [Excel 파서]
+ */
+export const parseExcel = (file, hasHeader = true, mapping) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
@@ -46,20 +84,11 @@ export const parseExcel = (file, hasHeader = true) => {
         const sheet = workbook.Sheets[sheetName];
         
         const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        
-        // 헤더 여부에 따라 데이터 시작 위치 결정
         const dataRows = hasHeader ? jsonData.slice(1) : jsonData;
 
         const problems = dataRows
-          .filter(row => row[0] && row[1]) 
-          .map((row, index) => ({
-            id: crypto.randomUUID(), 
-            sequenceNumber: index + 1,
-            description: String(row[0]).trim(),
-            answer: String(row[1]).trim(),
-            choices: row.slice(2).filter(c => c !== undefined && c !== null && String(c).trim() !== '')
-              .map(c => String(c).trim())
-          }));
+          .filter(row => row[mapping.description] && row[mapping.answer]) 
+          .map((row, index) => mapRowToProblem(row, mapping, index));
         
         resolve(problems);
       } catch (error) {
@@ -75,7 +104,7 @@ export const parseExcel = (file, hasHeader = true) => {
 /**
  * [CSV 파서]
  */
-export const parseCSV = (file, hasHeader = true) => {
+export const parseCSV = (file, hasHeader = true, mapping) => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       skipEmptyLines: true,
@@ -84,14 +113,8 @@ export const parseCSV = (file, hasHeader = true) => {
           const dataRows = hasHeader ? results.data.slice(1) : results.data;
 
           const problems = dataRows
-            .filter(row => row[0] && row[1])
-            .map((row, index) => ({
-              id: crypto.randomUUID(),
-              sequenceNumber: index + 1,
-              description: row[0].trim(),
-              answer: row[1].trim(),
-              choices: row.slice(2).filter(c => c && c.trim()).map(c => c.trim())
-            }));
+            .filter(row => row[mapping.description] && row[mapping.answer])
+            .map((row, index) => mapRowToProblem(row, mapping, index));
           resolve(problems);
         } catch (error) {
           reject(new Error('CSV 파싱 중 오류가 발생했습니다.'));
@@ -105,7 +128,7 @@ export const parseCSV = (file, hasHeader = true) => {
 /**
  * [TXT 파서]
  */
-export const parseTXT = (file, hasHeader = true) => {
+export const parseTXT = (file, hasHeader = true, mapping) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
@@ -113,20 +136,13 @@ export const parseTXT = (file, hasHeader = true) => {
       try {
         const text = e.target.result;
         const lines = text.split(/\r?\n/); 
-        
         const rawRows = lines.filter(line => line.trim());
         const dataRows = hasHeader ? rawRows.slice(1) : rawRows;
 
         const problems = dataRows
           .map((line, index) => {
-            const parts = line.split('\t'); 
-            return {
-              id: crypto.randomUUID(),
-              sequenceNumber: index + 1,
-              description: parts[0]?.trim() || '',
-              answer: parts[1]?.trim() || '',
-              choices: parts.slice(2).filter(p => p && p.trim()).map(p => p.trim())
-            };
+            const row = line.split('\t'); 
+            return mapRowToProblem(row, mapping, index);
           })
           .filter(p => p.description && p.answer); 
           

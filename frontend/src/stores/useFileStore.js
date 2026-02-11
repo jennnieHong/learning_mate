@@ -21,6 +21,7 @@ import {
 import { parseFile } from '../utils/fileParser';
 import { exportFile } from '../utils/fileExporter';
 import { useSettingsStore } from './useSettingsStore';
+import { useProgressStore } from './useProgressStore';
 
 export const useFileStore = create((set, get) => ({
   // --- 상태 (State) ---
@@ -161,12 +162,12 @@ export const useFileStore = create((set, get) => ({
     const results = [];
     
     try {
-      const { hasHeaderRow } = useSettingsStore.getState().settings;
+      const { hasHeaderRow, parserMapping } = useSettingsStore.getState().settings;
 
       // 모든 파일을 병렬로 처리 (하나가 실패해도 나머지는 계속 진행하도록 allSettled 사용)
       const uploadPromises = files.map(async (file) => {
         try {
-          const problems = await parseFile(file, hasHeaderRow);
+          const problems = await parseFile(file, hasHeaderRow, parserMapping);
           const fileData = {
             id: crypto.randomUUID(),
             originalFilename: file.name,
@@ -184,6 +185,20 @@ export const useFileStore = create((set, get) => ({
           }));
           await saveProblems(fileData.id, problemsWithFileId);
           
+          // 진행 상황 데이터 복원 (이동용)
+          const progressItems = problemsWithFileId
+            .filter(p => p.isCompleted || p.wrongCount > 0)
+            .map(p => ({
+              fileSetId: fileData.id,
+              problemId: p.id,
+              isCompleted: p.isCompleted,
+              wrongCount: p.wrongCount
+            }));
+            
+          if (progressItems.length > 0) {
+            await useProgressStore.getState().bulkSaveProgress(progressItems);
+          }
+          
           return { success: true, fileName: file.name, count: problems.length };
         } catch (err) {
           return { success: false, fileName: file.name, error: err.message };
@@ -192,8 +207,9 @@ export const useFileStore = create((set, get) => ({
 
       const settledResults = await Promise.all(uploadPromises);
       
-      // 목록 새로고침
+      // 목록 및 진행 상황 새로고침
       await get().loadFiles();
+      await useProgressStore.getState().loadAllProgress();
       
       set({ isLoading: false });
       return { 
@@ -216,8 +232,8 @@ export const useFileStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       // 1. 확장자에 따라 파싱 수행
-      const { hasHeaderRow } = useSettingsStore.getState().settings;
-      const problems = await parseFile(file, hasHeaderRow);
+      const { hasHeaderRow, parserMapping } = useSettingsStore.getState().settings;
+      const problems = await parseFile(file, hasHeaderRow, parserMapping);
       
       // 2. 파일 메타데이터 생성
       const fileData = {
@@ -238,9 +254,24 @@ export const useFileStore = create((set, get) => ({
         fileSetId: fileData.id
       }));
       await saveProblems(fileData.id, problemsWithFileId);
+
+      // 4. 진행 상황 데이터 복원
+      const progressItems = problemsWithFileId
+        .filter(p => p.isCompleted || p.wrongCount > 0)
+        .map(p => ({
+          fileSetId: fileData.id,
+          problemId: p.id,
+          isCompleted: p.isCompleted,
+          wrongCount: p.wrongCount
+        }));
+        
+      if (progressItems.length > 0) {
+        await useProgressStore.getState().bulkSaveProgress(progressItems);
+      }
       
-      // 4. 목록 새로고침 및 상태 초기화
+      // 5. 목록 및 진행 상황 새로고침
       await get().loadFiles();
+      await useProgressStore.getState().loadAllProgress();
       
       set({ isLoading: false });
       return { success: true, file: fileData, problemCount: problems.length };
@@ -428,8 +459,9 @@ export const useFileStore = create((set, get) => ({
       if (!file) throw new Error('파일을 찾을 수 없습니다.');
       
       const problems = await getProblemsByFileId(fileId);
+      const { exportMapping } = useSettingsStore.getState().settings;
       
-      exportFile(file, problems, format);
+      exportFile(file, problems, format, exportMapping);
       
       return { success: true };
     } catch (error) {

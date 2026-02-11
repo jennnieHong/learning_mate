@@ -9,6 +9,44 @@ import { useSettingsStore } from '../stores/useSettingsStore';
 import toast from 'react-hot-toast';
 import './SettingsPage.css';
 
+/**
+ * 인덱스를 엑셀 컬럼 문자(A, B, C...)로 변환합니다.
+ */
+const indexToLetter = (index) => {
+  if (index === -1 || index === undefined) return '-';
+  return String.fromCharCode(65 + index);
+};
+
+/**
+ * [컴포넌트] 개별 컬럼 매핑 항목
+ */
+const MappingItem = ({ label, sub, value, onChange, isMandatory = false }) => {
+  return (
+    <div className="mapping-row">
+      <div className="mapping-label">
+        <h4>
+          {label}
+          {isMandatory && <span className="mandatory-badge">필수</span>}
+        </h4>
+        {sub && <span>{sub}</span>}
+      </div>
+      <div className="mapping-control">
+        <div className="letter-badge">{indexToLetter(value)}</div>
+        <select 
+          className="col-select"
+          value={value ?? -1} 
+          onChange={(e) => onChange(parseInt(e.target.value))}
+        >
+          <option value="-1">사용 안 함</option>
+          {Array.from({ length: 26 }).map((_, i) => (
+            <option key={i} value={i}>컬럼 {String.fromCharCode(65 + i)}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+};
+
 export default function SettingsPage() {
   const navigate = useNavigate();
   
@@ -36,6 +74,17 @@ export default function SettingsPage() {
         toast.error('초기화 중 오류가 발생했습니다.');
       }
     }
+  };
+
+  /**
+   * 컬럼 매핑 설정을 업데이트합니다.
+   */
+  const handleMappingUpdate = (mappingKey, field, value) => {
+    const currentMapping = settings[mappingKey] || {};
+    updateSetting(mappingKey, {
+      ...currentMapping,
+      [field]: value
+    });
   };
 
   /**
@@ -351,7 +400,100 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* [5. 데이터 및 업로드 설정] */}
+          {/* [5. 컬럼 매핑 설정] */}
+          <section className="setting-group">
+            <h2>📊 컬럼 매핑</h2>
+            <p className="setting-description">파일 업로드 및 내보내기 시 각 열(Column)의 의미를 지정하세요</p>
+            
+            <div className="mapping-grid grid-2">
+              {/* 업로드(파서) 매핑 */}
+              <div className="mapping-section">
+                <h3>📥 업로드 설정</h3>
+                <p className="sub-description">파일을 읽을 때 사용할 컬럼 위치</p>
+                <div className="mapping-container">
+                  <MappingItem 
+                    label="문제/설명" 
+                    sub="필수" 
+                    value={settings.parserMapping?.description} 
+                    onChange={(val) => handleMappingUpdate('parserMapping', 'description', val)}
+                    isMandatory
+                  />
+                  <MappingItem 
+                    label="정답" 
+                    sub="필수" 
+                    value={settings.parserMapping?.answer} 
+                    onChange={(val) => handleMappingUpdate('parserMapping', 'answer', val)}
+                    isMandatory
+                  />
+                  <MappingItem 
+                    label="힌트" 
+                    value={settings.parserMapping?.hint} 
+                    onChange={(val) => handleMappingUpdate('parserMapping', 'hint', val)}
+                  />
+                  <MappingItem 
+                    label="해설" 
+                    value={settings.parserMapping?.explanation} 
+                    onChange={(val) => handleMappingUpdate('parserMapping', 'explanation', val)}
+                  />
+                  <MappingItem 
+                    label="학습완료상태" 
+                    value={settings.parserMapping?.isCompleted} 
+                    onChange={(val) => handleMappingUpdate('parserMapping', 'isCompleted', val)}
+                  />
+                  <MappingItem 
+                    label="오답횟수" 
+                    value={settings.parserMapping?.wrongCount} 
+                    onChange={(val) => handleMappingUpdate('parserMapping', 'wrongCount', val)}
+                  />
+                </div>
+              </div>
+
+              {/* 내보내기(내보내기) 매핑 */}
+              <div className="mapping-section">
+                <h3>📤 내보내기 설정</h3>
+                <p className="sub-description">파일로 저장할 때의 컬럼 순서</p>
+                <div className="mapping-container">
+                  <MappingItem 
+                    label="문제/설명" 
+                    value={settings.exportMapping?.description} 
+                    onChange={(val) => handleMappingUpdate('exportMapping', 'description', val)}
+                    isMandatory
+                  />
+                  <MappingItem 
+                    label="정답" 
+                    value={settings.exportMapping?.answer} 
+                    onChange={(val) => handleMappingUpdate('exportMapping', 'answer', val)}
+                    isMandatory
+                  />
+                  <MappingItem 
+                    label="힌트" 
+                    value={settings.exportMapping?.hint} 
+                    onChange={(val) => handleMappingUpdate('exportMapping', 'hint', val)}
+                  />
+                  <MappingItem 
+                    label="해설" 
+                    value={settings.exportMapping?.explanation} 
+                    onChange={(val) => handleMappingUpdate('exportMapping', 'explanation', val)}
+                  />
+                  <MappingItem 
+                    label="학습완료상태" 
+                    value={settings.exportMapping?.isCompleted} 
+                    onChange={(val) => handleMappingUpdate('exportMapping', 'isCompleted', val)}
+                  />
+                  <MappingItem 
+                    label="오답횟수" 
+                    value={settings.exportMapping?.wrongCount} 
+                    onChange={(val) => handleMappingUpdate('exportMapping', 'wrongCount', val)}
+                  />
+                </div>
+              </div>
+            </div>
+            <p className="sub-description" style={{ marginTop: '12px' }}>
+              💡 선택지(보기)는 지정된 컬럼들 이후에 자동으로 배치됩니다.
+            </p>
+          </section>
+
+          {/* [6. 데이터 및 업로드 설정] */}
           <div className="setting-group">
             <h2>💾 데이터 및 업로드</h2>
             <p className="setting-description">파일 업로드 및 처리 방식을 설정합니다</p>
