@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS = {
   theme: 'light',            // 'light' | 'dark'
   fontSize: 8,               // 1 ~ 20 단계 (기본값 8, 1.2배)
   cardColor: 'indigo',       // indigo, ocean, forest, sunset, rose, slate
+  cardHue: 239,
   cardSaturation: 70,        // 0 ~ 100
   cardLightness: 60,         // 0 ~ 100
   showFontScaleWidget: true, // 글자 크기 조절 위젯 표시 여부

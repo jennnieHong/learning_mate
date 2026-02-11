@@ -81,9 +81,10 @@ function AppContent() {
   // 3. 실제 DOM의 root(html) 요소에 전역 변수 반영 (폰트 스케일, 카드 색상 조절)
   useEffect(() => {
     document.documentElement.style.setProperty('--font-scale-factor', scaleFactor);
+    document.documentElement.style.setProperty('--card-hue', settings.cardHue);
     document.documentElement.style.setProperty('--card-saturation', `${settings.cardSaturation}%`);
     document.documentElement.style.setProperty('--card-lightness', `${settings.cardLightness}%`);
-  }, [scaleFactor, settings.cardSaturation, settings.cardLightness]);
+  }, [scaleFactor, settings.cardHue, settings.cardSaturation, settings.cardLightness]);
 
   return (
     <div className={`app-container theme-${settings.theme || 'light'} card-theme-${settings.cardColor || 'indigo'}`}>

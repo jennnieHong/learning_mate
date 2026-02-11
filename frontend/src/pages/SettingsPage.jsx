@@ -176,17 +176,20 @@ export default function SettingsPage() {
               <label>학습 카드 색상 테마</label>
               <div className="card-color-picker">
                 {[
-                  { id: 'indigo', name: 'Indigo', start: '#6366f1', end: '#a855f7' },
-                  { id: 'ocean', name: 'Ocean', start: '#0ea5e9', end: '#2563eb' },
-                  { id: 'forest', name: 'Forest', start: '#10b981', end: '#059669' },
-                  { id: 'sunset', name: 'Sunset', start: '#f59e0b', end: '#ea580c' },
-                  { id: 'rose', name: 'Rose', start: '#f43f5e', end: '#e11d48' },
-                  { id: 'slate', name: 'Slate', start: '#475569', end: '#1e293b' }
+                  { id: 'indigo', name: 'Indigo', hue: 239, start: '#6366f1', end: '#a855f7' },
+                  { id: 'ocean', name: 'Ocean', hue: 199, start: '#0ea5e9', end: '#2563eb' },
+                  { id: 'forest', name: 'Forest', hue: 160, start: '#10b981', end: '#059669' },
+                  { id: 'sunset', name: 'Sunset', hue: 25, start: '#f59e0b', end: '#ea580c' },
+                  { id: 'rose', name: 'Rose', hue: 350, start: '#f43f5e', end: '#e11d48' },
+                  { id: 'slate', name: 'Slate', hue: 215, start: '#475569', end: '#1e293b' }
                 ].map((color) => (
                   <button
                     key={color.id}
                     className={`color-preset-btn ${settings.cardColor === color.id ? 'active' : ''}`}
-                    onClick={() => handleUpdate('cardColor', color.id)}
+                    onClick={() => {
+                      updateSetting('cardColor', color.id);
+                      updateSetting('cardHue', color.hue);
+                    }}
                     title={color.name}
                   >
                     <div 
@@ -204,6 +207,20 @@ export default function SettingsPage() {
             {/* 카드 색상 상세 조절 (채도, 명도) */}
             <div className="setting-sub-item full-width">
               <div className="color-detail-adjust">
+                <div className="adjust-group">
+                  <div className="adjust-header">
+                    <label>카드 색상 (Hue)</label>
+                    <span className="value-badge">{settings.cardHue}°</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="0" max="360" 
+                    value={settings.cardHue ?? 239} 
+                    onChange={(e) => handleUpdate('cardHue', parseInt(e.target.value))}
+                    className="color-slider hue-slider"
+                  />
+                </div>
+
                 <div className="adjust-group">
                   <div className="adjust-header">
                     <label>카드 채도 (Saturation)</label>

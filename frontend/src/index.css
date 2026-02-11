@@ -77,13 +77,6 @@
   );
 }
 
-.card-theme-indigo { --card-hue: 239; }
-.card-theme-ocean  { --card-hue: 199; }
-.card-theme-forest { --card-hue: 160; }
-.card-theme-sunset { --card-hue: 25;  }
-.card-theme-rose   { --card-hue: 350; }
-.card-theme-slate  { --card-hue: 215; }
-
 /* [글자 크기 스케일링 적용] */
 html {
   /* 모든 폰트 사이즈의 기준이 되는 root 폰트 크기 조절 */
