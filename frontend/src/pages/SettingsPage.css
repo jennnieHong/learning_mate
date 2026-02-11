@@ -579,6 +579,34 @@
     width: 100%;
   }
 }
+
+/* 개별 설정 초기화 버튼 (위치 초기화 등) */
+.reset-button.secondary {
+  background-color: var(--bg-sub);
+  color: var(--text-main);
+  border: 1px solid var(--border-main);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.reset-button.secondary:hover {
+  background-color: var(--border-main);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.reset-button.secondary:active {
+  transform: translateY(0);
+}
+
 /* 컬럼 매핑 스타일 */
 .mapping-container {
   display: flex;
@@ -670,4 +698,63 @@
   .col-select {
     flex: 1;
   }
+}
+/* 제스처 위젯 미리보기 */
+.gesture-preview-container {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-light);
+  text-align: center;
+}
+
+.gesture-preview-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: var(--bg-sub);
+  border-radius: 16px;
+  min-height: 200px; /* 크기 커질 때 대비하여 약간 증설 */
+  overflow: hidden;
+}
+
+.sample-gesture-widget {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-container);
+  border: 1px solid var(--border-main);
+  border-radius: 16px; /* 12 -> 16 */
+  box-shadow: var(--shadow-lg); /* md -> lg */
+  padding: 4px;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.sample-drag-handle {
+  padding: 10px 8px; /* 8,6 -> 10,8 */
+  color: var(--text-muted);
+  font-size: 1.2rem; /* 1.0 -> 1.2 */
+  border-right: 1px solid var(--border-light);
+}
+
+.sample-action-area {
+  padding: 10px 16px; /* 8,12 -> 10,16 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px; /* 60 -> 80 */
+}
+
+.sample-icon {
+  font-size: 1rem; /* 0.9 -> 1.0 */
+  margin-bottom: 2px;
+}
+
+.sample-label {
+  font-size: 0.65rem; /* 0.6 -> 0.65 */
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  opacity: 0.6;
 }

@@ -520,7 +520,151 @@ export default function SettingsPage() {
             </p>
           </section>
 
-          {/* [6. 데이터 및 업로드 설정] */}
+          {/* [6. 제스처 위젯 설정] */}
+          <section className="setting-group">
+            <h2>✋ 제스처 위젯</h2>
+            <p className="setting-description">학습 화면의 플로팅 제스처 위젯을 설정합니다</p>
+            
+            <div className="setting-options grid-2">
+              <div className="setting-sub-item">
+                <label className="toggle-option">
+                  <input
+                    type="checkbox"
+                    checked={settings.showGestureWidget ?? true}
+                    onChange={(e) => handleUpdate('showGestureWidget', e.target.checked)}
+                  />
+                  <div className="toggle-content">
+                    <div>
+                      <h3 className="toggle-label-text">위젯 표시</h3>
+                      <p className="sub-description">화면 위에 제스처 핸들을 항상 표시합니다.</p>
+                    </div>
+                    <div className={`toggle-switch ${settings.showGestureWidget ? 'on' : ''}`}>
+                      <div className="toggle-slider"></div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div className="setting-sub-item">
+                <label className="sub-description">위치가 화면 밖으로 나갔나요?</label>
+                <button 
+                  className="reset-button secondary"
+                  onClick={() => updateSetting('gestureWidgetPos', { top: 40, right: 20 })}
+                >
+                  📍 위젯 위치 초기화
+                </button>
+              </div>
+
+              <div className="setting-sub-item">
+                <label className="sub-description">기본 크기로 되돌리실래요?</label>
+                <button 
+                  className="reset-button secondary"
+                  onClick={() => {
+                    handleUpdate('gestureWidgetOpacity', 0.8);
+                    handleUpdate('gestureWidgetSize', 1.0);
+                    handleUpdate('gestureWidgetWidth', 2.6);
+                    handleUpdate('gestureWidgetHeight', 1.9);
+                  }}
+                >
+                  📐 크기 및 투명도 초기화
+                </button>
+              </div>
+
+              {settings.showGestureWidget && (
+                <>
+                  <div className="setting-sub-item">
+                    <label>위젯 투명도 ({Math.round((settings.gestureWidgetOpacity ?? 0.8) * 100)}%)</label>
+                    <div className="font-size-slider-container">
+                      <input 
+                        type="range" 
+                        min="0.1" 
+                        max="1.0" 
+                        step="0.1"
+                        value={settings.gestureWidgetOpacity ?? 0.8}
+                        onChange={(e) => handleUpdate('gestureWidgetOpacity', parseFloat(e.target.value))}
+                        className="font-size-slider"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="setting-sub-item">
+                    <label>위젯 전체 크기 ({Math.round((settings.gestureWidgetSize ?? 1) * 100)}%)</label>
+                    <div className="font-size-slider-container">
+                      <input 
+                        type="range" 
+                        min="0.3" 
+                        max="2.0" 
+                        step="0.1"
+                        value={settings.gestureWidgetSize ?? 1}
+                        onChange={(e) => handleUpdate('gestureWidgetSize', parseFloat(e.target.value))}
+                        className="font-size-slider"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="setting-sub-item">
+                    <label>위젯 가로 너비 ({Math.round((settings.gestureWidgetWidth ?? 1) * 100)}%)</label>
+                    <div className="font-size-slider-container">
+                      <input 
+                        type="range" 
+                        min="0.5" 
+                        max="3.0" 
+                        step="0.1"
+                        value={settings.gestureWidgetWidth ?? 1}
+                        onChange={(e) => handleUpdate('gestureWidgetWidth', parseFloat(e.target.value))}
+                        className="font-size-slider"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="setting-sub-item">
+                    <label>위젯 세로 높이 ({Math.round((settings.gestureWidgetHeight ?? 1) * 100)}%)</label>
+                    <div className="font-size-slider-container">
+                      <input 
+                        type="range" 
+                        min="0.5" 
+                        max="3.0" 
+                        step="0.1"
+                        value={settings.gestureWidgetHeight ?? 1}
+                        onChange={(e) => handleUpdate('gestureWidgetHeight', parseFloat(e.target.value))}
+                        className="font-size-slider"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {settings.showGestureWidget && (
+              <div className="gesture-preview-container">
+                <div className="preview-label">실시간 미리보기</div>
+                <div className="gesture-preview-box">
+                  <div 
+                    className="sample-gesture-widget"
+                    style={{
+                      opacity: settings.gestureWidgetOpacity ?? 0.8,
+                      transform: `scale(${settings.gestureWidgetSize ?? 1})`,
+                      transformOrigin: 'center center'
+                    }}
+                  >
+                    <div className="sample-drag-handle">⋮⋮</div>
+                    <div 
+                      className="sample-action-area"
+                      style={{ 
+                        minWidth: `${80 * (settings.gestureWidgetWidth ?? 1)}px`,
+                        minHeight: `${60 * (settings.gestureWidgetHeight ?? 1)}px`
+                      }}
+                    >
+                      <div className="sample-icon">↔ ↕</div>
+                      <div className="sample-label">Gesture</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* [7. 데이터 및 업로드 설정] */}
           <div className="setting-group">
             <h2>💾 데이터 및 업로드</h2>
             <p className="setting-description">파일 업로드 및 처리 방식을 설정합니다</p>
@@ -545,7 +689,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* [7. 위험 구역] */}
+          {/* [8. 위험 구역] */}
           <section className="setting-group danger-zone">
             <h2>⚠️ 위험 구역</h2>
             <div className="danger-zone-content">

@@ -50,7 +50,6 @@ export const FlipCard = ({ problem, cardFront }) => {
           <div className="card-content">
             <p>{front}</p>
           </div>
-          <div className="card-hint">클릭하여 뒤집기</div>
         </div>
 
         {/* 카드 뒷면 */}
@@ -59,7 +58,6 @@ export const FlipCard = ({ problem, cardFront }) => {
           <div className="card-content">
             <p>{back}</p>
           </div>
-          <div className="card-hint">클릭하여 뒤집기</div>
         </div>
       </motion.div>
     </div>

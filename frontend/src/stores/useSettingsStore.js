@@ -10,7 +10,7 @@ import { getSettings, saveSettings } from '../utils/storage';
 const DEFAULT_SETTINGS = {
   mode: 'problem',           // 'explanation' | 'problem'
   orderMode: 'random',       // 'sequential' | 'random'
-  repeatMode: false,         // 반복 학습 여부
+  repeatMode: true,         // 반복 학습 여부
   questionType: 'multiple',  // 'multiple' | 'subjective'
   cardFront: 'explanation',   // 'explanation' | 'answer' | 'random'
   theme: 'light',            // 'light' | 'dark'
@@ -20,7 +20,12 @@ const DEFAULT_SETTINGS = {
   cardSaturation: 70,        // 0 ~ 100
   cardLightness: 60,         // 0 ~ 100
   showFontScaleWidget: false, // 글자 크기 조절 위젯 표시 여부
-  fontScaleWidgetPos: { top: 20, right: 20 }, // 위젯 위치 (기본 우측 상단)
+  gestureWidgetPos: { top: 40, right: 20 }, // 위젯 위치 (기본 우측 상단)
+  showGestureWidget: true,   // 제스처 위젯 표시 여부
+  gestureWidgetOpacity: 0.8, // 제스처 위젯 투명도 (0.1 ~ 1.0)
+  gestureWidgetSize: 1,      // 제스처 위젯 크기 (0.3 ~ 2.0)
+  gestureWidgetWidth: 2.6,   // 제스처 위젯 가로 폭 (0.5 ~ 3.0)
+  gestureWidgetHeight: 1.9,  // 제스처 위젯 세로 높이 (0.5 ~ 3.0)
   hasHeaderRow: true,        // 파일 업로드 시 첫 줄 헤더 제외 여부
   
   // 파일 업로드(파서) 컬럼 매핑 (0부터 시작하는 인덱스, -1은 사용 안 함)

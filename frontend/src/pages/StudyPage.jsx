@@ -15,7 +15,9 @@ import { QuizResult } from '../components/Quiz/QuizResult';
 import { useStudyStore } from '../stores/useStudyStore';
 import ListStudy from '../components/Study/ListStudy';
 import { FontScaleWidget } from '../components/Common/FontScaleWidget';
+import { GestureWidget } from '../components/Common/GestureWidget';
 import StudyModal from '../components/Common/StudyModal';
+import { motion, AnimatePresence } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
 import './StudyPage.css';
 
@@ -238,6 +240,80 @@ export default function StudyPage() {
     setLocalIsAnswered(false);
   };
 
+  // --- 제스처 핸들러 ---
+  
+  const handleNext = () => {
+    if (currentIndex < totalCount - 1 || settings.repeatMode) {
+      const nextIndex = (currentIndex === totalCount - 1 && settings.repeatMode) ? 0 : currentIndex + 1;
+      setCurrentIndex(nextIndex);
+      setIsRevealed(false);
+      setLocalIsAnswered(false);
+    } else {
+      setIsFinished(true);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0 || settings.repeatMode) {
+      const prevIndex = (currentIndex === 0 && settings.repeatMode) ? totalCount - 1 : currentIndex - 1;
+      setCurrentIndex(prevIndex);
+      setIsRevealed(false);
+      setLocalIsAnswered(false);
+    }
+  };
+
+  const handleDragEnd = (event, info) => {
+    const swipeThreshold = 50; // 이 정도 이상 움직여야 인식
+    const { offset } = info;
+
+    // 수평 스와이프 (이전/다음)
+    if (Math.abs(offset.x) > Math.abs(offset.y) && Math.abs(offset.x) > swipeThreshold) {
+      if (offset.x > swipeThreshold) {
+        handlePrev(); // 우측으로 밀기 -> 이전
+      } else if (offset.x < -swipeThreshold) {
+        handleNext(); // 좌측으로 밀기 -> 다음
+      }
+    } 
+    // 수직 스와이프 (완료/미완료)
+    else if (Math.abs(offset.y) > swipeThreshold) {
+      if (offset.y < -swipeThreshold) {
+        handleToggleComplete(true); // 위로 올리기 -> 완료
+      } else if (offset.y > swipeThreshold) {
+        handleToggleComplete(false); // 아래로 내리기 -> 미완료
+      }
+    }
+  };
+
+  /**
+   * 키보드 방향키 제어 (PC 및 모바일 키보드 공통)
+   */
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Input이나 Textarea 등 입력 창에서는 작동하지 않도록 방지
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          handlePrev();
+          break;
+        case 'ArrowRight':
+          handleNext();
+          break;
+        case 'ArrowUp':
+          handleToggleComplete(true);
+          break;
+        case 'ArrowDown':
+          handleToggleComplete(false);
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, shuffledProblems]); // 상태 변화에 따른 핸들러 갱신 보장
+
   // 데이터가 없거나 필터 결과가 없는 경우 처리
   if (isFileLoading || isSettingsLoading || isProgressLoading) return <div className="loading">준비 중...</div>;
   if (!currentFile) return <div className="error">파일 정보를 찾을 수 없습니다. 혹시 삭제되었거나 정보를 불러오는 데 실패했을 수 있습니다.</div>;
@@ -434,14 +510,7 @@ export default function StudyPage() {
           <button 
             className="action-nav-btn" 
             disabled={!settings.repeatMode && currentIndex === 0}
-            onClick={() => {
-              const nextIndex = (currentIndex === 0 && settings.repeatMode)
-                ? totalCount - 1
-                : currentIndex - 1;
-              setCurrentIndex(nextIndex);
-              setIsRevealed(false);
-              setLocalIsAnswered(false);
-            }}
+            onClick={handlePrev}
           >
             이전
           </button>
@@ -499,14 +568,7 @@ export default function StudyPage() {
           {(currentIndex < totalCount - 1 || settings.repeatMode) ? (
             <button 
               className="action-nav-btn primary"
-              onClick={() => {
-                const nextIndex = (currentIndex === totalCount - 1 && settings.repeatMode)
-                  ? 0
-                  : currentIndex + 1;
-                setCurrentIndex(nextIndex);
-                setIsRevealed(false);
-                setLocalIsAnswered(false);
-              }}
+              onClick={handleNext}
             >
               다음
             </button>
@@ -519,28 +581,40 @@ export default function StudyPage() {
       </div>
 
       <main className="study-content">
-        {settings.mode === 'explanation' ? (
-          /* [설명 모드: 카드 뒤집기] */
-          <div className="explanation-view">
-            <FlipCard 
-              key={`${sessionID}-${currentProblem.id}`}
-              problem={currentProblem} 
-              cardFront={settings.cardFront}
-            />
-          </div>
-        ) : (
-          /* [문제 모드: 퀴즈] */
-          <MultipleChoice 
-            key={`${sessionID}-${currentProblem.id}-${settings.questionType}`}
-            problem={currentProblem}
-            questionType={settings.questionType}
-            onAnswer={handleAnswer}
-            choices={problemChoices[currentProblem.id] || []}
-            isRevealed={isRevealed}
-            isAnswered={localIsAnswered}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`${sessionID}-${currentProblem.id}`}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+            style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+          >
+            {settings.mode === 'explanation' ? (
+              <div className="explanation-view">
+                <FlipCard 
+                  problem={currentProblem} 
+                  cardFront={settings.cardFront}
+                />
+              </div>
+            ) : (
+              <MultipleChoice 
+                problem={currentProblem}
+                questionType={settings.questionType}
+                onAnswer={handleAnswer}
+                choices={problemChoices[currentProblem.id] || []}
+                isRevealed={isRevealed}
+                isAnswered={localIsAnswered}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
+
+      {/* 플로팅 제스처 위젯 */}
+      {settings.showGestureWidget && (
+        <GestureWidget onSwipe={handleDragEnd} />
+      )}
 
       <StudyModal 
         isOpen={modalOpen} 
