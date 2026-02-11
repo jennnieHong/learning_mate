@@ -457,9 +457,12 @@ export default function StudyPage() {
         <div className="bar-container">
           <button 
             className="action-nav-btn" 
-            disabled={currentIndex === 0}
+            disabled={!settings.repeatMode && currentIndex === 0}
             onClick={() => {
-              setCurrentIndex(currentIndex - 1);
+              const nextIndex = (currentIndex === 0 && settings.repeatMode)
+                ? totalCount - 1
+                : currentIndex - 1;
+              setCurrentIndex(nextIndex);
               setIsRevealed(false);
               setLocalIsAnswered(false);
             }}
@@ -517,11 +520,14 @@ export default function StudyPage() {
             ) : null}
           </div>
 
-          {currentIndex < totalCount - 1 ? (
+          {(currentIndex < totalCount - 1 || settings.repeatMode) ? (
             <button 
               className="action-nav-btn primary"
               onClick={() => {
-                setCurrentIndex(currentIndex + 1);
+                const nextIndex = (currentIndex === totalCount - 1 && settings.repeatMode)
+                  ? 0
+                  : currentIndex + 1;
+                setCurrentIndex(nextIndex);
                 setIsRevealed(false);
                 setLocalIsAnswered(false);
               }}

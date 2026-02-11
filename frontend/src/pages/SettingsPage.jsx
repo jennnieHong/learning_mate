@@ -397,7 +397,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <h2>🔁 반복 설정</h2>
+              <h2>🔁 탐색 설정</h2>
               <label className="toggle-option">
                 <input
                   type="checkbox"
@@ -406,8 +406,8 @@ export default function SettingsPage() {
                 />
                 <div className="toggle-content">
                   <div>
-                    <h3>오답 반복 학습</h3>
-                    <p>틀린 문제만 다시 풀기</p>
+                    <h3>순환 탐색 (무한 루프)</h3>
+                    <p>마지막에서 처음으로, 처음에서 마지막으로 연결</p>
                   </div>
                   <div className={`toggle-switch ${settings.repeatMode ? 'on' : ''}`}>
                     <div className="toggle-slider"></div>
