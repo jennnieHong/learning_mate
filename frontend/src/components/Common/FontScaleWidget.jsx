@@ -10,9 +10,6 @@ import './FontScaleWidget.css';
 export const FontScaleWidget = () => {
   const { 
     settings, 
-    temporaryFontSize, 
-    setTemporaryFontSize, 
-    resetTemporaryFontSize,
     updateSetting 
   } = useSettingsStore();
 
@@ -34,21 +31,16 @@ export const FontScaleWidget = () => {
 
   if (!settings.showFontScaleWidget) return null;
 
-  const currentSize = temporaryFontSize || settings.fontSize || 8;
+  const currentSize = settings.fontSize || 8;
 
   const handleIncrease = (e) => {
     e.stopPropagation();
-    if (currentSize < 20) setTemporaryFontSize(currentSize + 1);
+    if (currentSize < 20) updateSetting('fontSize', currentSize + 1);
   };
 
   const handleDecrease = (e) => {
     e.stopPropagation();
-    if (currentSize > 1) setTemporaryFontSize(currentSize - 1);
-  };
-
-  const handleReset = (e) => {
-    e.stopPropagation();
-    resetTemporaryFontSize();
+    if (currentSize > 1) updateSetting('fontSize', currentSize - 1);
   };
 
   /**
@@ -162,15 +154,6 @@ export const FontScaleWidget = () => {
         title="글자 크게"
       >
         A+
-      </button>
-      <button 
-        className={`reset-scale-btn ${temporaryFontSize === null ? 'disabled' : ''}`}
-        onClick={handleReset}
-        onMouseDown={(e) => e.stopPropagation()}
-        disabled={temporaryFontSize === null}
-        title="기본 크기로 복구"
-      >
-        🔄
       </button>
     </div>
   );

@@ -54,9 +54,6 @@ export const useSettingsStore = create((set, get) => ({
   // --- 상태 (State) ---
   settings: { ...DEFAULT_SETTINGS },
   
-  // 현재 페이지에만 적용되는 임시 글자 크기 (null이면 settings.fontSize 사용)
-  temporaryFontSize: null,
-  
   isLoading: true,
 
   // --- 액션 (Actions) ---
@@ -99,20 +96,7 @@ export const useSettingsStore = create((set, get) => ({
     }
   },
 
-  /**
-   * 현재 페이지에서만 적용할 임시 글자 크기를 설정합니다.
-   * @param {number} size - 1 ~ 10 단계
-   */
-  setTemporaryFontSize: (size) => {
-    set({ temporaryFontSize: size });
-  },
 
-  /**
-   * 페이지 이동 시 등을 위해 임시 글자 크기를 기본값으로 되돌립니다.
-   */
-  resetTemporaryFontSize: () => {
-    set({ temporaryFontSize: null });
-  },
 
   /**
    * 모든 설정을 초기 기본값으로 되돌립니다.

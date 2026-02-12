@@ -56,17 +56,14 @@ function ScrollRestoration() {
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { settings, loadSettings, temporaryFontSize, resetTemporaryFontSize } = useSettingsStore();
+  const { settings, loadSettings } = useSettingsStore();
 
   // 1. 초기 설정 로드
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
 
-  // 2. 페이지 이동 시 임시 글자 크기 초기화
-  useEffect(() => {
-    resetTemporaryFontSize();
-  }, [location.pathname, resetTemporaryFontSize]);
+
 
   // 3. 모바일 하드웨어 뒤로가기 버튼 처리
   useEffect(() => {
@@ -102,7 +99,7 @@ function AppContent() {
     return 0.4 + (step * 0.1);
   };
 
-  const currentScale = temporaryFontSize || settings.fontSize || 5;
+  const currentScale = settings.fontSize || 5;
   const scaleFactor = getScaleFactor(currentScale);
 
   // 3. 실제 DOM의 root(html) 요소에 전역 변수 반영 (폰트 스케일, 카드 색상 조절)
