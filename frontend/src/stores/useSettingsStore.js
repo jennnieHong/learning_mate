@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS = {
   cardSaturation: 70,        // 0 ~ 100
   cardLightness: 60,         // 0 ~ 100
   showFontScaleWidget: false, // 글자 크기 조절 위젯 표시 여부
+  quickNavStyle: 'dot',     // 'auto' | 'icon' | 'dot' - 빠른 네비게이션 표시 방식
   gestureWidgetPos: { top: 40, right: 20 }, // 위젯 위치 (기본 우측 상단)
   showGestureWidget: true,   // 제스처 위젯 표시 여부
   gestureWidgetOpacity: 0.8, // 제스처 위젯 투명도 (0.1 ~ 1.0)

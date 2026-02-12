@@ -3,7 +3,7 @@
  * @description 애플리케이션의 전역 학습 설정 및 개인화(테마, 글자 크기)를 관리하는 페이지입니다.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import toast from 'react-hot-toast';
@@ -47,11 +47,78 @@ const MappingItem = ({ label, sub, value, onChange, isMandatory = false }) => {
   );
 };
 
+/**
+ * [컴포넌트] 빠른 네비게이션 사이드바
+ */
+const QuickNav = ({ activeSection, navStyle = 'auto' }) => {
+  const sections = [
+    { id: 'theme-design', icon: '🎨', label: '테마' },
+    { id: 'study-mode', icon: '📚', label: '학습 모드' },
+    { id: 'question-type', icon: '📝', label: '문제 유형' },
+    { id: 'order-settings', icon: '🔀', label: '순서' },
+    { id: 'column-mapping', icon: '📊', label: '컬럼 매핑' },
+    { id: 'gesture-widget', icon: '✋', label: '제스처' },
+    { id: 'data-upload', icon: '💾', label: '데이터' },
+    { id: 'danger-zone', icon: '⚠️', label: '위험 구역' },
+  ];
+
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  return (
+    <nav className={`quick-nav quick-nav-${navStyle}`}>
+      {sections.map((section) => (
+        <button
+          key={section.id}
+          className={`quick-nav-item ${activeSection === section.id ? 'active' : ''}`}
+          onClick={() => scrollToSection(section.id)}
+          title={section.label}
+        >
+          <span className="quick-nav-icon">{section.icon}</span>
+          <span className="quick-nav-label">{section.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+};
+
 export default function SettingsPage() {
   const navigate = useNavigate();
   
   // 스토어에서 설정 상태와 업데이트 함수 추출
   const { settings, loadSettings, updateSetting, resetSettings } = useSettingsStore();
+  
+  // 현재 보이는 섹션 추적
+  const [activeSection, setActiveSection] = useState('theme-design');
+  
+  // Intersection Observer로 현재 보이는 섹션 추적
+  useEffect(() => {
+    const sections = document.querySelectorAll('[id^="theme-"], [id^="study-"], [id^="question-"], [id^="order-"], [id^="column-"], [id^="gesture-"], [id^="data-"], [id^="danger-"]');
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      {
+        threshold: [0.5], // 섹션이 50% 보일 때 활성화
+        rootMargin: '-100px 0px -50% 0px', // 상단 100px 제외
+      }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    return () => {
+      sections.forEach((section) => observer.unobserve(section));
+    };
+  }, []);
   
   
   /**
@@ -113,9 +180,12 @@ export default function SettingsPage() {
           </button>
         </div>
         
+        {/* 빠른 네비게이션 */}
+        <QuickNav activeSection={activeSection} navStyle={settings.quickNavStyle} />
+        
         <main className="settings-content">
           {/* [1. 테마 및 디자인 설정] */}
-          <section className="setting-group">
+          <section id="theme-design" className="setting-group">
             <h2>🎨 테마 및 디자인</h2>
             <p className="setting-description">애플리케이션의 분위기와 글자 크기를 설정하세요</p>
             
@@ -178,6 +248,32 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 </label>
+              </div>
+
+              {/* 빠른 네비게이션 스타일 설정 */}
+              <div className="setting-sub-item full-width">
+                <label>빠른 네비게이션 표시</label>
+                <p className="sub-description" style={{ marginBottom: '12px' }}>설정 페이지 우측의 빠른 이동 메뉴 스타일을 선택하세요</p>
+                <div className="theme-toggle">
+                  <button 
+                    className={`theme-btn ${settings.quickNavStyle === 'auto' ? 'active' : ''}`}
+                    onClick={() => handleUpdate('quickNavStyle', 'auto')}
+                  >
+                    📱 자동
+                  </button>
+                  <button 
+                    className={`theme-btn ${settings.quickNavStyle === 'icon' ? 'active' : ''}`}
+                    onClick={() => handleUpdate('quickNavStyle', 'icon')}
+                  >
+                    🎯 아이콘
+                  </button>
+                  <button 
+                    className={`theme-btn ${settings.quickNavStyle === 'dot' ? 'active' : ''}`}
+                    onClick={() => handleUpdate('quickNavStyle', 'dot')}
+                  >
+                    ⚫ 점
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -271,7 +367,7 @@ export default function SettingsPage() {
           </section>
 
           {/* [2. 학습 모드 설정] */}
-          <div className="setting-group">
+          <div id="study-mode" className="setting-group">
             <h2>📚 학습 모드</h2>
             <p className="setting-description">지식을 습득할 기본 방식을 선택하세요</p>
             
@@ -331,7 +427,7 @@ export default function SettingsPage() {
           
           {/* [3. 문제 유형 설정] */}
           <div className={`question-type-wrapper ${(settings.mode === 'problem' || settings.mode === 'list') ? 'visible' : 'hidden'}`}>
-            <div className="setting-group">
+            <div id="question-type" className="setting-group">
               <h2>📝 문제 유형</h2>
               <p className="setting-description">문제를 풀 때의 정답 입력 방식을 결정합니다</p>
               
@@ -374,7 +470,7 @@ export default function SettingsPage() {
           </div>
           
           {/* [4. 문제 순서 및 반복] */}
-          <div className="setting-group grid-2">
+          <div id="order-settings" className="setting-group grid-2">
             <div>
               <h2>🔀 문제 순서</h2>
               <div className="setting-options">
@@ -428,7 +524,7 @@ export default function SettingsPage() {
           </div>
 
           {/* [5. 컬럼 매핑 설정] */}
-          <section className="setting-group">
+          <section id="column-mapping" className="setting-group">
             <h2>📊 컬럼 매핑</h2>
             <p className="setting-description">파일 업로드 및 내보내기 시 각 열(Column)의 의미를 지정하세요</p>
             
@@ -521,7 +617,7 @@ export default function SettingsPage() {
           </section>
 
           {/* [6. 제스처 위젯 설정] */}
-          <section className="setting-group">
+          <section id="gesture-widget" className="setting-group">
             <h2>✋ 제스처 위젯</h2>
             <p className="setting-description">학습 화면의 플로팅 제스처 위젯을 설정합니다</p>
             
@@ -665,7 +761,7 @@ export default function SettingsPage() {
           </section>
 
           {/* [7. 데이터 및 업로드 설정] */}
-          <div className="setting-group">
+          <div id="data-upload" className="setting-group">
             <h2>💾 데이터 및 업로드</h2>
             <p className="setting-description">파일 업로드 및 처리 방식을 설정합니다</p>
             
@@ -690,7 +786,7 @@ export default function SettingsPage() {
           </div>
 
           {/* [8. 위험 구역] */}
-          <section className="setting-group danger-zone">
+          <section id="danger-zone" className="setting-group danger-zone">
             <h2>⚠️ 위험 구역</h2>
             <div className="danger-zone-content">
               <div className="danger-text">
