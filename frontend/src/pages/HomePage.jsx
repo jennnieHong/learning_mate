@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import { FileDropzone } from '../components/FileUpload/FileDropzone';
+import { PasteDropzone } from '../components/FileUpload/PasteDropzone';
 import { FileList } from '../components/FileUpload/FileList';
 import { FileFormatGuide } from '../components/FileUpload/FileFormatGuide';
 import { Toaster } from 'react-hot-toast';
@@ -132,6 +133,7 @@ export default function HomePage() {
         {/* 파일 업로드 영역 */}
         <section className="upload-section">
           <FileDropzone />
+          <PasteDropzone />
           <FileFormatGuide />
         </section>
         

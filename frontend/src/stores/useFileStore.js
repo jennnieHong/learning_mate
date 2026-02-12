@@ -18,7 +18,7 @@ import {
   getAllProblemsFromFiles,
   filesDB
 } from '../utils/storage';
-import { parseFile } from '../utils/fileParser';
+import { parseFile, parseText } from '../utils/fileParser';
 import { exportFile } from '../utils/fileExporter';
 import { useSettingsStore } from './useSettingsStore';
 import { useProgressStore } from './useProgressStore';
@@ -153,6 +153,52 @@ export const useFileStore = create((set, get) => ({
     }
   },
   
+  /**
+   * 텍스트 내용을 파싱하여 DB에 저장합니다.
+   * @param {string} text - 처리할 텍스트 내용
+   * @param {string} fileName - 저장할 파일 이름
+   * @param {string} format - 파싱 형식 ('csv', 'tsv')
+   * @param {Object} customMapping - (선택) 사용자 지정 컬럼 매핑
+   */
+  uploadRawText: async (text, fileName, format = 'tsv', customMapping = null) => {
+    set({ isLoading: true, error: null });
+    try {
+      const { hasHeaderRow, parserMapping } = useSettingsStore.getState().settings;
+      const mapping = customMapping || parserMapping;
+      
+      const problems = await parseText(text, format, hasHeaderRow, mapping);
+      
+      if (problems.length === 0) {
+        throw new Error('파싱된 문제가 없습니다. 형식을 확인해주세요.');
+      }
+
+      const fileData = {
+        id: crypto.randomUUID(),
+        originalFilename: fileName || `직접입력_${new Date().toLocaleDateString()}`,
+        fileType: format,
+        totalProblems: problems.length,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deletedAt: null
+      };
+      
+      await saveFile(fileData);
+      
+      const problemsWithFileId = problems.map(p => ({
+        ...p,
+        fileSetId: fileData.id
+      }));
+      await saveProblems(fileData.id, problemsWithFileId);
+
+      await get().loadFiles();
+      set({ isLoading: false });
+      return { success: true, file: fileData, problemCount: problems.length };
+    } catch (error) {
+      set({ error: error.message, isLoading: false });
+      return { success: false, error: error.message };
+    }
+  },
+
   /**
    * 여러 파일을 동시에 업로드하고 파싱하여 DB에 저장합니다.
    * @param {Array<File>} files - 업로드된 브라우저 File 객체 배열

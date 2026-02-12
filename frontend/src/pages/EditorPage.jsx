@@ -10,6 +10,7 @@ import { useFileStore } from '../stores/useFileStore';
 import { useProgressStore } from '../stores/useProgressStore';
 import { saveFile, saveProblems, getProblemsByFileId } from '../utils/storage';
 import { chosungIncludes } from '../utils/chosungUtils';
+import PasteRowModal from '../components/Editor/PasteRowModal';
 import toast from 'react-hot-toast';
 import './EditorPage.css';
 
@@ -29,6 +30,7 @@ export default function EditorPage() {
   const [selectedIds, setSelectedIds] = useState(new Set()); // 다중 선택된 문제 ID들
   const [searchQuery, setSearchQuery] = useState(''); // 검색어
   const [isSearchOpen, setIsSearchOpen] = useState(false); // 검색창 열림 상태
+  const [isPasteModalOpen, setIsPasteModalOpen] = useState(false); // 붙여넣기 모달 열림 상태
   const scrollEndRef = useRef(null); // 추가 시 스크롤할 위치
   
   /**
@@ -68,6 +70,21 @@ export default function EditorPage() {
   };
   
   // --- 문제 관리 액션 ---
+
+  /** 붙여넣기 모달을 통해 파싱된 문제들을 목록에 추가합니다. */
+  const handlePasteAdd = (newProblems) => {
+    // 마지막 행이 완전히 비어있다면 제거하고 추가
+    setProblems(prev => {
+      const last = prev[prev.length - 1];
+      const isLastEmpty = !last.description.trim() && !last.answer.trim();
+      const base = isLastEmpty ? prev.slice(0, -1) : prev;
+      return [...base, ...newProblems];
+    });
+
+    setTimeout(() => {
+      scrollEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100);
+  };
 
   /** 새로운 빈 문제 행을 추가합니다. */
   const addProblem = () => {
@@ -285,6 +302,13 @@ export default function EditorPage() {
                 title="검색"
               >
                 🔍
+              </button>
+              <button 
+                className="compact-tool-btn paste" 
+                onClick={() => setIsPasteModalOpen(true)}
+                title="텍스트 붙여넣기로 추가"
+              >
+                📋
               </button>
               <button className="compact-tool-btn add" onClick={addProblem} title="문제 추가">
                 ➕
@@ -576,6 +600,11 @@ export default function EditorPage() {
           </div>
         </main>
       </div>
+      <PasteRowModal 
+        isOpen={isPasteModalOpen} 
+        onClose={() => setIsPasteModalOpen(false)} 
+        onAdd={handlePasteAdd} 
+      />
     </div>
   );
 }

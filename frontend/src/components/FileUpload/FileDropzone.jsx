@@ -5,26 +5,21 @@
 
 import { useDropzone } from 'react-dropzone';
 import { useFileStore } from '../../stores/useFileStore';
+import { useSettingsStore } from '../../stores/useSettingsStore';
 import toast from 'react-hot-toast';
-import './FileList.css'; // 공유 스타일 사용
+import './FileDropzone.css';
 
 export const FileDropzone = () => {
   const { uploadMultipleFiles } = useFileStore();
+  const { settings, updateSetting } = useSettingsStore();
 
-  /**
-   * 파일이 드롭되거나 선택되었을 때 실행되는 콜백 함수입니다.
-   * @param {Array} acceptedFiles - 수락된 파일 객체 배열
-   */
   const onDrop = async (acceptedFiles) => {
     if (acceptedFiles.length === 0) return;
     
-    // 로딩 토스트 시작
     const loadingToast = toast.loading(`${acceptedFiles.length}개의 파일 처리 중...`);
     
     try {
-      // 스토어의 uploadMultipleFiles 액션을 호출하여 병렬 처리를 수행합니다.
       const result = await uploadMultipleFiles(acceptedFiles);
-      
       toast.dismiss(loadingToast);
 
       if (result.successCount > 0) {
@@ -37,13 +32,11 @@ export const FileDropzone = () => {
         toast.error('파일 업로드에 실패했습니다.');
       }
 
-      // 실패한 파일이 있다면 에러 내용 출력
       result.details?.forEach(detail => {
         if (!detail.success) {
           toast.error(`"${detail.fileName}": ${detail.error}`, { duration: 4000 });
         }
       });
-
     } catch (error) {
       toast.dismiss(loadingToast);
       toast.error('파일 처리 중 예상치 못한 오류가 발생했습니다.');
@@ -51,10 +44,9 @@ export const FileDropzone = () => {
     }
   };
 
-  // react-dropzone 설정
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: true, // 여러 파일 허용
+    multiple: true,
     accept: {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
       'application/vnd.ms-excel': ['.xls'],
@@ -64,18 +56,34 @@ export const FileDropzone = () => {
   });
 
   return (
-    <div 
-      {...getRootProps()} 
-      className={`file-dropzone ${isDragActive ? 'active' : ''}`}
-    >
-      <input {...getInputProps()} />
-      <div className="dropzone-content">
-        <span className="upload-icon">📁</span>
-        {isDragActive ? (
-          <p>파일을 여기에 놓아주세요...</p>
-        ) : (
-          <p>엑셀, CSV, TXT 파일을 드래그하거나 클릭하여 업로드</p>
-        )}
+    <div className="file-upload-container">
+      <div className="upload-settings">
+        <label className="header-toggle">
+          <input 
+            type="checkbox" 
+            checked={settings.hasHeaderRow} 
+            onChange={(e) => updateSetting('hasHeaderRow', e.target.checked)}
+          />
+          <span>첫 번째 행은 제목(헤더)임 (가져올 때 제외)</span>
+        </label>
+      </div>
+
+      <div 
+        {...getRootProps()} 
+        className={`dropzone ${isDragActive ? 'active' : ''}`}
+      >
+        <input {...getInputProps()} />
+        <div className="dropzone-content">
+          <span className="upload-icon">📁</span>
+          {isDragActive ? (
+            <p className="dropzone-text">파일을 여기에 놓아주세요...</p>
+          ) : (
+            <>
+              <p className="dropzone-text">엑셀, CSV, TXT 파일을 드래그하거나 클릭하여 업로드</p>
+              <p className="dropzone-hint">여러 파일을 한 번에 올릴 수 있습니다.</p>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

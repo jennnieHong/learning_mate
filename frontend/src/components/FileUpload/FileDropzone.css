@@ -1,4 +1,37 @@
- /* [FileDropzone.css] 파일 업로드 드롭존 스타일 */
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.upload-settings {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 4px;
+}
+
+.header-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  transition: color 0.2s;
+}
+
+.header-toggle:hover {
+  color: var(--accent-primary);
+}
+
+.header-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+/* [FileDropzone.css] 파일 업로드 드롭존 스타일 */
 
 .dropzone {
   border: 2px dashed var(--border-main);

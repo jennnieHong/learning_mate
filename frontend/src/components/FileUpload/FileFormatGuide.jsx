@@ -47,6 +47,12 @@ export const FileFormatGuide = () => {
               <p>탭(Tab)으로 구분된 형식</p>
               <code>문제[TAB]정답[TAB]선택지1...</code>
             </div>
+
+            {/* 붙여넣기 가이드 */}
+            <div className="format-item">
+              <h4>📋 붙여넣기</h4>
+              <p>엑셀에서 복사한 내용을 그대로 붙여넣을 수 있습니다 (탭 구분).</p>
+            </div>
           </div>
 
           <div className="guide-tip">
