@@ -4,7 +4,8 @@
  */
 
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { App as CapacitorApp } from '@capacitor/app';
 import { useSettingsStore } from './stores/useSettingsStore';
 import HomePage from './pages/HomePage';
 import StudyPage from './pages/StudyPage';
@@ -54,6 +55,7 @@ function ScrollRestoration() {
 
 function AppContent() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { settings, loadSettings, temporaryFontSize, resetTemporaryFontSize } = useSettingsStore();
 
   // 1. 초기 설정 로드
@@ -65,6 +67,31 @@ function AppContent() {
   useEffect(() => {
     resetTemporaryFontSize();
   }, [location.pathname, resetTemporaryFontSize]);
+
+  // 3. 모바일 하드웨어 뒤로가기 버튼 처리
+  useEffect(() => {
+    let listener;
+    
+    const setupListener = async () => {
+      listener = await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+        // 홈 페이지가 아니고 히스토리가 있으면 이전 페이지로 이동
+        if (location.pathname !== '/' && canGoBack) {
+          navigate(-1);
+        } else {
+          // 홈 페이지이거나 히스토리가 없으면 앱 종료
+          CapacitorApp.exitApp();
+        }
+      });
+    };
+
+    setupListener();
+
+    return () => {
+      if (listener) {
+        listener.remove();
+      }
+    };
+  }, [location.pathname, navigate]);
 
   /**
    * 글자 크기 단계(1~20)를 CSS 변수 스케일 비율로 변환합니다.
