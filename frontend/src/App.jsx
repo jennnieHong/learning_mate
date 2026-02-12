@@ -102,13 +102,25 @@ function AppContent() {
   const currentScale = settings.fontSize || 5;
   const scaleFactor = getScaleFactor(currentScale);
 
-  // 3. 실제 DOM의 root(html) 요소에 전역 변수 반영 (폰트 스케일, 카드 색상 조절)
+  // 3. 실제 DOM의 root(html, body) 요소에 전역 변수 및 테마 클래스 반영
   useEffect(() => {
     document.documentElement.style.setProperty('--font-scale-factor', scaleFactor);
     document.documentElement.style.setProperty('--card-hue', settings.cardHue);
     document.documentElement.style.setProperty('--card-saturation', `${settings.cardSaturation}%`);
     document.documentElement.style.setProperty('--card-lightness', `${settings.cardLightness}%`);
-  }, [scaleFactor, settings.cardHue, settings.cardSaturation, settings.cardLightness]);
+
+    // 테마 클래스를 body에 적용하여 전역 배경색 동기화 (양옆 하얀 부분 방지)
+    const themeClass = `theme-${settings.theme || 'light'}`;
+    const cardThemeClass = `card-theme-${settings.cardColor || 'indigo'}`;
+    
+    // 기존 테마 클래스 제거 후 새 클래스 추가
+    document.body.className = ''; 
+    document.body.classList.add(themeClass, cardThemeClass);
+    
+    return () => {
+      document.body.classList.remove(themeClass, cardThemeClass);
+    };
+  }, [scaleFactor, settings.cardHue, settings.cardSaturation, settings.cardLightness, settings.theme, settings.cardColor]);
 
   return (
     <div className={`app-container theme-${settings.theme || 'light'} card-theme-${settings.cardColor || 'indigo'}`}>
