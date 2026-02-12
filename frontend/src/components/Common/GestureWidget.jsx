@@ -80,6 +80,12 @@ export const GestureWidget = ({ onSwipe }) => {
    * 플로팅 위치 드래그 시작 (핸들 영역)
    */
   const handleDragStartPos = (e) => {
+    // 모바일에서 배경 스크롤 방지 및 이벤트 전파 차단
+    if (e.type === 'touchstart') {
+      if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
+    }
+
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
     
@@ -88,6 +94,12 @@ export const GestureWidget = ({ onSwipe }) => {
     widgetStartPos.current = { ...position };
 
     const moveHandler = (moveEvent) => {
+      // 드래그 중에도 이벤트 전파 차단 (배경 드래그/스크롤 방지)
+      if (moveEvent.type === 'touchmove') {
+        if (moveEvent.cancelable) moveEvent.preventDefault();
+        moveEvent.stopPropagation();
+      }
+
       if (!containerRef.current) return;
       
       const moveX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0].clientX);
@@ -110,7 +122,11 @@ export const GestureWidget = ({ onSwipe }) => {
       livePositionRef.current = newPos;
     };
 
-    const upHandler = () => {
+    const upHandler = (upEvent) => {
+      if (upEvent.type === 'touchend') {
+        upEvent.stopPropagation();
+      }
+
       setIsDragging(false);
       window.removeEventListener('mousemove', moveHandler);
       window.removeEventListener('mouseup', upHandler);
@@ -123,7 +139,7 @@ export const GestureWidget = ({ onSwipe }) => {
     window.addEventListener('mousemove', moveHandler);
     window.addEventListener('mouseup', upHandler);
     window.addEventListener('touchmove', moveHandler, { passive: false });
-    window.addEventListener('touchend', upHandler);
+    window.addEventListener('touchend', upHandler, { passive: false });
   };
 
   const widgetSize = settings.gestureWidgetSize || 1;
@@ -141,8 +157,10 @@ export const GestureWidget = ({ onSwipe }) => {
         opacity: widgetOpacity,
         transform: `scale(${widgetSize})`,
         transformOrigin: 'top right',
-        willChange: 'transform, top, right'
+        willChange: 'transform, top, right',
+        touchAction: 'none' // CSS 레벨에서 터치 동작 제한
       }}
+      onTouchStart={(e) => e.stopPropagation()} // 컨테이너 수준에서도 전파 차단
     >
       {/* 위치 이동 핸들 */}
       <div 

@@ -88,6 +88,10 @@ export const FontScaleWidget = () => {
    * 터치 이벤트 (모바일 대응)
    */
   const handleTouchStart = (e) => {
+    // 이벤트 전파 차단 및 배경 스크롤 방지
+    e.stopPropagation();
+    if (e.cancelable) e.preventDefault();
+
     const touch = e.touches[0];
     if (touch.target.closest('button')) return; // 버튼 클릭 시엔 드래그 방지
 
@@ -98,6 +102,11 @@ export const FontScaleWidget = () => {
 
   const handleTouchMove = (e) => {
     if (!isDragging) return;
+    
+    // 드래그 중 배경 스크롤 방지
+    e.stopPropagation();
+    if (e.cancelable) e.preventDefault();
+
     const touch = e.touches[0];
     const deltaX = dragStartPos.current.x - touch.clientX;
     const deltaY = touch.clientY - dragStartPos.current.y;
@@ -110,7 +119,8 @@ export const FontScaleWidget = () => {
     livePositionRef.current = newPos;
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e) => {
+    e.stopPropagation();
     setIsDragging(false);
     updateSetting('fontScaleWidgetPos', livePositionRef.current);
   };
@@ -121,7 +131,8 @@ export const FontScaleWidget = () => {
       style={{ 
         top: `${position.top}px`, 
         right: `${position.right}px`,
-        bottom: 'auto'
+        bottom: 'auto',
+        touchAction: 'none' // CSS 레벨에서 터치 동작 제한
       }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
